@@ -1,0 +1,8 @@
+project_id = "xsdqwbcpvdreawkyvpnk"
+
+[api_service]
+api_url = "https://xsdqwbcpvdreawkyvpnk.supabase.co"
+service_role_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZHF3YmNwdmRyZWF3a3l2cG5rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjYzMDY1OSwiZXhwIjoyMDc4MjA2NjU5fQ.cW2_de6ae2AvJTxZQIEKzqY9LfI6Rlkmlt6MJRf4qTM"
+anon_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZHF3YmNwdmRyZWF3a3l2cG5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MzA2NTksImV4cCI6MjA3ODIwNjY1OX0.9gqNSxnXN5VE5CKdapWIsC-v3z2-2-7clQ7o42bZYCE"
+
+

@@ -1,0 +1,55 @@
+"use client";
+
+import { useState, type ComponentProps } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useSupabase } from "@/components/providers/supabase-provider";
+import { cn } from "@/lib/utils";
+
+type SignOutButtonProps = {
+  variant?: ComponentProps<typeof Button>["variant"];
+  size?: ComponentProps<typeof Button>["size"];
+  className?: string;
+};
+
+export function SignOutButton({
+  variant = "secondary",
+  size = "default",
+  className,
+}: SignOutButtonProps) {
+  const router = useRouter();
+  const { supabase } = useSupabase();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsLoading(true);
+    await supabase.auth.signOut();
+    setIsLoading(false);
+    router.replace("/sign-in");
+    router.refresh();
+  };
+
+  const isIconOnly = size === "icon" || size === "icon-sm";
+
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      className={className}
+      onClick={handleSignOut}
+      disabled={isLoading}
+      aria-label="Sign out"
+      title="Sign out"
+    >
+      {isLoading ? (
+        <Loader2 className={cn("animate-spin", isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
+      ) : (
+        <LogOut className={cn(isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
+      )}
+      {!isIconOnly && "Sign out"}
+    </Button>
+  );
+}
+
+
