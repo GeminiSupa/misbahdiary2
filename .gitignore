@@ -1,0 +1,7 @@
+
+# Ignore build and cache artifacts
+web/node_modules/
+web/.next/
+web/.turbo/
+web/.npm-cache/
+.npm-cache/
