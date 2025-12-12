@@ -43,10 +43,11 @@ export async function GET(
     }
 
     // Fetch firm data
+    const clientData = client as unknown as { firm_id: string };
     const { data: firm } = await supabaseAdminClient
       .from("firms")
       .select("name, address")
-      .eq("id", client.firm_id)
+      .eq("id", clientData.firm_id)
       .maybeSingle();
 
     // Fetch related matters separately
