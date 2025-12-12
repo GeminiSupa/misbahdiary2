@@ -42,8 +42,27 @@ export async function GET(
       return NextResponse.json({ message: "Client not found" }, { status: 404 });
     }
 
+    // Type assertion for client data
+    const clientData = client as unknown as {
+      firm_id: string;
+      full_name?: string | null;
+      name?: string | null;
+      type?: string | null;
+      organization_name?: string | null;
+      father_name?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      address?: string | null;
+      city?: string | null;
+      province?: string | null;
+      country?: string | null;
+      cnic?: string | null;
+      representation?: string | null;
+      representative_details?: any;
+      notes?: string | null;
+    };
+
     // Fetch firm data
-    const clientData = client as unknown as { firm_id: string };
     const { data: firm } = await supabaseAdminClient
       .from("firms")
       .select("name, address")
@@ -62,20 +81,20 @@ export async function GET(
     const pdfElement = createElement(ClientPdfDocument, {
       firmName: firm?.name ?? "Lawyer Diary",
       firmAddress: firm?.address ?? undefined,
-      clientName: client.full_name ?? client.name ?? "Client",
-      clientType: client.type ?? "individual",
-      organizationName: client.organization_name ?? undefined,
-      fatherName: client.father_name ?? undefined,
-      email: client.email ?? undefined,
-      phone: client.phone ?? undefined,
-      address: client.address ?? undefined,
-      city: client.city ?? undefined,
-      province: client.province ?? undefined,
-      country: client.country ?? undefined,
-      cnic: client.cnic ?? undefined,
-      representation: client.representation ?? undefined,
-      representativeDetails: (client.representative_details as any) ?? undefined,
-      notes: client.notes ?? undefined,
+      clientName: clientData.full_name ?? clientData.name ?? "Client",
+      clientType: clientData.type ?? "individual",
+      organizationName: clientData.organization_name ?? undefined,
+      fatherName: clientData.father_name ?? undefined,
+      email: clientData.email ?? undefined,
+      phone: clientData.phone ?? undefined,
+      address: clientData.address ?? undefined,
+      city: clientData.city ?? undefined,
+      province: clientData.province ?? undefined,
+      country: clientData.country ?? undefined,
+      cnic: clientData.cnic ?? undefined,
+      representation: clientData.representation ?? undefined,
+      representativeDetails: clientData.representative_details ?? undefined,
+      notes: clientData.notes ?? undefined,
       matters: (matters ?? []).map((matter) => ({
         serial_number: matter.serial_number,
         matter_status: matter.matter_status,
@@ -89,7 +108,7 @@ export async function GET(
 
     const stream = await renderToStream(pdfElement as any);
 
-    const clientNameSlug = (client.full_name ?? client.name ?? "client")
+    const clientNameSlug = (clientData.full_name ?? clientData.name ?? "client")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");

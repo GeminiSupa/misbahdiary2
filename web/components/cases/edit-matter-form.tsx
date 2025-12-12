@@ -94,7 +94,7 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
     resolver: zodResolver(formSchema),
     defaultValues: {
       id: matter.id,
-      clientId: matter.clientId,
+      clientId: matter.clientId || "",
       matterType: matter.matterType,
       matterStatus: matter.matterStatus,
       caseNumber: matter.caseNumber ?? "",
