@@ -168,7 +168,6 @@ end;
 $$;
 
 drop trigger if exists on_auth_user_created on auth.users;
-
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
@@ -274,6 +273,66 @@ before update on public.clients
 for each row
 execute procedure public.set_updated_at();
 
+-- Ensure all columns exist (for existing tables that were created before these columns were added)
+do $$
+begin
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'type') then
+    alter table public.clients add column type public.client_type default 'individual';
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'name') then
+    alter table public.clients add column name text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'father_name') then
+    alter table public.clients add column father_name text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'full_name') then
+    alter table public.clients add column full_name text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'organization_name') then
+    alter table public.clients add column organization_name text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'email') then
+    alter table public.clients add column email text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'phone') then
+    alter table public.clients add column phone text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'cnic') then
+    alter table public.clients add column cnic text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'address') then
+    alter table public.clients add column address text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'representation') then
+    alter table public.clients add column representation public.client_representation default 'self';
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'representative_details') then
+    alter table public.clients add column representative_details jsonb;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'city') then
+    alter table public.clients add column city text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'province') then
+    alter table public.clients add column province text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'country') then
+    alter table public.clients add column country text default 'Pakistan';
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'notes') then
+    alter table public.clients add column notes text;
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'created_by') then
+    alter table public.clients add column created_by uuid references public.profiles(id);
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'created_at') then
+    alter table public.clients add column created_at timestamptz default timezone('utc', now());
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'clients' and column_name = 'updated_at') then
+    alter table public.clients add column updated_at timestamptz default timezone('utc', now());
+  end if;
+end
+$$;
+
 alter table public.clients
   drop constraint if exists clients_cnic_unique;
 
@@ -310,6 +369,7 @@ create table if not exists public.matters (
   unique (firm_id, serial_number)
 );
 
+drop trigger if exists set_timestamp_matters on public.matters;
 create trigger set_timestamp_matters
 before update on public.matters
 for each row execute procedure public.set_updated_at();
@@ -354,6 +414,7 @@ create table if not exists public.finances (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+drop trigger if exists set_timestamp_finances on public.finances;
 create trigger set_timestamp_finances
 before update on public.finances
 for each row execute procedure public.set_updated_at();
@@ -371,6 +432,7 @@ create table if not exists public.staff (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+drop trigger if exists set_timestamp_staff on public.staff;
 create trigger set_timestamp_staff
 before update on public.staff
 for each row execute procedure public.set_updated_at();
@@ -391,6 +453,7 @@ create table if not exists public.calendar_events (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+drop trigger if exists set_timestamp_calendar_events on public.calendar_events;
 create trigger set_timestamp_calendar_events
 before update on public.calendar_events
 for each row execute procedure public.set_updated_at();

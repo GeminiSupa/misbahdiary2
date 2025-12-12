@@ -4,8 +4,8 @@ import { hearingStatusOptions } from "@/lib/constants/hearings";
 export const scheduleValidationSchema = z.object({
   matterId: z.string().uuid({ message: "Select a matter" }),
   scheduledAt: z.string().min(1, "Choose a date and time"),
-  durationMinutes: z
-    .number({ coerce: true })
+  durationMinutes: z.coerce
+    .number()
     .min(5, "Duration must be greater than 0"),
   location: z.string().optional().or(z.literal("")),
   status: z

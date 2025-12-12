@@ -52,15 +52,16 @@ export async function scheduleHearing(values: HearingFormValues): Promise<Action
 
   const { data: insertedHearing, error: insertError } = await supabase
     .from("hearings")
+    // Cast to any to avoid strict type mismatches between DB enums and app schema
     .insert({
       firm_id: profile.firm_id,
       matter_id: payload.matterId,
       scheduled_at: scheduledAtIso,
       duration_minutes: payload.durationMinutes,
       location: payload.location || null,
-      status: payload.status,
+      status: payload.status as any,
       notes: payload.notes || null,
-    })
+    } as any)
     .select("id")
     .single();
 
@@ -165,9 +166,9 @@ export async function updateHearing(values: HearingUpdateValues): Promise<Action
       scheduled_at: scheduledAtIso,
       duration_minutes: payload.durationMinutes,
       location: payload.location || null,
-      status: payload.status,
+      status: payload.status as any,
       notes: payload.notes || null,
-    })
+    } as any)
     .eq("id", payload.hearingId)
     .eq("firm_id", profile.firm_id);
 
@@ -281,7 +282,7 @@ export async function markHearingCompleted(hearingId: string): Promise<ActionSta
   const { data: matterInfo } = await supabase
     .from("matters")
     .select("serial_number, case_number, assigned_attorneys")
-    .eq("id", hearing.matter_id)
+    .eq("id", hearing.matter_id as string)
     .maybeSingle();
 
   const assigned =

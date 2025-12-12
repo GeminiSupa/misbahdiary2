@@ -20,7 +20,9 @@ export const clientSchemaForForm = z
     phone: z.string().max(25, "Phone number is too long").optional().or(z.literal("")),
     cnic: z
       .string()
-      .regex(cnicRegex, "CNIC must be 13 digits")
+      .refine((val) => !val || cnicRegex.test(val), {
+        message: "CNIC must be 13 digits",
+      })
       .optional()
       .or(z.literal("")),
     representation: z

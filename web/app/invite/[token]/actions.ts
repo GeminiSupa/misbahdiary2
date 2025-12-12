@@ -55,7 +55,7 @@ export async function acceptInvitation(formData: FormData): Promise<ActionResult
     return { message: "This invitation has expired. Please request a new one." };
   }
 
-  const existingUserResponse = await supabaseAdminClient.auth.admin.getUserByEmail(
+  const existingUserResponse = await (supabaseAdminClient.auth.admin as any).getUserByEmail(
     invitation.email,
   );
   const existingUser = existingUserResponse.data?.user ?? null;

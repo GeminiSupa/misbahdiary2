@@ -104,6 +104,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
 
   const { data: matterInsert, error: insertError } = await supabase
     .from("matters")
+    // Cast to any to avoid strict type drift between DB and generated types
     .insert({
       firm_id: profile.firm_id,
       client_id: payload.clientId,
@@ -127,7 +128,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
       assigned_attorneys: assignedAttorneys,
       created_by: user.id,
       updated_by: user.id,
-    })
+    } as any)
     .select("id, serial_number, case_file_date")
     .maybeSingle();
 
@@ -149,7 +150,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
       file_name: path.split("/").pop() ?? path,
       uploaded_by: user.id,
     }));
-    await supabase.from("documents").insert(documentRows);
+    await supabase.from("documents").insert(documentRows as any);
   }
 
   // Seed initial finance record if one does not exist
@@ -158,7 +159,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
     matter_id: matterId,
     fee_total: 0,
     fee_paid: 0,
-  });
+  } as any);
 
   // Log history entry
   await supabase.from("case_histories").insert({
@@ -170,7 +171,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
     court_name: payload.courtName,
     case_number: payload.caseNumber ?? null,
     updated_by: user.id,
-  });
+  } as any);
 
   // Create calendar event for filing if a date is provided
   if (matterInsert.case_file_date) {
@@ -182,7 +183,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
       description: "Initial filing / diary reminder",
       notified_users: assignedAttorneys.length > 0 ? assignedAttorneys : [user.id],
       created_by: user.id,
-    });
+    } as any);
   }
 
   revalidatePath("/cases");

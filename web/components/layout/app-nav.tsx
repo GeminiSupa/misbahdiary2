@@ -54,18 +54,18 @@ export function AppNav() {
       </Button>
 
       {mobileOpen ? (
-        <div className="absolute left-0 top-[72px] z-50 w-full border-b border-border/80 bg-card/95 px-6 py-5 shadow-xl md:hidden">
-          <nav className="space-y-2">
+        <div className="fixed inset-x-0 top-[60px] z-50 max-h-[calc(100vh-60px)] overflow-y-auto border-b border-border/80 bg-card/98 backdrop-blur-sm px-4 py-4 shadow-xl md:hidden">
+          <nav className="space-y-1.5">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={closeMobile}
                 className={cn(
-                  "block rounded-xl px-4 py-2.5 text-sm font-medium transition",
+                  "block rounded-xl px-4 py-3.5 min-h-[44px] text-base font-medium transition active:scale-[0.98] sm:text-sm sm:min-h-[40px]",
                   isActive(item.href)
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground active:bg-accent",
                 )}
               >
                 {item.label}

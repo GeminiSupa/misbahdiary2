@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { InvoiceForm } from "@/components/billing/invoice-form";
+import { NewInvoiceSheet } from "@/components/billing/new-invoice-sheet";
 import { InvoiceBoard } from "@/components/billing/invoice-board";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { buildAgingBuckets } from "@/lib/dashboard/metrics";
 import { AgingChartCard } from "@/components/billing/aging-chart-card";
 import { Banknote, Plus, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export const metadata: Metadata = {
   title: "Billing • Lawyer Diary",
@@ -191,68 +190,53 @@ export default async function BillingPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-6">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 shadow-xl backdrop-blur">
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-xl backdrop-blur sm:rounded-3xl sm:p-6 md:p-8">
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500 shadow-lg">
-              <Banknote className="h-7 w-7 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500 shadow-lg flex-shrink-0 sm:h-12 sm:w-12 sm:rounded-2xl md:h-14 md:w-14">
+              <Banknote className="h-5 w-5 text-white sm:h-6 sm:w-6 md:h-7 md:w-7" />
             </div>
-            <div>
-              <h1 className="text-3xl font-semibold text-foreground">Billing & Finance</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
+            <div className="min-w-0">
+              <h1 className="text-xl font-semibold text-foreground sm:text-2xl md:text-3xl">Billing & Finance</h1>
+              <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm line-clamp-2">
                 Generate invoices, track outstanding balances, and convert approved timesheets into billable work.
               </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="secondary" className="w-full sm:w-auto">
-                  <Plus className="mr-2 h-4 w-4" />
-                  New invoice
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>New invoice</SheetTitle>
-                </SheetHeader>
-                <div className="mt-2 h-full overflow-y-auto">
-                  <InvoiceForm
-                    clients={clientOptions}
-                    matters={matterOptions}
-                    unbilledTimeEntries={unbilledEntries}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
+            <NewInvoiceSheet
+              clients={clientOptions}
+              matters={matterOptions}
+              unbilledTimeEntries={unbilledEntries}
+            />
           </div>
         </div>
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-teal-500/20 blur-3xl" />
         <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-teal-400/10 blur-2xl" />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat, index) => {
           const color = statColors[index % statColors.length];
           return (
             <div
               key={stat.label}
               className={cn(
-                "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
+                "group relative overflow-hidden rounded-xl border bg-gradient-to-br p-4 shadow-lg transition-all duration-300 sm:rounded-2xl sm:p-5 md:p-6 hover:scale-[1.02] hover:shadow-xl",
                 color.bg,
                 color.border
               )}
               style={{ transformStyle: "preserve-3d" }}
             >
-              <div className="relative z-10 space-y-2">
-                <TrendingUp className={cn("h-5 w-5", color.icon)} />
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="relative z-10 space-y-1.5 sm:space-y-2">
+                <TrendingUp className={cn("h-4 w-4 sm:h-5 sm:w-5", color.icon)} />
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
                   {stat.label}
                 </p>
-                <p className="text-3xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.hint}</p>
+                <p className="text-xl font-bold text-foreground sm:text-2xl md:text-3xl">{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground sm:text-xs">{stat.hint}</p>
               </div>
               <div className={cn("absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-20 blur-xl transition-opacity duration-300 group-hover:opacity-30", color.bg.replace("from-", "bg-"))} />
             </div>
@@ -264,32 +248,19 @@ export default async function BillingPage() {
       <div className="sap-card">
         <div className="sap-card-body space-y-4">
           <div className="sap-card-header">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Invoice ledger</h2>
-              <p className="text-sm text-muted-foreground">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-foreground sm:text-lg">Invoice ledger</h2>
+              <p className="text-xs text-muted-foreground sm:text-sm">
                 Full invoice list with filters; creation and edits happen in the side drawer.
               </p>
             </div>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                  <Plus className="mr-2 h-4 w-4" />
-                  New invoice
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>New invoice</SheetTitle>
-                </SheetHeader>
-                <div className="mt-2 h-full overflow-y-auto">
-                  <InvoiceForm
-                    clients={clientOptions}
-                    matters={matterOptions}
-                    unbilledTimeEntries={unbilledEntries}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
+            <NewInvoiceSheet
+              clients={clientOptions}
+              matters={matterOptions}
+              unbilledTimeEntries={unbilledEntries}
+              variant="outline"
+              size="sm"
+            />
           </div>
 
           <InvoiceBoard invoices={invoiceItems} />

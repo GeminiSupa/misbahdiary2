@@ -5,8 +5,7 @@ import { cn } from "@/lib/utils";
 import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
 import { NotificationSettingsForm } from "@/components/settings/notification-settings-form";
 import { FirmSettingsCard } from "@/components/settings/firm-settings-card";
-import { InviteManager } from "@/components/settings/invite-manager";
-import { StaffManager } from "@/components/settings/staff-manager";
+import { TeamManagement } from "@/components/settings/team-management";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Building2, CreditCard, LogOut, Settings, User, Users } from "lucide-react";
@@ -59,6 +58,8 @@ type SettingsTabsProps = {
   staffRows: StaffRowDisplay[];
   teamMembers: TeamMemberDisplay[];
   canManageStaff: boolean;
+  canCreateUsers: boolean;
+  currentUserRole: string | null;
 };
 
 const TABS = [
@@ -79,6 +80,8 @@ export function SettingsTabs({
   staffRows,
   teamMembers,
   canManageStaff,
+  canCreateUsers,
+  currentUserRole,
 }: SettingsTabsProps) {
   const [activeTab, setActiveTab] = useState<string>("profile");
 
@@ -161,41 +164,14 @@ export function SettingsTabs({
             )}
 
             {activeTab === "team" && (
-              <>
-                <div className="sap-card-header">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Team & staff</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Invite colleagues, assign roles, and define court/district coverage.
-                    </p>
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground">Invitations</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Pending and historical invites for this workspace.
-                    </p>
-                    <div className="mt-3">
-                      <InviteManager invitations={inviteRows} />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground">Staff directory</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Manage staff roles and court assignments.
-                    </p>
-                    <div className="mt-3">
-                      <StaffManager
-                        staff={staffRows}
-                        teamMembers={teamMembers}
-                        canEdit={canManageStaff}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </>
+              <TeamManagement
+                teamMembers={teamMembers}
+                invitations={inviteRows}
+                staffMembers={staffRows}
+                canManageTeam={canManageStaff}
+                canCreateUsers={canCreateUsers}
+                currentUserRole={currentUserRole}
+              />
             )}
 
             {activeTab === "billing" && (

@@ -3,18 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "supabase:types": "supabase gen types typescript --project-id xsdqwbcpvdreawkyvpnk --schema public --out lib/supabase/database.types.ts",
     "supabase:apply": "node ./scripts/apply-schema.mjs",
-    "supabase:seed": "node ./scripts/seed-demo.mjs"
+    "supabase:seed": "node ./scripts/seed-demo.mjs",
+    "supabase:setup-storage": "node ./scripts/setup-storage.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",

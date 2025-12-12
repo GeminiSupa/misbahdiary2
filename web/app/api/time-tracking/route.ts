@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { createSupabaseRouteHandlerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
-  const response = NextResponse.json({});
-  const supabase = createSupabaseRouteHandlerClient(request, response);
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
@@ -18,11 +17,16 @@ export async function GET(request: Request) {
   const startOfDay = new Date(now);
   startOfDay.setHours(0, 0, 0, 0);
 
+  const firmId = await getFirmId(supabase, user.id);
+  if (!firmId) {
+    return NextResponse.json({ running: null, totalMinutesToday: 0 });
+  }
+
   const { data: runningEntry } = await supabase
     .from("time_entries")
-    .select("id, started_at, description")
+    .select("id, started_at, description, matter_id")
     .eq("user_id", user.id)
-    .eq("firm_id", (await getFirmId(supabase, user.id)) ?? "")
+    .eq("firm_id", firmId)
     .is("ended_at", null)
     .order("started_at", { ascending: false })
     .limit(1)
@@ -32,6 +36,7 @@ export async function GET(request: Request) {
     .from("time_entries")
     .select("duration_minutes, started_at, ended_at")
     .eq("user_id", user.id)
+    .eq("firm_id", firmId)
     .gte("started_at", startOfDay.toISOString());
 
   const totalMinutesToday =
@@ -50,6 +55,7 @@ export async function GET(request: Request) {
           id: runningEntry.id,
           startedAt: runningEntry.started_at,
           description: runningEntry.description,
+          matterId: runningEntry.matter_id,
         }
       : null,
     totalMinutesToday,
@@ -57,19 +63,38 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => ({}));
-  const action = body?.action as "start" | "stop" | undefined;
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
 
-  const response = NextResponse.json({});
-  const supabase = createSupabaseRouteHandlerClient(request, response);
+  const action = body?.action as "start" | "stop" | undefined;
+  const matterId = body?.matterId as string | null | undefined;
+  const description = body?.description as string | null | undefined;
+
+  if (!action) {
+    return NextResponse.json({ error: "Action is required (start or stop)" }, { status: 400 });
+  }
+
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
-    error,
+    error: authError,
   } = await supabase.auth.getUser();
 
-  if (error || !user || !action) {
-    return NextResponse.json({ error: "Unauthorised or invalid request" }, { status: 400 });
+  if (authError) {
+    console.error("Auth error in timer API:", authError);
+    return NextResponse.json(
+      { error: `Authentication failed: ${authError.message}` },
+      { status: 401 }
+    );
+  }
+
+  if (!user) {
+    return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
   }
 
   const firmId = await getFirmId(supabase, user.id);
@@ -90,15 +115,31 @@ export async function POST(request: Request) {
       .eq("firm_id", firmId)
       .is("ended_at", null);
 
+    // Validate matter_id if provided
+    if (matterId) {
+      const { data: matter } = await supabase
+        .from("matters")
+        .select("id, firm_id")
+        .eq("id", matterId)
+        .eq("firm_id", firmId)
+        .maybeSingle();
+
+      if (!matter) {
+        return NextResponse.json({ error: "Matter not found or access denied" }, { status: 400 });
+      }
+    }
+
     const { data, error: insertError } = await supabase
       .from("time_entries")
       .insert({
         firm_id: firmId,
         user_id: user.id,
+        matter_id: matterId || null,
+        description: description?.trim() || null,
         started_at: now.toISOString(),
         billable: true,
       })
-      .select("id, started_at")
+      .select("id, started_at, matter_id, description")
       .single();
 
     if (insertError || !data) {
@@ -106,7 +147,12 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      running: { id: data.id, startedAt: data.started_at },
+      running: {
+        id: data.id,
+        startedAt: data.started_at,
+        matterId: data.matter_id,
+        description: data.description,
+      },
     });
   }
 
@@ -150,7 +196,7 @@ export async function POST(request: Request) {
 }
 
 async function getFirmId(
-  supabase: ReturnType<typeof createSupabaseRouteHandlerClient>,
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   userId: string,
 ) {
   const { data: profile } = await supabase

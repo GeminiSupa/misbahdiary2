@@ -20,6 +20,31 @@ This is the Next.js 16 App Router front-end for the Lawyer Diary & Case Manageme
 
    Visit `http://localhost:3000`. Unauthenticated users redirect to `/sign-in`; signed-in users land on `/dashboard`.
 
+### Deploy to Vercel
+
+See [../VERCEL_DEPLOYMENT.md](../VERCEL_DEPLOYMENT.md) for detailed deployment instructions.
+
+**Quick Deploy:**
+
+1. Push your code to GitHub/GitLab/Bitbucket
+2. Go to [vercel.com](https://vercel.com) and import your repository
+3. Set root directory to `web`
+4. Add environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+5. Deploy!
+
+**Or use Vercel CLI:**
+
+```bash
+npm i -g vercel
+cd web
+vercel
+```
+
+Follow the prompts and set the root directory to the current directory.
+
 ### Supabase toolbelt
 
 The project includes helper scripts for keeping the database schema and generated types in sync.

@@ -10,9 +10,9 @@ export const invoiceFormSchema = z.object({
     .default("draft"),
   issueDate: z.string().min(1, "Issue date is required"),
   dueDate: z.string().optional().or(z.literal("")),
-  subtotal: z.number({ coerce: true }).min(0, "Subtotal cannot be negative"),
-  taxAmount: z.number({ coerce: true }).min(0).optional().default(0),
-  discountAmount: z.number({ coerce: true }).min(0).optional().default(0),
+  subtotal: z.coerce.number().min(0, "Subtotal cannot be negative"),
+  taxAmount: z.coerce.number().min(0).optional().default(0),
+  discountAmount: z.coerce.number().min(0).optional().default(0),
   notes: z.string().optional().or(z.literal("")),
   timeEntryIds: z.array(z.string().uuid()).optional(),
 });

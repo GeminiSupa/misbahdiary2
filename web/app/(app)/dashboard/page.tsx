@@ -127,23 +127,23 @@ export default async function DashboardPage() {
   const hearingsToday = hearingsTodayRes.data ?? [];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-6">
       {/* Welcome Card */}
       <div className="sap-card-hero">
         <div className="sap-card-body">
           <div className="sap-card-header">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold">Welcome back, {displayName}</h1>
-              <p className="max-w-2xl text-sm text-muted-foreground">
+            <div className="space-y-2 min-w-0">
+              <h1 className="text-2xl font-semibold sm:text-3xl">Welcome back, {displayName}</h1>
+              <p className="text-xs text-muted-foreground sm:text-sm sm:max-w-2xl">
                 Prioritise hearings, unblock billing, and keep your clients informed — everything you
                 need for the day lives here.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button asChild variant="secondary">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+              <Button asChild variant="secondary" className="w-full sm:w-auto" size="sm">
                 <Link href="/cases">New case</Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="w-full sm:w-auto" size="sm">
                 <Link href="/calendar">Schedule hearing</Link>
               </Button>
             </div>
@@ -152,19 +152,19 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {kpis.map((kpi) => (
           <div
             key={kpi.label}
-            className="rounded-2xl border border-border/60 bg-card/90 p-4 shadow-sm"
+            className="rounded-xl border border-border/60 bg-card/90 p-3 shadow-sm sm:rounded-2xl sm:p-4"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
               {kpi.label}
             </p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">
+            <p className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
               {kpi.value}
             </p>
-            <p className="text-xs text-muted-foreground">{kpi.hint}</p>
+            <p className="text-[10px] text-muted-foreground sm:text-xs">{kpi.hint}</p>
           </div>
         ))}
       </div>
@@ -173,19 +173,19 @@ export default async function DashboardPage() {
       <div className="sap-card">
         <div className="sap-card-body space-y-4">
           <div className="sap-card-header">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-foreground sm:text-xl">
                 Today&apos;s agenda
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground sm:text-sm">
                 Hearings and key events scheduled for today.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              <Button asChild variant="ghost" size="sm" className="w-full sm:w-auto">
                 <Link href="/calendar">Open calendar</Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
                 <Link href="/calendar/print/today" target="_blank">
                   Print today&apos;s docket
                 </Link>
@@ -199,19 +199,19 @@ export default async function DashboardPage() {
                 <Link
                   key={hearing.id}
                   href="/calendar"
-                  className="flex items-center justify-between rounded-xl border border-border/60 bg-card/90 px-4 py-3 text-sm hover:border-primary/40 hover:bg-card/95 hover:shadow-sm"
+                  className="flex flex-col gap-2 rounded-xl border border-border/60 bg-card/90 px-3 py-2.5 text-sm active:border-primary/40 active:bg-card/95 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-3"
                 >
-                  <div>
-                    <p className="font-medium text-foreground">
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">
                       {hearing.matter?.serial_number ||
                         hearing.matter?.case_number ||
                         "Matter"}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground truncate">
                       {hearing.matter?.court_name ?? "Court not set"}
                     </p>
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-muted-foreground sm:flex-shrink-0">
                     {format(new Date(hearing.scheduled_at), "p")}
                   </div>
                 </Link>
@@ -219,10 +219,10 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="sap-subtle">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground sm:text-sm">
                 No hearings scheduled for today.
               </p>
-              <Button asChild variant="secondary" className="mt-3">
+              <Button asChild variant="secondary" className="mt-3 w-full sm:w-auto" size="sm">
                 <Link href="/calendar">Schedule a hearing</Link>
               </Button>
             </div>

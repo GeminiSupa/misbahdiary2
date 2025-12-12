@@ -17,9 +17,9 @@ const invoiceSchema = z.object({
     .default("draft"),
   issueDate: z.string().min(1, "Issue date is required"),
   dueDate: z.string().optional().or(z.literal("")),
-  subtotal: z.number({ coerce: true }).min(0, "Subtotal cannot be negative"),
-  taxAmount: z.number({ coerce: true }).min(0).optional().default(0),
-  discountAmount: z.number({ coerce: true }).min(0).optional().default(0),
+  subtotal: z.coerce.number().min(0, "Subtotal cannot be negative"),
+  taxAmount: z.coerce.number().min(0).optional().default(0),
+  discountAmount: z.coerce.number().min(0).optional().default(0),
   notes: z.string().optional().or(z.literal("")),
   timeEntryIds: z.array(z.string().uuid()).optional(),
 });
@@ -82,12 +82,13 @@ export async function createInvoice(values: InvoiceFormValues): Promise<ActionSt
 
   const { data: invoice, error: insertError } = await supabase
     .from("invoices")
+    // Cast to any to avoid drift between runtime schema and generated types
     .insert({
       firm_id: profile.firm_id,
       client_id: payload.clientId,
       matter_id: payload.matterId ? payload.matterId : null,
       invoice_number: payload.invoiceNumber,
-      status: payload.status,
+      status: payload.status as any,
       issue_date: payload.issueDate,
       due_date: payload.dueDate || null,
       subtotal,
@@ -96,7 +97,7 @@ export async function createInvoice(values: InvoiceFormValues): Promise<ActionSt
       total_amount: total,
       notes: payload.notes || null,
       created_by: user.id,
-    })
+    } as any)
     .select("id")
     .single();
 

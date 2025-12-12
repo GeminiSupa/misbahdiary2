@@ -11,6 +11,20 @@ import { MatterTimeline } from "@/components/cases/matter-timeline";
 import { MatterFinanceCard } from "@/components/cases/matter-finance-card";
 import { MatterDocumentsCard } from "@/components/cases/matter-documents-card";
 import { MatterTeamCard } from "@/components/cases/matter-team-card";
+import { EditMatterSheet } from "@/components/cases/edit-matter-sheet";
+import {
+  ArrowLeft,
+  Briefcase,
+  Calendar,
+  MapPin,
+  FileText,
+  Scale,
+  Building2,
+  User,
+  Edit,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { UpdateMatterFormValues } from "@/app/(app)/cases/[id]/actions";
 
 export const metadata: Metadata = {
   title: "Matter details • Lawyer Diary",
@@ -39,37 +53,48 @@ type TeamMemberDisplay = {
   name: string;
   email: string;
   firmRole?: string | null;
-  assignmentRole?: StaffRow["role"] | null;
+  assignmentRole?: string | null;
   courts: string[];
   districts: string[];
 };
 
 type MatterDetailPageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function MatterDetailPage({ params }: MatterDetailPageProps) {
+  const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
-    error,
+    error: authError,
   } = await supabase.auth.getUser();
 
-  if (error || !user) {
+  if (authError || !user) {
     redirect("/sign-in");
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("firm_id")
     .eq("id", user.id)
     .maybeSingle();
 
+  if (profileError) {
+    console.error("Error fetching profile:", {
+      message: profileError.message,
+      details: profileError.details,
+      hint: profileError.hint,
+      code: profileError.code,
+    });
+  }
+
   if (!profile?.firm_id) {
     redirect("/onboarding");
   }
 
-  const { data: matter } = await supabase
+  // Fetch matter with client relationship
+  const { data: matter, error: matterError } = await supabase
     .from("matters")
     .select(
       `
@@ -84,113 +109,191 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
         case_file_date,
         client_brief,
         assigned_attorneys,
+        against_parties,
+        evidence_provided,
+        documents_provided,
+        pending_documents,
         metadata,
         created_at,
         updated_at,
+        client_id,
         client:clients (
           id,
           full_name,
           representation,
           representative_details
-        ),
-        finances:finances (
-          fee_total,
-          fee_paid,
-          fee_pending,
-          payment_history,
-          updated_at
-        ),
-        case_histories:case_histories (
-          id,
-          date,
-          details,
-          stage,
-          court_name,
-          hearing_date,
-          updated_by,
-          created_at
-        ),
-        documents:documents (
-          id,
-          file_name,
-          storage_path,
-          uploaded_by,
-          created_at
         )
       `,
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
+
+  if (matterError) {
+    console.error("Error fetching matter:", {
+      message: matterError.message,
+      details: matterError.details,
+      hint: matterError.hint,
+      code: matterError.code,
+    });
+  }
 
   if (!matter) {
     notFound();
   }
 
+  // Fetch related data separately to avoid nested query issues
+  const [financesResult, caseHistoriesResult, documentsResult] = await Promise.all([
+    supabase
+      .from("finances")
+      .select("fee_total, fee_paid, fee_pending, payment_history, updated_at")
+      .eq("matter_id", matter.id)
+      .maybeSingle(),
+    supabase
+      .from("case_histories")
+      .select("id, date, details, stage, court_name, hearing_date, updated_by, created_at")
+      .eq("matter_id", matter.id)
+      .order("date", { ascending: false }),
+    supabase
+      .from("documents")
+      .select("id, file_name, storage_path, uploaded_by, created_at")
+      .eq("matter_id", matter.id)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  if (financesResult.error) {
+    console.error("Error fetching finances:", {
+      message: financesResult.error.message,
+      details: financesResult.error.details,
+      hint: financesResult.error.hint,
+      code: financesResult.error.code,
+    });
+  }
+
+  if (caseHistoriesResult.error) {
+    console.error("Error fetching case histories:", {
+      message: caseHistoriesResult.error.message,
+      details: caseHistoriesResult.error.details,
+      hint: caseHistoriesResult.error.hint,
+      code: caseHistoriesResult.error.code,
+    });
+  }
+
+  if (documentsResult.error) {
+    console.error("Error fetching documents:", {
+      message: documentsResult.error.message,
+      details: documentsResult.error.details,
+      hint: documentsResult.error.hint,
+      code: documentsResult.error.code,
+    });
+  }
+
   const assignedAttorneys = Array.isArray(matter.assigned_attorneys)
-    ? (matter.assigned_attorneys.filter((value): value is string => typeof value === "string" && value.length > 0))
+    ? matter.assigned_attorneys.filter((value): value is string => typeof value === "string" && value.length > 0)
     : [];
 
   const profileIds = new Set<string>();
   assignedAttorneys.forEach((id) => profileIds.add(id));
-  matter.case_histories?.forEach((entry) => {
+  caseHistoriesResult.data?.forEach((entry) => {
     if (entry.updated_by) {
       profileIds.add(entry.updated_by);
     }
   });
-  matter.documents?.forEach((doc) => {
+  documentsResult.data?.forEach((doc) => {
     if (doc.uploaded_by) {
       profileIds.add(doc.uploaded_by);
     }
   });
 
-  const relatedProfiles = profileIds.size
-    ? await supabase
-        .from("profiles")
-        .select("id, full_name, email, role")
-        .in("id", Array.from(profileIds))
-    : null;
+  let relatedProfiles: { data: any[] | null; error: any } = { data: null, error: null };
 
-  const profileMap = new Map<string, ProfileRow & { email: string | null }>();
-  relatedProfiles?.data?.forEach((row) => {
-    profileMap.set(row.id, row as ProfileRow & { email: string | null });
+  if (profileIds.size > 0) {
+    const result = await supabase
+      .from("profiles")
+      .select("id, full_name, email, role")
+      .in("id", Array.from(profileIds));
+
+    relatedProfiles = result;
+
+    // Only log if there's a real error: error exists, no data returned, AND error has meaningful content
+    if (result.error && !result.data) {
+      const errorObj = result.error as any;
+      // Only log if error has actual meaningful properties with non-empty values
+      const hasMessage = errorObj?.message && typeof errorObj.message === "string" && errorObj.message.trim().length > 0;
+      const hasCode = errorObj?.code && typeof errorObj.code === "string" && errorObj.code.trim().length > 0;
+      const hasDetails = errorObj?.details && typeof errorObj.details === "string" && errorObj.details.trim().length > 0;
+      const hasHint = errorObj?.hint && typeof errorObj.hint === "string" && errorObj.hint.trim().length > 0;
+
+      if (hasMessage || hasCode || hasDetails || hasHint) {
+        console.error("Error fetching related profiles:", {
+          message: errorObj.message ?? "Unknown error",
+          details: errorObj.details ?? null,
+          hint: errorObj.hint ?? null,
+          code: errorObj.code ?? null,
+        });
+      }
+    }
+  }
+
+  const profileMap = new Map<string, any>();
+  relatedProfiles.data?.forEach((row: any) => {
+    profileMap.set(row.id, row);
   });
 
-  const staffRows = assignedAttorneys.length
-    ? await supabase
-        .from("staff")
-        .select("user_id, role, assigned_courts, assigned_districts")
-        .in("user_id", assignedAttorneys)
-    : null;
+  let staffRows: { data: any[] | null; error: any } = { data: null, error: null };
 
-  const staffMap = new Map<string, StaffRow>();
-  staffRows?.data?.forEach((row) => {
-    staffMap.set(row.user_id, row as StaffRow);
+  if (assignedAttorneys.length > 0) {
+    const result = await supabase
+      .from("staff")
+      .select("user_id, role, assigned_courts, assigned_districts")
+      .in("user_id", assignedAttorneys);
+
+    staffRows = result;
+
+    // Only log if there's a real error: error exists, no data returned, AND error has meaningful content
+    if (result.error && !result.data) {
+      const errorObj = result.error as any;
+      // Only log if error has actual meaningful properties with non-empty values
+      const hasMessage = errorObj?.message && typeof errorObj.message === "string" && errorObj.message.trim().length > 0;
+      const hasCode = errorObj?.code && typeof errorObj.code === "string" && errorObj.code.trim().length > 0;
+      const hasDetails = errorObj?.details && typeof errorObj.details === "string" && errorObj.details.trim().length > 0;
+      const hasHint = errorObj?.hint && typeof errorObj.hint === "string" && errorObj.hint.trim().length > 0;
+
+      if (hasMessage || hasCode || hasDetails || hasHint) {
+        console.error("Error fetching staff:", {
+          message: errorObj.message ?? "Unknown error",
+          details: errorObj.details ?? null,
+          hint: errorObj.hint ?? null,
+          code: errorObj.code ?? null,
+        });
+      }
+    }
+  }
+
+  const staffMap = new Map<string, any>();
+  staffRows.data?.forEach((row: any) => {
+    staffMap.set(row.user_id, row);
   });
 
-  const finance = matter.finances?.[0] ?? null;
+  const finance = financesResult.data;
 
-  const timelineEntries: TimelineEntry[] = [...(matter.case_histories ?? [])]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .map((entry) => ({
-      id: entry.id,
-      date: entry.date,
-      details: entry.details,
-      stage: entry.stage,
-      courtName: entry.court_name,
-      hearingDate: entry.hearing_date,
-      updatedByName: entry.updated_by ? profileMap.get(entry.updated_by)?.full_name ?? null : null,
-    }));
+  const timelineEntries: TimelineEntry[] = (caseHistoriesResult.data ?? []).map((entry) => ({
+    id: entry.id,
+    date: entry.date,
+    details: entry.details,
+    stage: entry.stage ?? null,
+    courtName: entry.court_name ?? null,
+    hearingDate: entry.hearing_date ?? null,
+    updatedByName: entry.updated_by ? profileMap.get(entry.updated_by)?.full_name ?? null : null,
+  }));
 
-  const documents: DocumentDisplay[] = (matter.documents ?? [])
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .map((doc) => ({
-      id: doc.id,
-      fileName: doc.file_name,
-      storagePath: doc.storage_path,
-      createdAt: doc.created_at,
-      uploadedBy: doc.uploaded_by ? profileMap.get(doc.uploaded_by)?.full_name ?? null : null,
-    }));
+  const documents: DocumentDisplay[] = (documentsResult.data ?? []).map((doc) => ({
+    id: doc.id,
+    fileName: doc.file_name,
+    storagePath: doc.storage_path,
+    createdAt: doc.created_at,
+    uploadedBy: doc.uploaded_by ? profileMap.get(doc.uploaded_by)?.full_name ?? null : null,
+  }));
 
   const teamMembers: TeamMemberDisplay[] = assignedAttorneys.map((id) => {
     const profileRow = profileMap.get(id);
@@ -207,93 +310,222 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
   });
 
   const matterSummary = {
-    serial: matter.serial_number,
-    caseNumber: matter.case_number,
-    status: matter.matter_status,
-    matterType: matter.matter_type,
-    caseType: matter.case_type,
-    courtName: matter.court_name,
-    district: matter.district,
+    serial: matter.serial_number ?? "N/A",
+    caseNumber: matter.case_number ?? null,
+    status: matter.matter_status ?? null,
+    matterType: matter.matter_type ?? null,
+    caseType: matter.case_type ?? null,
+    courtName: matter.court_name ?? null,
+    district: matter.district ?? null,
     caseFileDate: matter.case_file_date ? format(new Date(matter.case_file_date), "dd MMM yyyy") : null,
-    clientBrief: matter.client_brief,
+    clientBrief: matter.client_brief ?? null,
   };
 
+  const clientData = Array.isArray(matter.client) ? matter.client[0] : matter.client;
   const clientSummary = {
-    name: matter.client?.full_name ?? "Client pending",
-    representation: matter.client?.representation ?? null,
-    representativeDetails: matter.client?.representative_details,
+    name: (clientData as any)?.full_name ?? "Client pending",
+    representation: (clientData as any)?.representation ?? null,
+    representativeDetails: (clientData as any)?.representative_details ?? null,
+  };
+
+  // Fetch clients and staff for edit form
+  const { data: allClients } = await supabase
+    .from("clients")
+    .select("id, full_name")
+    .eq("firm_id", profile.firm_id)
+    .order("full_name");
+
+  const { data: allStaff } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .eq("firm_id", profile.firm_id)
+    .in("role", ["principal_partner", "associate", "paralegal", "of_counsel"])
+    .order("full_name");
+
+  const clientOptions =
+    allClients?.map((c) => ({
+      id: c.id,
+      label: c.full_name ?? "Unnamed client",
+    })) ?? [];
+
+  const staffOptions =
+    allStaff?.map((s) => ({
+      id: s.id,
+      label: s.full_name ?? "Unnamed staff",
+    })) ?? [];
+
+  // Convert matter to form values
+  const againstPartiesData = matter.against_parties as any;
+  const matterFormValues: UpdateMatterFormValues = {
+    id: matter.id,
+    clientId: matter.client_id,
+    matterType: matter.matter_type as any,
+    matterStatus: matter.matter_status as any,
+    caseNumber: matter.case_number ?? "",
+    caseFileDate: matter.case_file_date ? new Date(matter.case_file_date).toISOString().slice(0, 10) : "",
+    caseType: (matter.case_type as any) ?? "",
+    courtName: matter.court_name ?? "",
+    district: matter.district ?? "",
+    clientBrief: matter.client_brief ?? "",
+    againstParties: againstPartiesData?.details ?? "",
+    againstPartiesType: (againstPartiesData?.type as any) ?? "individual",
+    evidenceProvided: Array.isArray(matter.evidence_provided) ? matter.evidence_provided.join("\n") : "",
+    documentsProvided: Array.isArray(matter.documents_provided) ? matter.documents_provided.join("\n") : "",
+    pendingDocuments: Array.isArray(matter.pending_documents) ? matter.pending_documents.join("\n") : "",
+    assignedAttorneys: Array.isArray(matter.assigned_attorneys) ? matter.assigned_attorneys : [],
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="sap-card">
-        <div className="sap-card-body space-y-4">
-          <div className="sap-card-header">
-            <div className="space-y-1">
-              <Button asChild variant="ghost" size="sm" className="w-fit px-0 text-sm text-muted-foreground hover:text-foreground">
-                <Link href="/cases">&larr; Back to matters</Link>
-              </Button>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Serial {matterSummary.serial}</p>
-                <h1 className="text-2xl font-semibold text-foreground">{clientSummary.name}</h1>
+    <div className="flex flex-col gap-4 sm:gap-6">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-xl backdrop-blur sm:rounded-3xl sm:p-6 md:p-8">
+        <div className="relative z-10 space-y-4 sm:space-y-6">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="w-fit -ml-1 text-xs text-muted-foreground hover:text-foreground sm:-ml-2 sm:text-sm"
+          >
+            <Link href="/cases">
+              <ArrowLeft className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+              Back to matters
+            </Link>
+          </Button>
+
+          <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-2 sm:space-y-3 min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 shadow-lg flex-shrink-0 sm:h-12 sm:w-12 sm:rounded-xl">
+                  <Briefcase className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-primary sm:text-xs">
+                    Serial {matterSummary.serial}
+                  </p>
+                  <h1 className="text-xl font-bold text-foreground truncate sm:text-2xl md:text-3xl">{clientSummary.name}</h1>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {matterSummary.status && (
+                  <Badge variant="outline" className="capitalize text-[10px] font-medium sm:text-xs">
+                    {matterSummary.status}
+                  </Badge>
+                )}
+                {matterSummary.matterType && (
+                  <Badge variant="secondary" className="capitalize text-[10px] font-medium sm:text-xs">
+                    {matterSummary.matterType}
+                  </Badge>
+                )}
+                {matterSummary.caseType && (
+                  <Badge variant="secondary" className="capitalize text-[10px] font-medium sm:text-xs">
+                    {matterSummary.caseType}
+                  </Badge>
+                )}
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {matterSummary.status ? (
-                <Badge variant="outline" className="capitalize">
-                  {matterSummary.status}
-                </Badge>
-              ) : null}
-              {matterSummary.matterType ? (
-                <Badge variant="secondary" className="capitalize">
-                  {matterSummary.matterType}
-                </Badge>
-              ) : null}
-              {matterSummary.caseType ? (
-                <Badge variant="secondary" className="capitalize">
-                  {matterSummary.caseType}
-                </Badge>
-              ) : null}
+            <div className="flex flex-wrap items-center gap-2">
+              <EditMatterSheet
+                matter={matterFormValues}
+                clients={clientOptions}
+                staff={staffOptions}
+              />
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 text-sm text-muted-foreground">
-            <SummaryItem label="Court" value={matterSummary.courtName} />
-            <SummaryItem label="District" value={matterSummary.district} />
-            <SummaryItem label="Case number" value={matterSummary.caseNumber} />
-            <SummaryItem label="Filed" value={matterSummary.caseFileDate} />
+          {/* Summary Grid */}
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <SummaryCard
+              icon={Scale}
+              label="Court"
+              value={matterSummary.courtName}
+              className="bg-blue-500/10 border-blue-200/50"
+              iconClassName="text-blue-600"
+            />
+            <SummaryCard
+              icon={MapPin}
+              label="District"
+              value={matterSummary.district}
+              className="bg-purple-500/10 border-purple-200/50"
+              iconClassName="text-purple-600"
+            />
+            <SummaryCard
+              icon={FileText}
+              label="Case Number"
+              value={matterSummary.caseNumber}
+              className="bg-emerald-500/10 border-emerald-200/50"
+              iconClassName="text-emerald-600"
+            />
+            <SummaryCard
+              icon={Calendar}
+              label="Filed Date"
+              value={matterSummary.caseFileDate}
+              className="bg-amber-500/10 border-amber-200/50"
+              iconClassName="text-amber-600"
+            />
           </div>
 
-          {matterSummary.clientBrief ? (
-            <div>
-              <Separator className="my-3" />
-              <h2 className="text-sm font-semibold text-foreground">Client brief</h2>
-              <p className="mt-1 text-sm text-muted-foreground whitespace-pre-line">{matterSummary.clientBrief}</p>
+          {matterSummary.clientBrief && (
+            <div className="rounded-xl border border-border/60 bg-background/80 p-3 backdrop-blur-sm sm:rounded-2xl sm:p-4 md:p-5">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <FileText className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
+                <h2 className="text-xs font-semibold text-foreground sm:text-sm">Client Brief</h2>
+              </div>
+              <p className="text-xs leading-relaxed text-muted-foreground whitespace-pre-line sm:text-sm">
+                {matterSummary.clientBrief}
+              </p>
             </div>
-          ) : null}
+          )}
         </div>
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-primary/10 blur-2xl" />
       </div>
 
-      <div className="sap-section-grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <div className="space-y-6">
-          <MatterTimeline entries={timelineEntries} />
+      {/* Main Content Grid */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <div className="space-y-4 sm:space-y-6">
+          <MatterTimeline entries={timelineEntries} matterId={matter.id} />
           <MatterDocumentsCard matterId={matter.id} documents={documents} />
         </div>
-        <div className="space-y-6">
-          <MatterFinanceCard finance={finance} />
-          <MatterTeamCard members={teamMembers} client={clientSummary} />
+        <div className="space-y-4 sm:space-y-6">
+          <MatterFinanceCard finance={finance} matterId={matter.id} />
+          <MatterTeamCard members={teamMembers as any} client={clientSummary} />
         </div>
       </div>
     </div>
   );
 }
 
-function SummaryItem({ label, value }: { label: string; value?: string | null }) {
+function SummaryCard({
+  icon: Icon,
+  label,
+  value,
+  className,
+  iconClassName,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value?: string | null;
+  className?: string;
+  iconClassName?: string;
+}) {
   if (!value) return null;
   return (
-    <div>
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-0.5 font-medium text-foreground">{value}</p>
+    <div
+      className={cn(
+        "group relative overflow-hidden rounded-lg border bg-gradient-to-br p-3 shadow-sm transition-all duration-300 sm:rounded-xl sm:p-4 hover:scale-[1.02] hover:shadow-md",
+        className,
+      )}
+    >
+      <div className="relative z-10 flex items-center gap-2 sm:gap-3">
+        <div className={cn("rounded-md bg-background/80 p-1.5 shadow-sm flex-shrink-0 sm:rounded-lg sm:p-2", iconClassName)}>
+          <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">{label}</p>
+          <p className="mt-0.5 truncate text-xs font-semibold text-foreground sm:mt-1 sm:text-sm">{value}</p>
+        </div>
+      </div>
     </div>
   );
 }

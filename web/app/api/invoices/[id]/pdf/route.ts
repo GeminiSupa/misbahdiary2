@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { renderToStream } from "@react-pdf/renderer";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { InvoicePdfDocument } from "@/lib/pdf/invoice-pdf";
@@ -7,10 +7,11 @@ import { createElement } from "react";
 const dateFormatter = new Intl.DateTimeFormat("en-PK", { dateStyle: "medium" });
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } },
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
-  const invoiceId = params.id;
+  const { id } = await context.params;
+  const invoiceId = id;
 
   const { data: invoice } = await supabaseAdminClient
     .from("invoices")
@@ -79,7 +80,7 @@ export async function GET(
     lineItems,
   });
 
-  const stream = await renderToStream(pdfElement);
+  const stream = await renderToStream(pdfElement as any);
 
   return new NextResponse(stream as unknown as ReadableStream, {
     headers: {

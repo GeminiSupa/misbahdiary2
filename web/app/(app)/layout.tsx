@@ -38,7 +38,6 @@ export default async function AppLayout({
     .select("id, title, message, link, created_at, read_at, user_id")
     .eq("firm_id", profile.firm_id)
     .or(`user_id.is.null,user_id.eq.${user.id}`)
-    .is("read_at", null) // only unread for the bell
     .order("created_at", { ascending: false })
     .limit(20);
 

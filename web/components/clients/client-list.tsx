@@ -17,52 +17,68 @@ type ClientListProps = {
 };
 
 export function ClientList({ clients }: ClientListProps) {
-  return (
-    <div className="sap-card">
-      <div className="sap-card-body space-y-4">
-        <div className="sap-card-header">
-          <h2 className="text-lg font-semibold text-foreground">Your clients</h2>
-          <p className="text-sm text-muted-foreground">
-            Directory of all individual and corporate clients linked to your matters.
-          </p>
-        </div>
-        <div className="space-y-3">
-          {clients.length === 0 ? (
-            <div className="sap-subtle">
-              <p className="font-medium text-foreground">No clients yet</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Create your first client to start linking matters, documents, and invoices.
+  if (!clients || clients.length === 0) {
+    return (
+      <div className="sap-card">
+        <div className="sap-card-body space-y-4">
+          <div className="sap-card-header">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-foreground sm:text-lg">Your clients</h2>
+              <p className="text-xs text-muted-foreground sm:text-sm">
+                Directory of all individual and corporate clients linked to your matters.
               </p>
             </div>
-          ) : (
-            clients.map((client) => (
-              <article key={client.id} className="sap-tile space-y-3">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold text-foreground">{client.fullName}</h3>
-                    {client.organizationName ? (
-                      <p className="text-sm text-muted-foreground">
-                        {client.organizationName}
-                      </p>
-                    ) : null}
-                  </div>
-                  <Badge variant="outline" className="capitalize">
-                    {client.type}
-                  </Badge>
+          </div>
+          <div className="sap-subtle">
+            <p className="text-sm font-medium text-foreground sm:text-base">No clients yet</p>
+            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+              Create your first client to start linking matters, documents, and invoices.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="sap-card">
+      <div className="sap-card-body space-y-3 sm:space-y-4">
+        <div className="sap-card-header">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground sm:text-lg">Your clients</h2>
+            <p className="text-xs text-muted-foreground sm:text-sm">
+              Directory of all individual and corporate clients linked to your matters. ({clients.length} {clients.length === 1 ? "client" : "clients"})
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2 sm:space-y-3">
+          {clients.map((client) => (
+            <article key={client.id} className="sap-tile space-y-2 sm:space-y-3">
+              <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold text-foreground sm:text-base truncate">{client.fullName}</h3>
+                  {client.organizationName ? (
+                    <p className="text-xs text-muted-foreground sm:text-sm truncate">
+                      {client.organizationName}
+                    </p>
+                  ) : null}
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                  {client.email ? <span>Email: {client.email}</span> : null}
-                  {client.phone ? <span>Phone: {client.phone}</span> : null}
-                  {client.city ? <span>City: {client.city}</span> : null}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild size="sm" variant="outline">
-                    <Link href={`/clients/${client.id}`}>View details</Link>
-                  </Button>
-                </div>
-              </article>
-            ))
-          )}
+                <Badge variant="outline" className="capitalize flex-shrink-0 text-[10px] sm:text-xs">
+                  {client.type}
+                </Badge>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted-foreground sm:gap-x-4 sm:gap-y-2 sm:text-sm">
+                {client.email ? <span className="truncate">Email: {client.email}</span> : null}
+                {client.phone ? <span className="truncate">Phone: {client.phone}</span> : null}
+                {client.city ? <span className="truncate">City: {client.city}</span> : null}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                  <Link href={`/clients/${client.id}`}>View details</Link>
+                </Button>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </div>

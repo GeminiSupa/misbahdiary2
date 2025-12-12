@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { Bell, Check, Loader2 } from "lucide-react";
+import { Bell, Check, Loader2, CheckCircle2 } from "lucide-react";
 import { markAllNotificationsRead, markNotificationRead } from "@/app/(app)/notifications/actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,27 +22,65 @@ type NotificationBellProps = {
 };
 
 export function NotificationBell({ notifications }: NotificationBellProps) {
-  const unreadCount = useMemo(
-    () => notifications.filter((item) => !item.readAt).length,
+  const router = useRouter();
+  
+  // Filter to only show unread notifications
+  const unreadNotifications = useMemo(
+    () => notifications.filter((item) => !item.readAt),
     [notifications],
   );
 
+  const unreadCount = unreadNotifications.length;
+
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [localReadIds, setLocalReadIds] = useState<Set<string>>(new Set());
 
   const handleToggle = () => setOpen((prev) => !prev);
 
   const handleMarkRead = (id: string) => {
+    // Optimistically update UI
+    setLocalReadIds((prev) => new Set(prev).add(id));
+    
     startTransition(async () => {
-      await markNotificationRead(id);
+      const result = await markNotificationRead(id);
+      if (result?.success !== false) {
+        router.refresh();
+      } else {
+        // Revert on error
+        setLocalReadIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }
     });
   };
 
   const handleMarkAll = () => {
+    // Optimistically update UI
+    const allIds = new Set(unreadNotifications.map((n) => n.id));
+    setLocalReadIds((prev) => new Set([...prev, ...allIds]));
+    
     startTransition(async () => {
-      await markAllNotificationsRead();
+      const result = await markAllNotificationsRead();
+      if (result?.success !== false) {
+        router.refresh();
+      } else {
+        // Revert on error
+        setLocalReadIds((prev) => {
+          const next = new Set(prev);
+          allIds.forEach((id) => next.delete(id));
+          return next;
+        });
+      }
     });
   };
+
+  // Filter out locally marked as read
+  const visibleNotifications = unreadNotifications.filter(
+    (notification) => !localReadIds.has(notification.id),
+  );
 
   return (
     <div className="relative">
@@ -53,9 +92,9 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
         onClick={handleToggle}
       >
         <Bell className="h-4 w-4" />
-        {unreadCount > 0 ? (
+        {unreadCount - localReadIds.size > 0 ? (
           <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-destructive-foreground">
-            {unreadCount}
+            {unreadCount - localReadIds.size}
           </span>
         ) : null}
       </Button>
@@ -63,36 +102,39 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
       {open ? (
         <div className="absolute right-0 z-50 mt-3 w-80 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-xl backdrop-blur">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="text-sm font-medium text-foreground">Notifications</p>
+            <p className="text-sm font-semibold text-foreground">Notifications</p>
             <Button
               variant="ghost"
               size="sm"
-              disabled={isPending || unreadCount === 0}
+              disabled={isPending || visibleNotifications.length === 0}
               onClick={handleMarkAll}
+              className="text-xs"
             >
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Check className="mr-2 h-4 w-4" />
+                <CheckCircle2 className="mr-2 h-4 w-4" />
               )}
               Mark all
             </Button>
           </div>
           <div className="space-y-2 max-h-80 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                You&apos;re all caught up. Hearing reminders, billing alerts, and case notices will appear here.
-              </p>
+            {visibleNotifications.length === 0 ? (
+              <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-6 text-center">
+                <CheckCircle2 className="mx-auto h-10 w-10 text-muted-foreground/50 mb-2" />
+                <p className="text-sm font-medium text-muted-foreground">
+                  You&apos;re all caught up. Hearing reminders, billing alerts, and case notices will appear here.
+                </p>
+              </div>
             ) : (
-              notifications.map((notification) => {
-                const isUnread = !notification.readAt;
+              visibleNotifications.map((notification) => {
                 const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
                   addSuffix: true,
                 });
 
                 const content = (
                   <div>
-                    <p className="text-sm font-medium text-foreground">{notification.title}</p>
+                    <p className="text-sm font-semibold text-foreground">{notification.title}</p>
                     {notification.message ? (
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                         {notification.message}
@@ -107,10 +149,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                 return (
                   <div
                     key={notification.id}
-                    className={cn(
-                      "rounded-xl border border-border/60 bg-background/70 p-3 transition hover:border-primary/50",
-                      isUnread ? "shadow-sm" : "opacity-80",
-                    )}
+                    className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-background/70 p-3 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
                   >
                     {notification.link ? (
                       <a href={notification.link} className="block">
@@ -119,16 +158,25 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                     ) : (
                       content
                     )}
-                    {isUnread ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => handleMarkRead(notification.id)}
-                      >
-                        Mark as read
-                      </Button>
-                    ) : null}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2 w-full"
+                      disabled={isPending || localReadIds.has(notification.id)}
+                      onClick={() => handleMarkRead(notification.id)}
+                    >
+                      {localReadIds.has(notification.id) ? (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" />
+                          Marked
+                        </>
+                      ) : (
+                        <>
+                          <Check className="mr-2 h-4 w-4" />
+                          Mark as read
+                        </>
+                      )}
+                    </Button>
                   </div>
                 );
               })
@@ -139,4 +187,3 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
     </div>
   );
 }
-

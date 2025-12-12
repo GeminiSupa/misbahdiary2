@@ -155,15 +155,15 @@
   }
 
   .sap-container {
-    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+    @apply mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 lg:px-10;
   }
 
   .sap-card {
-    @apply rounded-3xl border border-border/40 bg-gradient-to-br from-white/95 via-card to-slate-100/90 shadow-[0_26px_60px_-28px_rgba(15,23,42,0.55)] backdrop-blur;
+    @apply rounded-2xl border border-border/40 bg-gradient-to-br from-white/95 via-card to-slate-100/90 shadow-[0_26px_60px_-28px_rgba(15,23,42,0.55)] backdrop-blur sm:rounded-3xl;
   }
 
   .sap-card-hero {
-    @apply rounded-3xl border border-border/40 bg-gradient-to-br from-primary/10 via-card to-slate-100/90 shadow-[0_30px_80px_-30px_rgba(37,99,235,0.7)] backdrop-blur;
+    @apply rounded-2xl border border-border/40 bg-gradient-to-br from-primary/10 via-card to-slate-100/90 shadow-[0_30px_80px_-30px_rgba(37,99,235,0.7)] backdrop-blur sm:rounded-3xl;
   }
 
   .sap-card-hero:hover {
@@ -172,15 +172,19 @@
 
 
   .sap-card-body {
-    @apply space-y-5 p-6 sm:p-8;
+    @apply space-y-3 p-3 sm:space-y-4 sm:p-4 md:space-y-5 md:p-6 lg:p-8;
   }
 
   .sap-card-header {
-    @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+    @apply flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-start sm:justify-between;
+  }
+  
+  .sap-card-header > * {
+    @apply min-w-0;
   }
 
   .sap-tile {
-    @apply rounded-2xl border border-border/40 bg-gradient-to-br from-white/90 via-secondary/70 to-slate-100/80 p-4 shadow-[0_16px_40px_-24px_rgba(15,23,42,0.55)] transition-all hover:border-primary/40 hover:shadow-[0_18px_46px_-24px_rgba(37,99,235,0.65)];
+    @apply rounded-xl border border-border/40 bg-gradient-to-br from-white/90 via-secondary/70 to-slate-100/80 p-3 shadow-[0_16px_40px_-24px_rgba(15,23,42,0.55)] transition-all hover:border-primary/40 hover:shadow-[0_18px_46px_-24px_rgba(37,99,235,0.65)] sm:rounded-2xl sm:p-4;
   }
 
   .sap-pill-nav {
@@ -202,11 +206,11 @@
   }
 
   .sap-form {
-    @apply space-y-5;
+    @apply space-y-4 sm:space-y-5;
   }
 
   .sap-form-grid {
-    @apply grid gap-5 md:grid-cols-2;
+    @apply grid gap-3 sm:gap-4 md:gap-5 md:grid-cols-2;
   }
 
   .sap-kpi-grid {
@@ -242,6 +246,18 @@
   }
 
   .sap-subtle {
-    @apply rounded-2xl border border-dashed border-border/70 bg-white/60 p-6 text-center shadow-[0_12px_30px_-20px_rgba(15,23,42,0.4)] backdrop-blur;
+    @apply rounded-xl border border-dashed border-border/70 bg-white/60 p-4 text-center shadow-[0_12px_30px_-20px_rgba(15,23,42,0.4)] backdrop-blur sm:rounded-2xl sm:p-6;
+  }
+  
+  /* Mobile-friendly touch targets */
+  @media (max-width: 640px) {
+    button, a[role="button"], [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
   }
 }

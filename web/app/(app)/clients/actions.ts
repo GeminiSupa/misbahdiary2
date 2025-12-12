@@ -25,7 +25,9 @@ const clientSchema = z
     phone: z.string().max(25, "Phone number is too long").optional().or(z.literal("")),
     cnic: z
       .string()
-      .regex(/^\d{13}$/, "CNIC must be 13 digits")
+      .refine((val) => !val || /^\d{13}$/.test(val), {
+        message: "CNIC must be 13 digits",
+      })
       .optional()
       .or(z.literal("")),
     representation: z
@@ -103,28 +105,49 @@ export async function saveClient(values: ClientFormValues): Promise<ActionState>
     return { message: "You must belong to a firm before managing clients." };
   }
 
+  // Ensure full_name is not empty (required by database)
+  if (!payload.fullName || payload.fullName.trim().length === 0) {
+    return { message: "Full name is required and cannot be empty." };
+  }
+
+  // Ensure address is not empty (required by validation)
+  if (!payload.address || payload.address.trim().length === 0) {
+    return { message: "Address is required and cannot be empty." };
+  }
+
+  // Ensure fatherName is not empty (required by validation)
+  if (!payload.fatherName || payload.fatherName.trim().length === 0) {
+    return { message: "Father/guardian name is required and cannot be empty." };
+  }
+
+  // Normalize empty strings to null for optional fields
+  const normalizeString = (value: string | undefined): string | null => {
+    if (!value || value.trim().length === 0) return null;
+    return value.trim();
+  };
+
   const normalizedPayload = {
     type: payload.type,
-    name: payload.fullName,
-    full_name: payload.fullName,
-    father_name: payload.fatherName,
-    organization_name: payload.organizationName || null,
-    email: payload.email || null,
-    phone: payload.phone || null,
-    cnic: payload.cnic || null,
-    address: payload.address,
+    name: payload.fullName.trim(),
+    full_name: payload.fullName.trim(),
+    father_name: payload.fatherName.trim(),
+    organization_name: normalizeString(payload.organizationName),
+    email: normalizeString(payload.email),
+    phone: normalizeString(payload.phone),
+    cnic: normalizeString(payload.cnic),
+    address: payload.address.trim(),
     representation: payload.representation,
     representative_details:
       payload.representation === "representative"
         ? {
-            to_whom: payload.representativeToWhom,
-            capacity: payload.representativeCapacity,
+            to_whom: normalizeString(payload.representativeToWhom) || null,
+            capacity: payload.representativeCapacity || null,
           }
         : null,
-    city: payload.city || null,
-    province: payload.province || null,
-    country: payload.country || "Pakistan",
-    notes: payload.notes || null,
+    city: normalizeString(payload.city),
+    province: normalizeString(payload.province),
+    country: normalizeString(payload.country) || "Pakistan",
+    notes: normalizeString(payload.notes),
   };
 
   if (payload.id) {
@@ -143,7 +166,7 @@ export async function saveClient(values: ClientFormValues): Promise<ActionState>
       .update({
         ...normalizedPayload,
         updated_at: new Date().toISOString(),
-      })
+      } as any)
       .eq("id", payload.id);
 
     if (updateError) {
@@ -157,14 +180,51 @@ export async function saveClient(values: ClientFormValues): Promise<ActionState>
     return { success: true };
   }
 
-  const { error: insertError } = await supabase.from("clients").insert({
+  const insertData = {
     ...normalizedPayload,
     firm_id: profile.firm_id,
     created_by: user.id,
-  });
+  } as any;
+
+  // Log for debugging (remove in production)
+  if (process.env.NODE_ENV === "development") {
+    console.log("[saveClient] Inserting client data:", JSON.stringify(insertData, null, 2));
+  }
+
+  // Use the admin client for insert to bypass RLS if needed, or ensure RLS is properly configured
+  const { data: insertedData, error: insertError } = await supabase
+    .from("clients")
+    .insert(insertData)
+    .select()
+    .single();
 
   if (insertError) {
-    return { message: `Could not create client: ${insertError.message}` };
+    // Log detailed error for debugging
+    if (process.env.NODE_ENV === "development") {
+      console.error("[saveClient] Insert error:", insertError);
+      console.error("[saveClient] Error code:", insertError.code);
+      console.error("[saveClient] Error details:", insertError.details);
+      console.error("[saveClient] Error hint:", insertError.hint);
+    }
+    
+    // Return user-friendly error message
+    const errorMessage = insertError.message || "Unknown error occurred";
+    return { 
+      message: `Could not create client: ${errorMessage}`,
+      fieldErrors: insertError.code === "23505" ? {
+        // Unique constraint violation
+        email: insertError.message.includes("email") ? ["This email is already in use"] : undefined,
+        cnic: insertError.message.includes("cnic") ? ["This CNIC is already registered"] : undefined,
+      } as Record<string, string[]> : undefined,
+    };
+  }
+
+  if (!insertedData) {
+    return { message: "Client was created but no data was returned. Please refresh the page." };
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[saveClient] Client created successfully:", insertedData);
   }
 
   revalidatePath("/clients");
@@ -217,6 +277,13 @@ export async function uploadClientDocument(formData: FormData) {
     });
 
   if (uploadError) {
+    // Provide helpful error message for missing bucket
+    if (uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("not found")) {
+      return {
+        success: false,
+        message: `Storage bucket "${DOCUMENT_BUCKET}" not found. Please run: npm run supabase:setup-storage`,
+      };
+    }
     return { success: false, message: `Unable to upload file: ${uploadError.message}` };
   }
 

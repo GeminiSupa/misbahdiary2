@@ -29,7 +29,7 @@ export function SupabaseProvider({
 }
 
 export function useSupabase() {
-  const context = useSessionContext<Database>();
+  const context = useSessionContext();
   return {
     ...context,
     supabase: context.supabaseClient,

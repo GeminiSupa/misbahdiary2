@@ -219,12 +219,19 @@ export async function createInvitation(values: z.infer<typeof invitationSchema>)
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id")
+    .select("firm_id, role")
     .eq("id", user.id)
     .maybeSingle();
 
   if (!profile?.firm_id) {
     return { message: "Join or create a firm before inviting teammates." };
+  }
+
+  // ONLY Principal Partners can send invitations
+  if (profile.role !== "principal_partner") {
+    return {
+      message: "Only Principal Partners can send invitations to add team members.",
+    };
   }
 
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
@@ -408,5 +415,144 @@ export async function removeStaffMember(staffUserId: string): Promise<ActionStat
   revalidatePath("/cases");
 
   return { success: true };
+}
+
+const createUserSchema = z.object({
+  email: z.string().email("Enter a valid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  fullName: z.string().min(2, "Full name is required"),
+  role: z.enum([
+    "principal_partner",
+    "associate",
+    "paralegal",
+    "of_counsel",
+    "client",
+    "staff",
+  ]),
+});
+
+export async function createUser(
+  values: z.infer<typeof createUserSchema>,
+): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const parsed = createUserSchema.safeParse(values);
+  if (!parsed.success) {
+    return {
+      message: "Please review the highlighted fields.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  // Check if user can create accounts
+  const { data: actorProfile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!actorProfile?.firm_id) {
+    return { message: "Join or create a firm before creating user accounts." };
+  }
+
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", actorProfile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  // ONLY Principal Partners can create users (not Firm Owners)
+  const canCreateUsers = actorProfile.role === "principal_partner";
+
+  if (!canCreateUsers) {
+    return {
+      message: "Only Principal Partners can create user accounts. Firm Owners cannot create users directly.",
+    };
+  }
+
+  // Use Supabase Admin client to create user
+  const { supabaseAdminClient } = await import("@/lib/supabase/admin");
+
+  // Check if user with this email already exists (using admin client to check auth.users)
+  const { data: existingUsers } = await supabaseAdminClient.auth.admin.listUsers();
+  const existingUser = existingUsers?.users?.find(
+    (u) => u.email?.toLowerCase() === parsed.data.email.toLowerCase()
+  );
+
+  if (existingUser) {
+    return { message: "A user with this email already exists." };
+  }
+
+  try {
+    // Create user via Supabase Admin API
+    const { data: newUser, error: createError } = await supabaseAdminClient.auth.admin.createUser({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      email_confirm: true, // Auto-confirm email
+      user_metadata: {
+        role: parsed.data.role,
+        full_name: parsed.data.fullName,
+      },
+    });
+
+    if (createError || !newUser.user) {
+      return {
+        message: createError?.message || "Failed to create user account",
+      };
+    }
+
+    // Update the profile with firm_id and role
+    // The profile should be auto-created by the trigger, but we'll update it
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        firm_id: actorProfile.firm_id,
+        role: parsed.data.role,
+        full_name: parsed.data.fullName,
+      })
+      .eq("id", newUser.user.id);
+
+    if (profileError) {
+      // Profile might not exist yet, try inserting
+      const { error: insertError } = await supabase.from("profiles").insert({
+        id: newUser.user.id,
+        firm_id: actorProfile.firm_id,
+        role: parsed.data.role,
+        full_name: parsed.data.fullName,
+      });
+
+      if (insertError) {
+        console.error("Failed to create/update profile after user creation:", insertError);
+        return {
+          message:
+            "User account was created but profile setup failed. Please contact support.",
+        };
+      }
+    }
+
+    revalidatePath("/settings");
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return {
+      message: error instanceof Error ? error.message : "Failed to create user account",
+    };
+  }
 }
 

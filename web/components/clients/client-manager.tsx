@@ -28,15 +28,17 @@ type ClientManagerProps = {
 export function ClientManager({ clients }: ClientManagerProps) {
   return (
     <ClientList
-      clients={clients.map((client) => ({
-        id: client.id,
-        fullName: client.full_name ?? client.name,
-        type: client.type,
-        organizationName: client.organization_name,
-        email: client.email,
-        phone: client.phone,
-        city: client.city,
-      }))}
+      clients={clients
+        .map((client) => ({
+          id: client.id,
+          fullName: client.full_name ?? client.name ?? "Unnamed Client",
+          type: client.type ?? "individual",
+          organizationName: client.organization_name,
+          email: client.email,
+          phone: client.phone,
+          city: client.city,
+        }))
+        .filter((client) => client.id)}
     />
   );
 }

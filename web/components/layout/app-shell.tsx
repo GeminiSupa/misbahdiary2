@@ -45,24 +45,32 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
       {/* Main column */}
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="sap-shell-bar border-b bg-card/90 backdrop-blur">
-          <div className="sap-container flex items-center justify-between gap-4 py-3">
+          <div className="sap-container flex flex-col gap-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-3">
             {/* Mobile brand + nav */}
-            <div className="flex items-center gap-3 md:hidden">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-sm">
-                LD
-              </span>
-              <div className="space-y-0.5">
-                <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-primary/70">
-                  Lawyer Diary
-                </p>
-                <span className="text-sm font-semibold text-foreground line-clamp-1">
-                  {firmName ?? "Your practice"}
+            <div className="flex items-center justify-between gap-2 sm:gap-3 md:hidden">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-sm sm:h-10 sm:w-10 sm:text-base">
+                  LD
                 </span>
+                <div className="space-y-0.5 min-w-0">
+                  <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-primary/70 sm:text-[10px] sm:tracking-[0.28em]">
+                    Lawyer Diary
+                  </p>
+                  <span className="text-xs font-semibold text-foreground line-clamp-1 sm:text-sm">
+                    {firmName ?? "Your practice"}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <TimerControl />
+                <NotificationBell notifications={notifications} />
+                <SignOutButton variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" />
+                <AppNav />
               </div>
             </div>
 
-            {/* Global search */}
-            <div className="hidden flex-1 items-center md:flex">
+            {/* Desktop header */}
+            <div className="hidden md:flex md:flex-1 md:items-center">
               <form action="/search" className="w-full max-w-xl">
                 <input
                   type="search"
@@ -73,19 +81,15 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
               </form>
             </div>
 
-            <div className="flex flex-1 items-center justify-end gap-2 md:flex-none">
+            <div className="hidden items-center justify-end gap-2 md:flex md:flex-none">
               <TimerControl />
               <NotificationBell notifications={notifications} />
-              <SignOutButton variant="ghost" size="icon" className="h-9 w-9 md:hidden" />
-              <div className="md:hidden">
-                <AppNav />
-              </div>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 pb-12">
-          <div className="sap-container py-8 sm:py-10">{children}</div>
+        <main className="flex-1 pb-6 sm:pb-8 md:pb-12">
+          <div className="sap-container py-4 sm:py-6 md:py-8 lg:py-10">{children}</div>
         </main>
       </div>
     </div>
