@@ -35,11 +35,9 @@ const formSchema = z
     id: z.string().uuid(),
     clientId: z.string().uuid({ message: "Select a client" }),
     matterType: z
-      .enum(matterTypeOptions.map((option) => option.value) as [string, ...string[]])
-      .default("litigation"),
+      .enum(matterTypeOptions.map((option) => option.value) as [string, ...string[]]),
     matterStatus: z
-      .enum(matterStatusOptions.map((option) => option.value) as [string, ...string[]])
-      .default("fresh diary"),
+      .enum(matterStatusOptions.map((option) => option.value) as [string, ...string[]]),
     caseNumber: z.string().optional().or(z.literal("")),
     caseFileDate: z.string().optional().or(z.literal("")),
     caseType: z
@@ -51,8 +49,7 @@ const formSchema = z
     clientBrief: z.string().optional().or(z.literal("")),
     againstParties: z.string().optional().or(z.literal("")),
     againstPartiesType: z
-      .enum(matterPartyTypeOptions.map((option) => option.value) as [string, ...string[]])
-      .default("individual"),
+      .enum(matterPartyTypeOptions.map((option) => option.value) as [string, ...string[]]),
     evidenceProvided: z.string().optional().or(z.literal("")),
     documentsProvided: z.string().optional().or(z.literal("")),
     pendingDocuments: z.string().optional().or(z.literal("")),
@@ -90,26 +87,29 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Ensure all required fields have proper defaults
+  const defaultValues: UpdateMatterFormValues = {
+    id: matter.id,
+    clientId: matter.clientId || (matter as any).client_id || "",
+    matterType: (matter.matterType || (matter as any).matter_type || "litigation") as "litigation" | "advisory" | "mediation",
+    matterStatus: (matter.matterStatus || (matter as any).matter_status || "fresh diary") as any,
+    caseNumber: matter.caseNumber ?? "",
+    caseFileDate: matter.caseFileDate ?? "",
+    caseType: matter.caseType ?? "",
+    courtName: (matter.courtName && matter.courtName.length >= 2) ? matter.courtName : "Court Name",
+    district: (matter.district && matter.district.length >= 2) ? matter.district : "District",
+    clientBrief: matter.clientBrief ?? "",
+    againstParties: matter.againstParties ?? "",
+    againstPartiesType: (matter.againstPartiesType || "individual") as "individual" | "organization",
+    evidenceProvided: matter.evidenceProvided ?? "",
+    documentsProvided: matter.documentsProvided ?? "",
+    pendingDocuments: matter.pendingDocuments ?? "",
+    assignedAttorneys: matter.assignedAttorneys ?? [],
+  };
+
   const form = useForm<UpdateMatterFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      id: matter.id,
-      clientId: matter.clientId || (matter as any).client_id || "",
-      matterType: (matter.matterType || (matter as any).matter_type || "litigation") as "litigation" | "advisory" | "mediation",
-      matterStatus: (matter.matterStatus || (matter as any).matter_status || "fresh diary") as string,
-      caseNumber: matter.caseNumber ?? "",
-      caseFileDate: matter.caseFileDate ?? "",
-      caseType: matter.caseType ?? "",
-      courtName: (matter.courtName && matter.courtName.length >= 2) ? matter.courtName : "Court Name",
-      district: (matter.district && matter.district.length >= 2) ? matter.district : "District",
-      clientBrief: matter.clientBrief ?? "",
-      againstParties: matter.againstParties ?? "",
-      againstPartiesType: (matter.againstPartiesType || "individual") as "individual" | "organization",
-      evidenceProvided: matter.evidenceProvided ?? "",
-      documentsProvided: matter.documentsProvided ?? "",
-      pendingDocuments: matter.pendingDocuments ?? "",
-      assignedAttorneys: matter.assignedAttorneys ?? [],
-    } as UpdateMatterFormValues,
+    defaultValues,
   });
 
   const matterType = useWatch({ control: form.control, name: "matterType" });
