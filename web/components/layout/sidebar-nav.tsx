@@ -11,6 +11,7 @@ import {
   Users,
   Settings as SettingsIcon,
   Clock,
+  Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/time-tracking", label: "Time Tracking", icon: Clock },
   { href: "/billing", label: "Billing", icon: Banknote },
   { href: "/clients", label: "Clients", icon: Users },
+  { href: "/ai-assistant", label: "AI Assistant", icon: Sparkles },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 

@@ -1,0 +1,34 @@
+# Ignore files for Vercel deployment
+node_modules/
+.git/
+.DS_Store
+*.log
+.env.local
+.env*.local
+
+# Documentation files (not needed in production)
+*.md
+!README.md
+!web/README.md
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Supabase local files
+supabase/.temp/
+supabase/.branches/
+
+# Test files
+**/__tests__/
+**/*.test.*
+**/*.spec.*
+
+# Build artifacts
+.next/
+out/
+dist/
+build/

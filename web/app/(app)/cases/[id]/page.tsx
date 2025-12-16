@@ -12,6 +12,7 @@ import { MatterFinanceCard } from "@/components/cases/matter-finance-card";
 import { MatterDocumentsCard } from "@/components/cases/matter-documents-card";
 import { MatterTeamCard } from "@/components/cases/matter-team-card";
 import { EditMatterSheet } from "@/components/cases/edit-matter-sheet";
+import { AIAssistantChat } from "@/components/ai/ai-assistant-chat";
 import {
   ArrowLeft,
   Briefcase,
@@ -490,6 +491,20 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
         <div className="space-y-4 sm:space-y-6">
           <MatterFinanceCard finance={finance} matterId={matter.id} />
           <MatterTeamCard members={teamMembers as any} client={clientSummary} />
+          {/* AI Assistant for this matter */}
+          <div className="sap-card">
+            <div className="sap-card-body p-0">
+              <div className="p-4 border-b border-border/60">
+                <h2 className="text-base font-semibold text-foreground sm:text-lg">AI Research Assistant</h2>
+                <p className="text-xs text-muted-foreground sm:text-sm mt-1">
+                  Ask questions about this case and its documents
+                </p>
+              </div>
+              <div className="h-[400px] sm:h-[500px]">
+                <AIAssistantChat matterId={matter.id} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

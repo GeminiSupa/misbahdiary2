@@ -1,9 +1,23 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
+  "buildCommand": "cd web && npm run build",
+  "outputDirectory": "web/.next",
+  "installCommand": "cd web && npm install",
   "framework": "nextjs",
-  "rootDirectory": "web"
+  "rootDirectory": "web",
+  "functions": {
+    "web/app/api/**/*.ts": {
+      "maxDuration": 60
+    },
+    "web/app/api/ai/**/*.ts": {
+      "maxDuration": 300
+    }
+  },
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+    "OPENAI_API_KEY": "@openai_api_key"
+  }
 }
 
 
