@@ -15,19 +15,8 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Webpack optimizations
-  webpack: (config, { isServer }) => {
-    // Exclude heavy dependencies from client bundle
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    return config;
-  },
+  // Turbopack configuration (Next.js 16 default)
+  turbopack: {},
 
   // Headers for security
   async headers() {
