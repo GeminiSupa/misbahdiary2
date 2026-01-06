@@ -314,7 +314,7 @@ export async function getAIQueryHistory(
     const supabase = await createSupabaseServerClient();
     
     let query = supabase
-      .from('ai_query_history')
+      .from('ai_query_history' as any)
       .select('*')
       .eq('firm_id', firmId)
       .order('created_at', { ascending: false });
