@@ -123,7 +123,7 @@ Be concise but thorough. Focus on actionable insights for legal practice.`;
 
     // Log query to history
     const { data: queryHistory, error: historyError } = await supabase
-      .from('ai_query_history')
+      .from('ai_query_history' as any)
       .insert({
         firm_id: profile.firm_id,
         user_id: user.id,
