@@ -40,6 +40,9 @@ export async function generateChatCompletion(
   try {
     const client = getOpenAIClient();
 
+    // Ensure stream is false for non-streaming responses
+    const stream = options?.stream ?? false;
+    
     const response = await client.chat.completions.create({
       model: AI_CONFIG.llm.model,
       messages: messages.map(msg => ({
@@ -48,14 +51,26 @@ export async function generateChatCompletion(
       })),
       temperature: options?.temperature ?? AI_CONFIG.llm.temperature,
       max_tokens: options?.max_tokens ?? AI_CONFIG.llm.max_tokens,
-      stream: options?.stream ?? false,
+      stream: stream,
     });
 
-    if (!response.choices || response.choices.length === 0) {
+    // Handle streaming response
+    if (stream) {
+      let fullContent = '';
+      for await (const chunk of response as any) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        fullContent += content;
+      }
+      return fullContent;
+    }
+
+    // Handle non-streaming response
+    const completion = response as any;
+    if (!completion.choices || completion.choices.length === 0) {
       throw new Error('No response from LLM');
     }
 
-    return response.choices[0].message?.content || '';
+    return completion.choices[0].message?.content || '';
   } catch (error) {
     console.error('Error generating chat completion:', error);
     throw error;
