@@ -9,6 +9,7 @@
     "lint": "eslint",
     "supabase:types": "supabase gen types typescript --project-id xsdqwbcpvdreawkyvpnk --schema public --out lib/supabase/database.types.ts",
     "supabase:apply": "node ./scripts/apply-schema.mjs",
+    "supabase:apply-ai-columns": "node ./scripts/apply-ai-columns.mjs",
     "supabase:seed": "node ./scripts/seed-demo.mjs",
     "supabase:setup-storage": "node ./scripts/setup-storage.mjs"
   },

@@ -555,7 +555,16 @@ execute procedure public.set_updated_at();
 alter table public.documents
   add column if not exists matter_id uuid references public.matters(id) on delete set null;
 
+-- AI processing columns for documents
+alter table public.documents
+  add column if not exists ai_processed boolean default false,
+  add column if not exists ai_processing_status text default 'pending',
+  add column if not exists ai_processed_at timestamptz,
+  add column if not exists ai_extracted_entities jsonb default '[]'::jsonb,
+  add column if not exists ai_summary text;
+
 create index if not exists documents_matter_id_idx on public.documents (matter_id);
+create index if not exists documents_ai_processed_idx on public.documents (ai_processed, ai_processing_status);
 
 -- Invoices
 create table if not exists public.invoices (
