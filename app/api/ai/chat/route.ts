@@ -135,7 +135,7 @@ Be concise but thorough. Focus on actionable insights for legal practice.`;
         metadata: context || {},
       })
       .select()
-      .single();
+      .single() as { data: { id: string } | null; error: any };
 
     if (historyError) {
       console.error('Error logging query history:', historyError);
