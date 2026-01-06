@@ -3,7 +3,7 @@ import { z } from "zod";
 export const paymentSchema = z.object({
   matterId: z.string().uuid("Invalid matter ID"),
   amount: z
-    .number({ required_error: "Amount is required" })
+    .number({ message: "Amount is required" })
     .positive("Amount must be greater than 0")
     .max(999999999999.99, "Amount is too large"),
   date: z.string().min(1, "Date is required"),

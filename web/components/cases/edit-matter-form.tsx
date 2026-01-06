@@ -35,11 +35,9 @@ const formSchema = z
     id: z.string().uuid(),
     clientId: z.string().uuid({ message: "Select a client" }),
     matterType: z
-      .enum(matterTypeOptions.map((option) => option.value) as [string, ...string[]])
-      .default("litigation"),
+      .enum(matterTypeOptions.map((option) => option.value) as [string, ...string[]]),
     matterStatus: z
-      .enum(matterStatusOptions.map((option) => option.value) as [string, ...string[]])
-      .default("fresh diary"),
+      .enum(matterStatusOptions.map((option) => option.value) as [string, ...string[]]),
     caseNumber: z.string().optional().or(z.literal("")),
     caseFileDate: z.string().optional().or(z.literal("")),
     caseType: z
@@ -51,8 +49,7 @@ const formSchema = z
     clientBrief: z.string().optional().or(z.literal("")),
     againstParties: z.string().optional().or(z.literal("")),
     againstPartiesType: z
-      .enum(matterPartyTypeOptions.map((option) => option.value) as [string, ...string[]])
-      .default("individual"),
+      .enum(matterPartyTypeOptions.map((option) => option.value) as [string, ...string[]]),
     evidenceProvided: z.string().optional().or(z.literal("")),
     documentsProvided: z.string().optional().or(z.literal("")),
     pendingDocuments: z.string().optional().or(z.literal("")),
