@@ -30,7 +30,7 @@ export async function GET(
     }
 
     // Get document with processing status
-    const { data: document, error: docError } = await supabase
+    const docResult = await supabase
       .from('documents')
       .select(`
         id,
@@ -44,12 +44,23 @@ export async function GET(
       .eq('id', documentId)
       .single();
 
-    if (docError || !document) {
+    if (docResult.error || !docResult.data) {
       return NextResponse.json(
         { error: 'Document not found' },
         { status: 404 }
       );
     }
+
+    // Type the document with AI fields
+    const document = docResult.data as {
+      id: string;
+      file_name: string;
+      ai_processed?: boolean | null;
+      ai_processing_status?: string | null;
+      ai_processed_at?: string | null;
+      ai_extracted_entities?: any[] | null;
+      ai_summary?: string | null;
+    };
 
     return NextResponse.json({
       status: document.ai_processing_status || 'pending',
