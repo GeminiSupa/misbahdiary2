@@ -286,7 +286,7 @@ export async function updateDocumentProcessingStatus(
 
     const { error } = await supabase
       .from('documents')
-      .update(updateData)
+      .update(updateData as any)
       .eq('id', documentId);
 
     if (error) {

@@ -30,30 +30,18 @@ export async function GET(
     }
 
     // Get document with processing status
-    // AI columns exist in database but not in TypeScript types yet
-    const docResult = await (supabase
-      .from('documents' as any)
+    const { data: document, error: docError } = await supabase
+      .from('documents')
       .select('id, file_name, ai_processed, ai_processing_status, ai_processed_at, ai_extracted_entities, ai_summary')
       .eq('id', documentId)
-      .single()) as { data: any; error: any };
+      .single();
 
-    if (docResult.error || !docResult.data) {
+    if (docError || !document) {
       return NextResponse.json(
         { error: 'Document not found' },
         { status: 404 }
       );
     }
-
-    // Type the document with AI fields
-    const document = docResult.data as {
-      id: string;
-      file_name: string;
-      ai_processed?: boolean | null;
-      ai_processing_status?: string | null;
-      ai_processed_at?: string | null;
-      ai_extracted_entities?: any[] | null;
-      ai_summary?: string | null;
-    };
 
     return NextResponse.json({
       status: document.ai_processing_status || 'pending',

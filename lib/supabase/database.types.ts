@@ -305,6 +305,11 @@ export type Database = {
       }
       documents: {
         Row: {
+          ai_extracted_entities: Json | null
+          ai_processed: boolean | null
+          ai_processed_at: string | null
+          ai_processing_status: string | null
+          ai_summary: string | null
           case_id: string | null
           created_at: string
           file_name: string
@@ -322,6 +327,11 @@ export type Database = {
           version: number
         }
         Insert: {
+          ai_extracted_entities?: Json | null
+          ai_processed?: boolean | null
+          ai_processed_at?: string | null
+          ai_processing_status?: string | null
+          ai_summary?: string | null
           case_id?: string | null
           created_at?: string
           file_name: string
@@ -339,6 +349,11 @@ export type Database = {
           version?: number
         }
         Update: {
+          ai_extracted_entities?: Json | null
+          ai_processed?: boolean | null
+          ai_processed_at?: string | null
+          ai_processing_status?: string | null
+          ai_summary?: string | null
           case_id?: string | null
           created_at?: string
           file_name?: string
