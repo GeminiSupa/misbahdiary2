@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Optimize for Vercel
-  output: 'standalone',
-  
   // Reduce bundle size
   experimental: {
     optimizePackageImports: [

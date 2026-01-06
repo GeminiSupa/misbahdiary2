@@ -1,14 +1,14 @@
 {
-  "buildCommand": "cd web && npm run build",
-  "outputDirectory": "web/.next",
-  "installCommand": "cd web && npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "rootDirectory": "web",
   "functions": {
-    "web/app/api/**/*.ts": {
+    "app/api/**/*.ts": {
       "maxDuration": 60
     },
-    "web/app/api/ai/**/*.ts": {
+    "app/api/ai/**/*.ts": {
       "maxDuration": 300
     }
   },
