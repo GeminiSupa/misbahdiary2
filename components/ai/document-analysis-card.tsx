@@ -78,7 +78,7 @@ export function DocumentAnalysisCard({ documentId, fileName, className }: Docume
     );
   }
 
-  const statusConfig = {
+  const statusConfig: Record<AnalysisData['status'], { icon: typeof FileText; color: string; label: string; spinning?: boolean }> = {
     pending: { icon: FileText, color: "text-muted-foreground", label: "Not Processed" },
     processing: { icon: Loader2, color: "text-primary", label: "Processing...", spinning: true },
     completed: { icon: CheckCircle, color: "text-green-600", label: "Analyzed" },
