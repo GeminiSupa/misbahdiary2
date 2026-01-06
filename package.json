@@ -10,6 +10,9 @@
     "supabase:types": "cd web && npm run supabase:types",
     "supabase:apply": "cd web && npm run supabase:apply",
     "supabase:seed": "cd web && npm run supabase:seed"
+  },
+  "dependencies": {
+    "next": "16.0.10"
   }
 }
 
