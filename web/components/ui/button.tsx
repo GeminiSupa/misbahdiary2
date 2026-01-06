@@ -9,33 +9,33 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary action – neon/3D style used across the app
+        // Primary action – SAP Fiori Horizon style
         default:
-          "relative overflow-hidden rounded-full border border-primary/50 bg-gradient-to-br from-primary via-primary/90 to-[#ec4899] text-primary-foreground shadow-[0_18px_45px_rgba(37,99,235,0.45)] hover:shadow-[0_14px_30px_rgba(37,99,235,0.55)] hover:translate-y-[1px] active:translate-y-[2px] active:shadow-[0_10px_24px_rgba(15,23,42,0.55)]",
+          "bg-primary text-primary-foreground rounded-lg shadow-sm hover:bg-[#0057D2] hover:shadow-md active:bg-[#0040B0] transition-all",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         success:
           "bg-success text-success-foreground hover:bg-success/90 focus-visible:ring-success/30 dark:focus-visible:ring-success/40",
         warning:
           "bg-warning text-warning-foreground hover:bg-warning/90 focus-visible:ring-warning/30 dark:focus-visible:ring-warning/40",
-        // Subtle glass outline – used for secondary/tertiary actions
+        // Subtle outline – SAP Fiori Horizon style
         outline:
-          "rounded-full border border-border/80 bg-background/70 text-foreground shadow-[0_6px_18px_rgba(15,23,42,0.18)] hover:bg-accent/70 hover:text-accent-foreground",
-        // Secondary action – softer glass variant that still feels elevated
+          "border border-border bg-background text-foreground rounded-lg shadow-sm hover:bg-muted hover:border-primary/30 transition-all",
+        // Secondary action – SAP Fiori Horizon style
         secondary:
-          "rounded-full border border-primary/20 bg-primary/5 text-primary shadow-[0_10px_30px_rgba(15,23,42,0.22)] hover:bg-primary/10 hover:border-primary/40",
-        // Ghost – text emphasis with light hover glass
+          "bg-secondary text-secondary-foreground rounded-lg shadow-sm hover:bg-[#D1E9F4] transition-all",
+        // Ghost – SAP Fiori Horizon style
         ghost:
-          "rounded-full hover:bg-accent/70 hover:text-accent-foreground",
+          "rounded-lg hover:bg-muted hover:text-foreground transition-all",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "min-h-[44px] h-11 px-4 py-2.5 text-base has-[>svg]:px-3 sm:h-10 sm:text-sm sm:min-h-[40px]",
-        sm: "min-h-[44px] h-10 rounded-md gap-1.5 px-3 text-base has-[>svg]:px-2.5 sm:h-9 sm:text-sm sm:min-h-[36px]",
-        lg: "min-h-[48px] h-12 rounded-md px-6 text-lg has-[>svg]:px-4 sm:h-11 sm:text-base sm:min-h-[44px]",
-        icon: "min-h-[44px] min-w-[44px] size-11 sm:size-10 sm:min-h-[40px] sm:min-w-[40px]",
-        "icon-sm": "min-h-[44px] min-w-[44px] size-10 sm:size-9 sm:min-h-[36px] sm:min-w-[36px]",
-        "icon-lg": "min-h-[48px] min-w-[48px] size-12 sm:size-11 sm:min-h-[44px] sm:min-w-[44px]",
+        default: "h-10 px-4 py-2.5 text-sm font-medium has-[>svg]:px-3",
+        sm: "h-9 gap-1.5 px-3 py-2 text-sm font-medium has-[>svg]:px-2.5",
+        lg: "h-11 px-5 py-3 text-base font-medium has-[>svg]:px-4",
+        icon: "size-10",
+        "icon-sm": "size-9",
+        "icon-lg": "size-11",
       },
     },
     defaultVariants: {

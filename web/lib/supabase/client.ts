@@ -6,7 +6,7 @@ import type { Database } from "@/lib/supabase/database.types";
 
 let browserClient: SupabaseClient<Database> | undefined;
 
-export const getBrowserClient = () => {
+export const getBrowserClient = (): SupabaseClient<Database> => {
   if (browserClient) return browserClient;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,9 +15,15 @@ export const getBrowserClient = () => {
   if (!supabaseUrl || !supabaseAnonKey) {
     const errorMsg = `Supabase environment variables are not configured. 
       Missing: ${!supabaseUrl ? "NEXT_PUBLIC_SUPABASE_URL" : ""} ${!supabaseAnonKey ? "NEXT_PUBLIC_SUPABASE_ANON_KEY" : ""}
-      Please check your .env.local file and restart the dev server.`;
+      Please check your environment variables.`;
     console.error(errorMsg);
-    throw new Error(errorMsg);
+    // Don't throw in production - return a client that will fail gracefully
+    // This allows the app to load and show proper error messages
+    browserClient = createBrowserClient<Database>(
+      supabaseUrl || "https://placeholder.supabase.co",
+      supabaseAnonKey || "placeholder-key"
+    );
+    return browserClient;
   }
 
   browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);

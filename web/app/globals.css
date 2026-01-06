@@ -45,86 +45,91 @@
 
 :root {
   --radius: 0.75rem;
-  /* Desk background */
-  --background: #f8fafc; /* slate-50 */
-  --foreground: #0f172a;
-  /* Paper */
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  /* Primary action */
-  --primary: #2563eb; /* blue-600 */
-  --primary-foreground: #ffffff;
-  --secondary: #e5edf5;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  /* Semantic */
-  --success: #059669; /* emerald-600 */
-  --success-soft: #ecfdf3;
-  --warning: #d97706; /* amber-600 */
-  --warning-soft: #fffbeb;
-  --destructive: #e11d48; /* rose-600 */
-  --destructive-foreground: #ffffff;
-  --destructive-soft: #fff1f2;
-  --muted-soft: #e5e7eb;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #2563eb;
-  --chart-1: #2563eb;
-  --chart-2: #059669;
-  --chart-3: #d97706;
-  --chart-4: #e11d48;
-  --chart-5: #7c3aed;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #2563eb;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #2563eb;
+  /* SAP Fiori Horizon - Morning Horizon (Light Theme) */
+  /* Background */
+  --background: #F5F6F7; /* SAP Horizon background */
+  --foreground: #32363A; /* SAP text color */
+  /* Cards */
+  --card: #FFFFFF;
+  --card-foreground: #32363A;
+  --popover: #FFFFFF;
+  --popover-foreground: #32363A;
+  /* Primary - SAP Blue */
+  --primary: #0070F2; /* SAP Horizon primary blue */
+  --primary-foreground: #FFFFFF;
+  --secondary: #E8F4F8; /* SAP light blue background */
+  --secondary-foreground: #0070F2;
+  --muted: #F5F6F7;
+  --muted-foreground: #6A6D70; /* SAP muted text */
+  --accent: #E8F4F8;
+  --accent-foreground: #0070F2;
+  /* Semantic Colors - SAP Fiori */
+  --success: #107E3E; /* SAP success green */
+  --success-soft: #E8F5E9;
+  --warning: #E9730C; /* SAP warning orange */
+  --warning-soft: #FFF4E6;
+  --destructive: #BB0000; /* SAP error red */
+  --destructive-foreground: #FFFFFF;
+  --destructive-soft: #FFEBEE;
+  --muted-soft: #D9D9D9;
+  --border: #D9D9D9; /* SAP border color */
+  --input: #D9D9D9;
+  --ring: #0070F2;
+  /* Chart colors - SAP Fiori palette */
+  --chart-1: #0070F2;
+  --chart-2: #107E3E;
+  --chart-3: #E9730C;
+  --chart-4: #BB0000;
+  --chart-5: #5C67E5;
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #32363A;
+  --sidebar-primary: #0070F2;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E8F4F8;
+  --sidebar-accent-foreground: #0070F2;
+  --sidebar-border: #D9D9D9;
+  --sidebar-ring: #0070F2;
 }
 
 .dark {
-  --background: #0d1a2a;
-  --foreground: #e5edf5;
-  --card: rgba(19, 33, 51, 0.95);
-  --card-foreground: #f1f6fb;
-  --popover: rgba(19, 33, 51, 0.98);
-  --popover-foreground: #f1f6fb;
-  --primary: #58a6ff;
-  --primary-foreground: #041121;
-  --secondary: rgba(36, 58, 87, 0.75);
-  --secondary-foreground: #e6f1ff;
-  --muted: rgba(25, 42, 64, 0.75);
-  --muted-foreground: #b9c7d9;
-  --accent: rgba(88, 166, 255, 0.35);
-  --accent-foreground: #f1f6fb;
-  --success: #22c55e;
-  --success-foreground: #032813;
-  --warning: #facc15;
-  --warning-foreground: #231a03;
-  --destructive: #f97066;
-  --border: rgba(88, 166, 255, 0.25);
-  --input: rgba(88, 166, 255, 0.25);
-  --ring: rgba(88, 166, 255, 0.6);
-  --chart-1: #58a6ff;
-  --chart-2: #4ade80;
-  --chart-3: #facc15;
-  --chart-4: #f97066;
-  --chart-5: #93c5fd;
-  --sidebar: rgba(8, 20, 33, 0.94);
-  --sidebar-foreground: #e5edf5;
-  --sidebar-primary: #58a6ff;
-  --sidebar-primary-foreground: #041121;
-  --sidebar-accent: rgba(88, 166, 255, 0.3);
-  --sidebar-accent-foreground: #f1f6fb;
-  --sidebar-border: rgba(88, 166, 255, 0.22);
-  --sidebar-ring: rgba(88, 166, 255, 0.55);
+  /* SAP Fiori Horizon - Evening Horizon (Dark Theme) */
+  --background: #1C2834; /* SAP dark background */
+  --foreground: #F5F6F7; /* SAP light text */
+  --card: #2A3A48; /* SAP dark card */
+  --card-foreground: #F5F6F7;
+  --popover: #2A3A48;
+  --popover-foreground: #F5F6F7;
+  --primary: #4DB1FF; /* SAP dark theme primary */
+  --primary-foreground: #1C2834;
+  --secondary: #2A3A48;
+  --secondary-foreground: #F5F6F7;
+  --muted: #2A3A48;
+  --muted-foreground: #A9B4BE; /* SAP dark muted text */
+  --accent: #2A3A48;
+  --accent-foreground: #4DB1FF;
+  --success: #5DC122; /* SAP dark success */
+  --success-foreground: #1C2834;
+  --warning: #FFB300; /* SAP dark warning */
+  --warning-foreground: #1C2834;
+  --destructive: #FF5C77; /* SAP dark error */
+  --destructive-foreground: #1C2834;
+  --border: #3A4A58; /* SAP dark border */
+  --input: #3A4A58;
+  --ring: #4DB1FF;
+  --chart-1: #4DB1FF;
+  --chart-2: #5DC122;
+  --chart-3: #FFB300;
+  --chart-4: #FF5C77;
+  --chart-5: #7B8FFF;
+  --sidebar: #1C2834;
+  --sidebar-foreground: #F5F6F7;
+  --sidebar-primary: #4DB1FF;
+  --sidebar-primary-foreground: #1C2834;
+  --sidebar-accent: #2A3A48;
+  --sidebar-accent-foreground: #4DB1FF;
+  --sidebar-border: #3A4A58;
+  --sidebar-ring: #4DB1FF;
 }
 
 @layer base {
@@ -134,14 +139,36 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* SAP Fiori Horizon Typography */
   h1,
   h2,
   h3,
   h4 {
-    @apply text-foreground;
+    @apply text-foreground font-semibold;
+    font-family: var(--font-sans);
+  }
+  h1 {
+    @apply text-2xl leading-tight;
+    font-weight: 600;
+  }
+  h2 {
+    @apply text-xl leading-tight;
+    font-weight: 600;
+  }
+  h3 {
+    @apply text-lg leading-snug;
+    font-weight: 600;
+  }
+  h4 {
+    @apply text-base leading-snug;
+    font-weight: 600;
+  }
+  body {
+    font-size: 0.875rem; /* 14px - SAP Fiori standard */
+    line-height: 1.5;
   }
   ::selection {
-    background-color: rgba(59, 130, 246, 0.2);
+    background-color: rgba(0, 112, 242, 0.2);
   }
 }
 
@@ -151,28 +178,53 @@
   }
 
   .sap-shell-bar {
-    @apply sticky top-0 z-40 border-b border-border/70 bg-card/90 backdrop-blur;
+    @apply sticky top-0 z-40 border-b border-border bg-card shadow-sm;
   }
 
   .sap-container {
-    @apply mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 lg:px-10;
+    @apply mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8;
   }
 
   .sap-card {
-    @apply rounded-2xl border border-border/40 bg-gradient-to-br from-white/95 via-card to-slate-100/90 shadow-[0_26px_60px_-28px_rgba(15,23,42,0.55)] backdrop-blur sm:rounded-3xl;
+    @apply rounded-xl border border-border bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)];
+  }
+
+  /* Colored card variants - SAP Fiori Horizon style */
+  .sap-card-primary {
+    @apply rounded-xl border shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_1px_2px_rgba(0,112,242,0.08)];
+    border-color: rgba(0, 112, 242, 0.2);
+    background: linear-gradient(to bottom right, rgba(0, 112, 242, 0.05), rgba(0, 112, 242, 0.03), transparent);
+  }
+
+  .sap-card-success {
+    @apply rounded-xl border shadow-[0_0_0_1px_rgba(16,126,62,0.1),0_1px_2px_rgba(16,126,62,0.08)];
+    border-color: rgba(16, 126, 62, 0.2);
+    background: linear-gradient(to bottom right, rgba(16, 126, 62, 0.05), rgba(16, 126, 62, 0.03), transparent);
+  }
+
+  .sap-card-warning {
+    @apply rounded-xl border shadow-[0_0_0_1px_rgba(233,115,12,0.1),0_1px_2px_rgba(233,115,12,0.08)];
+    border-color: rgba(233, 115, 12, 0.2);
+    background: linear-gradient(to bottom right, rgba(233, 115, 12, 0.05), rgba(233, 115, 12, 0.03), transparent);
+  }
+
+  .sap-card-info {
+    @apply rounded-xl border shadow-[0_0_0_1px_rgba(92,103,229,0.1),0_1px_2px_rgba(92,103,229,0.08)];
+    border-color: rgba(92, 103, 229, 0.2);
+    background: linear-gradient(to bottom right, rgba(92, 103, 229, 0.05), rgba(92, 103, 229, 0.03), transparent);
   }
 
   .sap-card-hero {
-    @apply rounded-2xl border border-border/40 bg-gradient-to-br from-primary/10 via-card to-slate-100/90 shadow-[0_30px_80px_-30px_rgba(37,99,235,0.7)] backdrop-blur sm:rounded-3xl;
+    @apply rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-[0_0_0_1px_rgba(0,112,242,0.15),0_2px_4px_rgba(0,112,242,0.12)];
   }
 
   .sap-card-hero:hover {
-    @apply shadow-[0_26px_80px_-32px_rgba(15,23,42,0.8)];
+    @apply shadow-[0_0_0_1px_rgba(0,112,242,0.2),0_4px_8px_rgba(0,112,242,0.15)];
   }
 
 
   .sap-card-body {
-    @apply space-y-3 p-3 sm:space-y-4 sm:p-4 md:space-y-5 md:p-6 lg:p-8;
+    @apply space-y-3 p-4 sm:space-y-4 sm:p-5 md:space-y-5 md:p-6;
   }
 
   .sap-card-header {
@@ -184,7 +236,7 @@
   }
 
   .sap-tile {
-    @apply rounded-xl border border-border/40 bg-gradient-to-br from-white/90 via-secondary/70 to-slate-100/80 p-3 shadow-[0_16px_40px_-24px_rgba(15,23,42,0.55)] transition-all hover:border-primary/40 hover:shadow-[0_18px_46px_-24px_rgba(37,99,235,0.65)] sm:rounded-2xl sm:p-4;
+    @apply rounded-xl border border-border bg-card p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] transition-all hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_4px_rgba(0,112,242,0.1)] sm:p-5;
   }
 
   .sap-pill-nav {
@@ -206,11 +258,27 @@
   }
 
   .sap-form {
-    @apply space-y-4 sm:space-y-5;
+    @apply space-y-3 sm:space-y-4 md:space-y-5;
   }
 
   .sap-form-grid {
-    @apply grid gap-3 sm:gap-4 md:gap-5 md:grid-cols-2;
+    @apply grid gap-3 sm:gap-4 md:grid-cols-2 md:gap-5;
+  }
+
+  /* Mobile-first form inputs */
+  .sap-form input,
+  .sap-form textarea,
+  .sap-form select {
+    @apply w-full text-base sm:text-sm;
+    min-height: 44px; /* Mobile touch target */
+  }
+
+  @media (min-width: 640px) {
+    .sap-form input,
+    .sap-form textarea,
+    .sap-form select {
+      min-height: 40px;
+    }
   }
 
   .sap-kpi-grid {
@@ -218,7 +286,32 @@
   }
 
   .sap-kpi-tile {
-    @apply rounded-2xl border border-border/60 bg-card/90 p-4 shadow-md transition text-foreground;
+    @apply rounded-xl border border-border bg-card p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] transition text-foreground sm:p-5;
+  }
+
+  /* Colored KPI tiles */
+  .sap-kpi-tile-primary {
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_1px_2px_rgba(0,112,242,0.08)] transition text-foreground sm:p-5;
+    border-color: rgba(0, 112, 242, 0.2);
+    background: linear-gradient(to bottom right, rgba(0, 112, 242, 0.05), transparent);
+  }
+
+  .sap-kpi-tile-success {
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(16,126,62,0.1),0_1px_2px_rgba(16,126,62,0.08)] transition text-foreground sm:p-5;
+    border-color: rgba(16, 126, 62, 0.2);
+    background: linear-gradient(to bottom right, rgba(16, 126, 62, 0.05), transparent);
+  }
+
+  .sap-kpi-tile-warning {
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(233,115,12,0.1),0_1px_2px_rgba(233,115,12,0.08)] transition text-foreground sm:p-5;
+    border-color: rgba(233, 115, 12, 0.2);
+    background: linear-gradient(to bottom right, rgba(233, 115, 12, 0.05), transparent);
+  }
+
+  .sap-kpi-tile-info {
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(92,103,229,0.1),0_1px_2px_rgba(92,103,229,0.08)] transition text-foreground sm:p-5;
+    border-color: rgba(92, 103, 229, 0.2);
+    background: linear-gradient(to bottom right, rgba(92, 103, 229, 0.05), transparent);
   }
 
 
@@ -227,7 +320,7 @@
   }
 
   .sap-module-card {
-    @apply flex flex-col gap-4 rounded-2xl border border-border/50 bg-card/90 p-5 shadow-md transition-all hover:border-primary/40 hover:bg-card;
+    @apply flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] transition-all hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_4px_rgba(0,112,242,0.1)] sm:p-6;
     color: var(--foreground);
   }
 
@@ -238,7 +331,7 @@
 
 
   .sap-icon-pill {
-    @apply inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-primary shadow-md;
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-md bg-muted text-foreground;
   }
 
   .sap-section-grid {
@@ -246,18 +339,29 @@
   }
 
   .sap-subtle {
-    @apply rounded-xl border border-dashed border-border/70 bg-white/60 p-4 text-center shadow-[0_12px_30px_-20px_rgba(15,23,42,0.4)] backdrop-blur sm:rounded-2xl sm:p-6;
+    @apply rounded-xl border border-dashed border-border bg-muted/50 p-5 text-center sm:p-6;
   }
   
-  /* Mobile-friendly touch targets */
-  @media (max-width: 640px) {
+  /* Mobile-first touch targets */
+  button, a[role="button"], [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  @media (min-width: 640px) {
     button, a[role="button"], [role="button"] {
-      min-height: 44px;
-      min-width: 44px;
+      min-height: 40px;
+      min-width: 40px;
     }
-    
+  }
+  
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS - mobile-first */
+  }
+
+  @media (min-width: 640px) {
     input, textarea, select {
-      font-size: 16px; /* Prevents zoom on iOS */
+      font-size: 14px; /* Smaller on desktop */
     }
   }
 }

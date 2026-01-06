@@ -110,41 +110,39 @@ export default async function CasesPage() {
     );
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-xl backdrop-blur sm:rounded-3xl sm:p-6 md:p-8">
-        <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-2 sm:space-y-3 min-w-0">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 shadow-lg sm:h-12 sm:w-12 sm:rounded-2xl md:h-14 md:w-14">
-                <Briefcase className="h-5 w-5 text-white sm:h-6 sm:w-6 md:h-7 md:w-7" />
+    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
+      {/* Hero Header - SAP Fiori Horizon Style */}
+      <div className="sap-card-hero">
+        <div className="sap-card-body">
+          <div className="sap-card-header">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm flex-shrink-0 sm:h-14 sm:w-14">
+                <Briefcase className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold text-foreground sm:text-2xl md:text-3xl">Matters & Cases</h1>
-                <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm line-clamp-2">
+                <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Matters & Cases</h1>
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                   Track litigation, advisory, and mediation matters across your entire practice.
                 </p>
               </div>
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-2">
-            <NewMatterSheet
-              clients={
-                clients?.map((client: any) => ({
-                  id: client.id,
-                  name: client.full_name ?? client.name ?? "Unnamed client",
-                })) ?? []
-              }
-              staff={staffOptions}
-            />
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2">
+              <NewMatterSheet
+                clients={
+                  clients?.map((client: any) => ({
+                    id: client.id,
+                    name: client.full_name ?? client.name ?? "Unnamed client",
+                  })) ?? []
+                }
+                staff={staffOptions}
+              />
+            </div>
           </div>
         </div>
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-blue-400/10 blur-2xl" />
       </div>
 
       {/* Data card with toolbar + full-width board */}
-      <div className="sap-card">
+      <div className="sap-card-primary">
         <div className="sap-card-body space-y-4">
           <div className="sap-card-header">
             <div className="min-w-0">

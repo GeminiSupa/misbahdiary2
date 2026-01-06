@@ -1,38 +1,34 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
-import {
-  SessionContextProvider,
-  useSessionContext,
-  type Session,
-} from "@supabase/auth-helpers-react";
+import { type ReactNode, createContext, useContext, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { getBrowserClient } from "@/lib/supabase/client";
 
-type SupabaseProviderProps = {
-  children: ReactNode;
-  initialSession?: Session | null;
+type SupabaseContextType = {
+  supabase: SupabaseClient<Database>;
 };
 
-export function SupabaseProvider({
-  children,
-  initialSession = null,
-}: SupabaseProviderProps) {
+const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
+
+type SupabaseProviderProps = {
+  children: ReactNode;
+};
+
+export function SupabaseProvider({ children }: SupabaseProviderProps) {
   const [supabaseClient] = useState<SupabaseClient<Database>>(() => getBrowserClient());
 
   return (
-    <SessionContextProvider supabaseClient={supabaseClient} initialSession={initialSession}>
+    <SupabaseContext.Provider value={{ supabase: supabaseClient }}>
       {children}
-    </SessionContextProvider>
+    </SupabaseContext.Provider>
   );
 }
 
 export function useSupabase() {
-  const context = useSessionContext();
-  return {
-    ...context,
-    supabase: context.supabaseClient,
-  };
+  const context = useContext(SupabaseContext);
+  if (context === undefined) {
+    throw new Error("useSupabase must be used within a SupabaseProvider");
+  }
+  return context;
 }
-

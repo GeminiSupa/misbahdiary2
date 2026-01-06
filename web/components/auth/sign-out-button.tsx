@@ -36,7 +36,7 @@ export function SignOutButton({
     <Button
       variant={variant}
       size={size}
-      className={className}
+      className={cn("min-h-[44px] sm:min-h-[40px]", className)}
       onClick={handleSignOut}
       disabled={isLoading}
       aria-label="Sign out"
