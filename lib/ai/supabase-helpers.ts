@@ -86,7 +86,7 @@ export async function saveKGNode(
     const supabase = await createSupabaseServerClient();
     
     const { data, error } = await supabase
-      .from('kg_nodes')
+      .from('kg_nodes' as any)
       .insert(node)
       .select()
       .single();
@@ -113,7 +113,7 @@ export async function findKGNode(
     const supabase = await createSupabaseServerClient();
     
     const { data, error } = await supabase
-      .from('kg_nodes')
+      .from('kg_nodes' as any)
       .select('*')
       .eq('firm_id', firmId)
       .eq('node_type', nodeType)
@@ -142,7 +142,7 @@ export async function saveKGEdge(
     
     // Check if edge already exists
     const { data: existing } = await supabase
-      .from('kg_edges')
+      .from('kg_edges' as any)
       .select('id')
       .eq('firm_id', edge.firm_id)
       .eq('source_id', edge.source_id)
@@ -154,7 +154,7 @@ export async function saveKGEdge(
     if (existing) {
       // Update existing edge
       const { data, error } = await supabase
-        .from('kg_edges')
+        .from('kg_edges' as any)
         .update({
           properties: edge.properties,
           weight: edge.weight,
@@ -172,7 +172,7 @@ export async function saveKGEdge(
 
     // Insert new edge
     const { data, error } = await supabase
-      .from('kg_edges')
+      .from('kg_edges' as any)
       .insert(edge)
       .select()
       .single();
@@ -199,7 +199,7 @@ export async function getKGNodesByType(
     const supabase = await createSupabaseServerClient();
     
     const { data, error } = await supabase
-      .from('kg_nodes')
+      .from('kg_nodes' as any)
       .select('*')
       .eq('firm_id', firmId)
       .eq('node_type', nodeType)
@@ -227,7 +227,7 @@ export async function getKGEdgesForNode(
     const supabase = await createSupabaseServerClient();
     
     let query = supabase
-      .from('kg_edges')
+      .from('kg_edges' as any)
       .select('*')
       .eq('firm_id', firmId);
 
