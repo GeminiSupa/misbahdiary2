@@ -4,10 +4,10 @@
   "installCommand": "cd web && npm install",
   "framework": "nextjs",
   "functions": {
-    "web/app/api/**/*.ts": {
+    "app/api/**/*.ts": {
       "maxDuration": 60
     },
-    "web/app/api/ai/**/*.ts": {
+    "app/api/ai/**/*.ts": {
       "maxDuration": 300
     }
   }
