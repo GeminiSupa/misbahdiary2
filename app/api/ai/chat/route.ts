@@ -122,7 +122,7 @@ Be concise but thorough. Focus on actionable insights for legal practice.`;
     }
 
     // Log query to history
-    const { data: queryHistory, error: historyError } = await supabase
+    const queryResult = await supabase
       .from('ai_query_history' as any)
       .insert({
         firm_id: profile.firm_id,
@@ -135,7 +135,10 @@ Be concise but thorough. Focus on actionable insights for legal practice.`;
         metadata: context || {},
       })
       .select()
-      .single() as { data: { id: string } | null; error: any };
+      .single();
+    
+    const queryHistory = queryResult.data as { id: string } | null;
+    const historyError = queryResult.error;
 
     if (historyError) {
       console.error('Error logging query history:', historyError);
