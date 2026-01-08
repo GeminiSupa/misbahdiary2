@@ -100,26 +100,32 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
       </Button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-3 w-[calc(100vw-2rem)] max-w-80 sm:w-80 rounded-2xl border border-border/70 bg-card/95 p-3 sm:p-4 shadow-xl backdrop-blur">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-foreground">Notifications</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={isPending || visibleNotifications.length === 0}
-              onClick={handleMarkAll}
-              className="text-xs h-8 px-2 sm:px-3"
-            >
-              {isPending ? (
-                <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-              )}
-              <span className="hidden sm:inline">Mark all</span>
-              <span className="sm:hidden">All</span>
-            </Button>
-          </div>
-          <div className="space-y-2 max-h-[60vh] sm:max-h-80 overflow-y-auto">
+        <>
+          {/* Backdrop for mobile */}
+          <div 
+            className="fixed inset-0 z-40 bg-black/20 sm:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute right-0 sm:right-0 left-auto sm:left-auto z-50 mt-3 w-[calc(100vw-1rem)] sm:w-80 max-w-80 rounded-2xl border border-border/70 bg-card/95 p-3 sm:p-4 shadow-xl backdrop-blur max-h-[calc(100vh-8rem)] sm:max-h-[80vh] flex flex-col">
+            <div className="mb-3 flex items-center justify-between gap-2 flex-shrink-0">
+              <p className="text-sm font-semibold text-foreground">Notifications</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isPending || visibleNotifications.length === 0}
+                onClick={handleMarkAll}
+                className="text-xs h-8 px-2 sm:px-3"
+              >
+                {isPending ? (
+                  <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                )}
+                <span className="hidden sm:inline">Mark all</span>
+                <span className="sm:hidden">All</span>
+              </Button>
+            </div>
+            <div className="space-y-2 overflow-y-auto flex-1 min-h-0">
             {visibleNotifications.length === 0 ? (
               <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-6 text-center">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-muted-foreground/50 mb-2" />
@@ -184,8 +190,9 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                 );
               })
             )}
+            </div>
           </div>
-        </div>
+        </>
       ) : null}
     </div>
   );
