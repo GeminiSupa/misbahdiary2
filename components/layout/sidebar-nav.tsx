@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import {
   LayoutDashboard,
   Briefcase,
@@ -34,31 +35,41 @@ export function SidebarNav() {
   };
 
   return (
-    <nav className="space-y-1 px-2 py-2 sm:px-3 sm:py-3">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const active = isActive(item.href);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-2.5 sm:gap-3 rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 text-sm font-medium transition-all min-h-[44px] sm:min-h-[40px]",
-              active
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground active:bg-muted",
-            )}
-          >
-            <Icon className={cn(
-              "h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0",
-              active && "text-primary-foreground"
-            )} />
-            <span className="truncate opacity-0 md:group-hover:opacity-100 md:group-hover:inline hidden md:inline">{item.label}</span>
-            <span className="truncate md:hidden">{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
+    <>
+      <nav className="space-y-1 px-2 py-2 sm:px-3 sm:py-3">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2.5 sm:gap-3 rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 text-sm font-medium transition-all min-h-[44px] sm:min-h-[40px]",
+                active
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground active:bg-muted",
+              )}
+            >
+              <Icon className={cn(
+                "h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0",
+                active && "text-primary-foreground"
+              )} />
+              <span className="truncate opacity-0 md:group-hover:opacity-100 md:group-hover:inline hidden md:inline">{item.label}</span>
+              <span className="truncate md:hidden">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+      {/* Logout button in sidebar for mobile */}
+      <div className="md:hidden border-t border-border px-2 py-2 sm:px-3 sm:py-3">
+        <SignOutButton
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm"
+        />
+      </div>
+    </>
   );
 }
 

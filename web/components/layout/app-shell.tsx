@@ -33,7 +33,7 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
           </div>
           <SidebarNav />
         </div>
-        <div className="border-t border-border px-3 py-3 sm:px-4">
+        <div className="hidden md:block border-t border-border px-3 py-3 sm:px-4">
           <SignOutButton
             variant="ghost"
             size="sm"
@@ -61,11 +61,12 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 flex-1 justify-end">
                 <TimerControl />
-                <NotificationBell notifications={notifications} />
-                <SignOutButton variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" />
                 <AppNav />
+                <div className="flex items-center gap-1.5">
+                  <NotificationBell notifications={notifications} />
+                </div>
               </div>
             </div>
 
@@ -81,9 +82,11 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
               </form>
             </div>
 
-            <div className="hidden items-center justify-end gap-2 md:flex md:flex-none">
+            <div className="hidden items-center justify-end gap-3 md:flex md:flex-none">
               <TimerControl />
-              <NotificationBell notifications={notifications} />
+              <div className="relative flex items-center">
+                <NotificationBell notifications={notifications} />
+              </div>
             </div>
           </div>
         </header>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -71,6 +72,13 @@ export function AppNav() {
                 {item.label}
               </Link>
             ))}
+            <div className="mt-4 pt-4 border-t border-border/60">
+              <SignOutButton
+                variant="ghost"
+                size="default"
+                className="w-full justify-start px-4 py-3.5 min-h-[44px] text-base sm:text-sm sm:min-h-[40px]"
+              />
+            </div>
           </nav>
         </div>
       ) : null}

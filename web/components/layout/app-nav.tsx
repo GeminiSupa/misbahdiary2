@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
