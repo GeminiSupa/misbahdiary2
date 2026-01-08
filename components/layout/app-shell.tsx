@@ -61,10 +61,10 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-1 justify-end">
                 <TimerControl />
                 <AppNav />
-                <div className="ml-auto">
+                <div className="flex items-center">
                   <NotificationBell notifications={notifications} />
                 </div>
               </div>
