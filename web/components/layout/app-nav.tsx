@@ -32,7 +32,8 @@ export function AppNav() {
 
   return (
     <div className="flex items-center gap-2">
-      <nav className="sap-pill-nav">
+      {/* Desktop horizontal nav - hidden on mobile */}
+      <nav className="sap-pill-nav hidden md:flex">
         {navItems.map((item) => (
           <Link
             key={item.href}
@@ -44,6 +45,7 @@ export function AppNav() {
         ))}
       </nav>
 
+      {/* Mobile hamburger menu - only visible on mobile */}
       <Button
         variant="ghost"
         size="icon-sm"
