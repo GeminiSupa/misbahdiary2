@@ -45,10 +45,14 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
     if (open) {
       handleClose();
     } else {
-      setOpen(true);
       setIsAnimating(true);
-      // Trigger animation after mount
-      setTimeout(() => setIsAnimating(false), 10);
+      setOpen(true);
+      // Trigger slide-in animation after mount
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsAnimating(false);
+        });
+      });
     }
   };
 
