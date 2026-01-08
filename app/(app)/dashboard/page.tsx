@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { AIAssistantChat } from "@/components/ai/ai-assistant-chat";
 
 type KpiRow = {
   label: string;
@@ -236,30 +235,6 @@ export default async function DashboardPage() {
               </Button>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* AI Assistant Quick Access */}
-      <div className="sap-card-info">
-        <div className="sap-card-body p-0">
-          <div className="p-4 border-b border-border/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-foreground sm:text-lg">
-                  AI Research Assistant
-                </h2>
-                <p className="text-xs text-muted-foreground sm:text-sm mt-0.5">
-                  Quick access to AI-powered research and document analysis
-                </p>
-              </div>
-              <Button asChild variant="outline" size="sm" className="hidden sm:flex">
-                <Link href="/ai-assistant">Open Full Assistant</Link>
-              </Button>
-            </div>
-          </div>
-          <div className="h-[380px] sm:h-[450px]">
-            <AIAssistantChat />
-          </div>
         </div>
       </div>
     </div>

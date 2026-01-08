@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { MatterDocumentUploader, DocumentDownloadButton } from "@/components/cases/matter-document-uploader";
-import { DocumentAnalysisCard } from "@/components/ai/document-analysis-card";
 import { FileText, Upload, Download, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -72,11 +71,6 @@ export function MatterDocumentsCard({ matterId, documents }: MatterDocumentsCard
                     )}
                   </div>
                 </article>
-                {/* AI Analysis Card for this document */}
-                <DocumentAnalysisCard
-                  documentId={doc.id}
-                  fileName={doc.fileName}
-                />
               </div>
             ))}
           </div>
