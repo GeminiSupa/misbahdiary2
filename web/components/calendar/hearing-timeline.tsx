@@ -218,7 +218,7 @@ function HearingCard({
         {hearing.durationMinutes ? (
           <span>Duration: {hearing.durationMinutes} minutes</span>
         ) : null}
-        {hearing.location ? <span>Venue: {hearing.location}</span> : null}
+        {hearing.location ? <span>Court: {hearing.location}</span> : null}
       </div>
       <div className="mt-3 text-sm text-muted-foreground">
         <p>

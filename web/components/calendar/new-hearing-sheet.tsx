@@ -31,11 +31,11 @@ export function NewHearingSheet({
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent side="right">
+      <SheetContent side="right" className="w-full sm:w-[400px] lg:w-[500px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Schedule hearing</SheetTitle>
         </SheetHeader>
-        <div className="mt-2 h-full overflow-y-auto">
+        <div className="mt-2 h-full overflow-y-auto pb-4">
           <HearingForm matters={matters} onSuccess={() => setOpen(false)} />
         </div>
       </SheetContent>

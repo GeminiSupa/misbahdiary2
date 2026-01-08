@@ -65,11 +65,11 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
           Reschedule
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Update hearing</DialogTitle>
           <DialogDescription>
-            Adjust the hearing date, duration, or location. Notifications will be sent automatically.
+            Adjust the hearing date, duration, or court. Notifications will be sent automatically.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -98,7 +98,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               )}
             />
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="scheduledAt"
@@ -106,7 +106,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormItem>
                     <FormLabel>Date & time</FormLabel>
                     <FormControl>
-                      <Input {...field} type="datetime-local" />
+                      <Input {...field} type="datetime-local" className="text-base sm:text-sm h-10 sm:h-11" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,7 +120,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormItem>
                     <FormLabel>Duration (minutes)</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" min={5} step={5} />
+                      <Input {...field} type="number" min={5} step={5} className="text-base sm:text-sm h-10 sm:h-11" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,9 +133,9 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Court</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Courtroom, chamber, or virtual link" />
+                    <Input {...field} placeholder="Court name or location" className="text-base sm:text-sm h-10 sm:h-11" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,12 +170,13 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>Nature of Proceedings</FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
                       rows={3}
-                      placeholder="Updated guidance or preparation notes..."
+                      placeholder="Describe the nature of proceedings, guidance or preparation notes..."
+                      className="text-base sm:text-sm resize-none"
                     />
                   </FormControl>
                   <FormMessage />
@@ -183,13 +184,14 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               )}
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
               <DialogClose asChild>
-                <Button variant="ghost">Cancel</Button>
+                <Button variant="ghost" className="w-full sm:w-auto h-11 sm:h-10">Cancel</Button>
               </DialogClose>
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending} className="w-full sm:w-auto h-11 sm:h-10 text-base sm:text-sm">
                 {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Save changes
+                <span className="hidden sm:inline">Save changes</span>
+                <span className="sm:hidden">Save</span>
               </Button>
             </div>
           </form>

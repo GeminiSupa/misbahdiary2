@@ -100,7 +100,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
       </Button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-3 w-80 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-xl backdrop-blur">
+        <div className="absolute right-0 z-50 mt-3 w-[calc(100vw-2rem)] max-w-80 sm:w-80 rounded-2xl border border-border/70 bg-card/95 p-3 sm:p-4 shadow-xl backdrop-blur">
           <div className="mb-3 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-foreground">Notifications</p>
             <Button
@@ -108,17 +108,18 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
               size="sm"
               disabled={isPending || visibleNotifications.length === 0}
               onClick={handleMarkAll}
-              className="text-xs"
+              className="text-xs h-8 px-2 sm:px-3"
             >
               {isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
               ) : (
-                <CheckCircle2 className="mr-2 h-4 w-4" />
+                <CheckCircle2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               )}
-              Mark all
+              <span className="hidden sm:inline">Mark all</span>
+              <span className="sm:hidden">All</span>
             </Button>
           </div>
-          <div className="space-y-2 max-h-80 overflow-y-auto">
+          <div className="space-y-2 max-h-[60vh] sm:max-h-80 overflow-y-auto">
             {visibleNotifications.length === 0 ? (
               <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-6 text-center">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-muted-foreground/50 mb-2" />
@@ -149,7 +150,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                 return (
                   <div
                     key={notification.id}
-                    className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-background/70 p-3 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
+                    className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-background/70 p-2.5 sm:p-3 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
                   >
                     {notification.link ? (
                       <a href={notification.link} className="block">
@@ -161,19 +162,21 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="mt-2 w-full"
+                      className="mt-2 w-full h-8 sm:h-9 text-xs sm:text-sm"
                       disabled={isPending || localReadIds.has(notification.id)}
                       onClick={() => handleMarkRead(notification.id)}
                     >
                       {localReadIds.has(notification.id) ? (
                         <>
-                          <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" />
-                          Marked
+                          <CheckCircle2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
+                          <span className="hidden sm:inline">Marked</span>
+                          <span className="sm:hidden">Done</span>
                         </>
                       ) : (
                         <>
-                          <Check className="mr-2 h-4 w-4" />
-                          Mark as read
+                          <Check className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <span className="hidden sm:inline">Mark as read</span>
+                          <span className="sm:hidden">Read</span>
                         </>
                       )}
                     </Button>

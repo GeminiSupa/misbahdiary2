@@ -140,7 +140,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
               )}
             />
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="scheduledAt"
@@ -151,7 +151,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                       Date & Time
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} type="datetime-local" className="h-10" />
+                      <Input {...field} type="datetime-local" className="h-10 sm:h-11 text-base sm:text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -174,7 +174,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                         min={5}
                         step={5}
                         onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-10"
+                        className="h-10 sm:h-11 text-base sm:text-sm"
                       />
                     </FormControl>
                     <FormDescription className="text-xs">Minimum 5 minutes, increments of 5</FormDescription>
@@ -191,13 +191,13 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5" />
-                    Venue / Location
+                    Court
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Courtroom, chamber, or virtual link"
-                      className="h-10"
+                      placeholder="Court name or location"
+                      className="h-10 sm:h-11 text-base sm:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -239,7 +239,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
           <div className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-border/40">
               <FileText className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Additional Information</h3>
+              <h3 className="text-sm font-semibold text-foreground">Nature of Proceedings</h3>
             </div>
 
             <FormField
@@ -247,17 +247,17 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>Nature of Proceedings</FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
                       rows={4}
-                      placeholder="Prep checklist, evidence reminders, counsel notes..."
-                      className="resize-none"
+                      placeholder="Describe the nature of proceedings, prep checklist, evidence reminders..."
+                      className="resize-none text-base sm:text-sm"
                     />
                   </FormControl>
                   <FormDescription className="text-xs">
-                    Add any important reminders or preparation notes
+                    Describe the type of hearing and any important preparation notes
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -268,25 +268,28 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
           <Separator />
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => form.reset()}
               disabled={isSubmitting}
+              className="w-full sm:w-auto h-11 sm:h-10"
             >
               Reset
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-[140px] h-11 sm:h-10 text-base sm:text-sm">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Scheduling...
+                  <span className="hidden sm:inline">Scheduling...</span>
+                  <span className="sm:hidden">Scheduling</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Schedule Hearing
+                  <span className="hidden sm:inline">Schedule Hearing</span>
+                  <span className="sm:hidden">Schedule</span>
                 </>
               )}
             </Button>
