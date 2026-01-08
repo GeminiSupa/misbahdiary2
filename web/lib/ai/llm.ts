@@ -4,6 +4,8 @@
  */
 
 import OpenAI from 'openai';
+import type { Stream } from 'openai/streaming';
+import type { ChatCompletion, ChatCompletionChunk } from 'openai/resources/chat/completions';
 import { AI_CONFIG } from './config';
 
 let openaiClient: OpenAI | null = null;
@@ -40,6 +42,9 @@ export async function generateChatCompletion(
   try {
     const client = getOpenAIClient();
 
+    // Ensure stream is false for non-streaming responses
+    const stream = options?.stream ?? false;
+    
     const response = await client.chat.completions.create({
       model: AI_CONFIG.llm.model,
       messages: messages.map(msg => ({
@@ -48,14 +53,29 @@ export async function generateChatCompletion(
       })),
       temperature: options?.temperature ?? AI_CONFIG.llm.temperature,
       max_tokens: options?.max_tokens ?? AI_CONFIG.llm.max_tokens,
-      stream: options?.stream ?? false,
+      stream: stream,
     });
 
-    if (!response.choices || response.choices.length === 0) {
+    // Handle streaming response
+    if (stream) {
+      let fullContent = '';
+      // TypeScript: when stream is true, response is a Stream<ChatCompletionChunk>
+      const streamResponse = response as Stream<ChatCompletionChunk>;
+      for await (const chunk of streamResponse) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        fullContent += content;
+      }
+      return fullContent;
+    }
+
+    // Handle non-streaming response
+    // TypeScript: when stream is false, response is a ChatCompletion
+    const completion = response as ChatCompletion;
+    if (!completion.choices || completion.choices.length === 0) {
       throw new Error('No response from LLM');
     }
 
-    return response.choices[0].message?.content || '';
+    return completion.choices[0].message?.content || '';
   } catch (error) {
     console.error('Error generating chat completion:', error);
     throw error;

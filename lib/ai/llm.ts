@@ -4,6 +4,8 @@
  */
 
 import OpenAI from 'openai';
+import type { Stream } from 'openai/streaming';
+import type { ChatCompletion, ChatCompletionChunk } from 'openai/resources/chat/completions';
 import { AI_CONFIG } from './config';
 
 let openaiClient: OpenAI | null = null;
@@ -57,7 +59,9 @@ export async function generateChatCompletion(
     // Handle streaming response
     if (stream) {
       let fullContent = '';
-      for await (const chunk of response as any) {
+      // TypeScript: when stream is true, response is a Stream<ChatCompletionChunk>
+      const streamResponse = response as Stream<ChatCompletionChunk>;
+      for await (const chunk of streamResponse) {
         const content = chunk.choices[0]?.delta?.content || '';
         fullContent += content;
       }
@@ -65,7 +69,8 @@ export async function generateChatCompletion(
     }
 
     // Handle non-streaming response
-    const completion = response as any;
+    // TypeScript: when stream is false, response is a ChatCompletion
+    const completion = response as ChatCompletion;
     if (!completion.choices || completion.choices.length === 0) {
       throw new Error('No response from LLM');
     }
