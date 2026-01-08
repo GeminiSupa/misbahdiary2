@@ -47,8 +47,8 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
         <header className="sap-shell-bar border-b border-border bg-card">
           <div className="sap-container flex flex-col gap-2.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-3">
             {/* Mobile brand + nav */}
-            <div className="flex items-center justify-between gap-2 sm:gap-3 md:hidden">
-              <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-between gap-2 sm:gap-3 md:hidden w-full">
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground shadow-sm sm:h-10 sm:w-10 sm:text-sm">
                   LD
                 </span>
@@ -61,12 +61,10 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-1 justify-end">
+              <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
                 <TimerControl />
                 <AppNav />
-                <div className="flex items-center gap-1.5">
-                  <NotificationBell notifications={notifications} />
-                </div>
+                <NotificationBell notifications={notifications} />
               </div>
             </div>
 
