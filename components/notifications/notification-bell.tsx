@@ -35,7 +35,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [localReadIds, setLocalReadIds] = useState<Set<string>>(new Set());
-  const [isClosing, setIsClosing] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef<number>(0);
   const currentYRef = useRef<number>(0);
@@ -46,15 +46,17 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
       handleClose();
     } else {
       setOpen(true);
-      setIsClosing(false);
+      setIsAnimating(true);
+      // Trigger animation after mount
+      setTimeout(() => setIsAnimating(false), 10);
     }
   };
 
   const handleClose = () => {
-    setIsClosing(true);
+    setIsAnimating(true);
     setTimeout(() => {
       setOpen(false);
-      setIsClosing(false);
+      setIsAnimating(false);
     }, 300);
   };
 
@@ -197,8 +199,8 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
             {/* Backdrop with fade animation */}
             <div 
               className={cn(
-                "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
-                isClosing ? "opacity-0" : "opacity-100"
+                "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-out",
+                isAnimating ? "opacity-0" : "opacity-100"
               )}
               onClick={handleClose}
             />
@@ -207,8 +209,8 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
             <div
               ref={panelRef}
               className={cn(
-                "absolute inset-x-0 top-0 bottom-0 bg-white dark:bg-gray-900 flex flex-col shadow-2xl transition-transform duration-300 ease-out",
-                isClosing ? "translate-y-full" : "translate-y-0"
+                "absolute inset-x-0 top-0 bottom-0 bg-white dark:bg-gray-900 flex flex-col shadow-2xl transition-transform duration-300 ease-out will-change-transform",
+                isAnimating ? "translate-y-full" : "translate-y-0"
               )}
             >
               {/* Header - Facebook style */}
