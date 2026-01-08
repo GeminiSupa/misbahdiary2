@@ -213,8 +213,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
           </div>
 
           {/* Desktop: Dropdown popup */}
-          <div className="hidden sm:block">
-            <div className="absolute right-0 top-full mt-3 z-50 w-80 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-xl backdrop-blur max-h-[80vh] flex flex-col">
+          <div className="hidden sm:block absolute right-0 top-full mt-3 z-50 w-80 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-xl backdrop-blur max-h-[80vh] flex flex-col">
               <div className="mb-3 flex items-center justify-between gap-2 flex-shrink-0">
                 <p className="text-sm font-semibold text-foreground">Notifications</p>
                 <Button
@@ -276,7 +275,6 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                   ))
                 )}
               </div>
-            </div>
         </>
       ) : null}
     </div>
