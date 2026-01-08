@@ -61,13 +61,28 @@ export function SignInForm() {
     setIsSubmitting(true);
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      // Check if Supabase is properly configured
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        setError("Supabase is not configured. Please contact your administrator.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { error: signInError, data } = await supabase.auth.signInWithPassword({
         email: values.email.trim(),
         password: values.password,
       });
 
       if (signInError) {
-        setError(signInError.message || "Failed to sign in. Please check your credentials.");
+        // Handle specific error cases
+        if (signInError.message.includes("fetch") || signInError.message.includes("network")) {
+          setError("Unable to connect to the authentication server. Please check your internet connection and try again.");
+        } else {
+          setError(signInError.message || "Failed to sign in. Please check your credentials.");
+        }
         return;
       }
 
@@ -75,7 +90,13 @@ export function SignInForm() {
       router.refresh();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to connect to the server. Please check your internet connection and try again.";
-      setError(errorMessage);
+      
+      // Check for common network errors
+      if (errorMessage.includes("fetch") || errorMessage.includes("Failed to fetch")) {
+        setError("Unable to connect to the authentication server. Please check your internet connection and ensure Supabase is properly configured.");
+      } else {
+        setError(errorMessage);
+      }
       console.error("Sign in error:", err);
     } finally {
       setIsSubmitting(false);
