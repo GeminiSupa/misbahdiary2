@@ -106,7 +106,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
             className="fixed inset-0 z-40 bg-black/20 sm:hidden"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 sm:right-0 left-auto sm:left-auto z-50 mt-3 w-[calc(100vw-1rem)] sm:w-80 max-w-80 rounded-2xl border border-border/70 bg-card/95 p-3 sm:p-4 shadow-xl backdrop-blur max-h-[calc(100vh-8rem)] sm:max-h-[80vh] flex flex-col">
+          <div className="fixed right-2 top-16 sm:absolute sm:right-0 sm:top-auto sm:mt-3 z-50 w-[calc(100vw-1rem)] sm:w-80 max-w-80 rounded-2xl border border-border/70 bg-card/95 p-3 sm:p-4 shadow-xl backdrop-blur max-h-[calc(100vh-6rem)] sm:max-h-[80vh] flex flex-col">
             <div className="mb-3 flex items-center justify-between gap-2 flex-shrink-0">
               <p className="text-sm font-semibold text-foreground">Notifications</p>
               <Button
