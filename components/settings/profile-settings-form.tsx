@@ -35,6 +35,7 @@ type ProfileSettingsFormProps = {
 export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -59,87 +60,6 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
       confirmPassword: "",
     },
   });
-
-  const onSubmit = async (values: {
-    fullName: string;
-    phone: string;
-    languagePreference: "en" | "ur";
-  }) => {
-    setFormError(null);
-    setIsSubmitting(true);
-
-    const result = await updateProfileSettings({
-      fullName: values.fullName,
-      phone: values.phone,
-      languagePreference: values.languagePreference,
-    });
-
-    if (result.success) {
-      router.refresh();
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (result.fieldErrors) {
-      Object.entries(result.fieldErrors).forEach(([key, messages]) => {
-        const message = messages?.[0];
-        if (message) {
-          form.setError(key as "fullName" | "phone" | "languagePreference", {
-            type: "server",
-            message,
-          });
-        }
-      });
-    }
-
-    if (result.message) {
-      setFormError(result.message);
-    }
-
-    setIsSubmitting(false);
-  };
-
-  const onPasswordSubmit = async (values: {
-    currentPassword: string;
-    newPassword: string;
-    confirmPassword: string;
-  }) => {
-    setPasswordError(null);
-    setIsChangingPassword(true);
-
-    const result = await changePassword({
-      currentPassword: values.currentPassword,
-      newPassword: values.newPassword,
-      confirmPassword: values.confirmPassword,
-    });
-
-    if (result.success) {
-      passwordForm.reset();
-      router.refresh();
-      setIsChangingPassword(false);
-      return;
-    }
-
-    if (result.fieldErrors) {
-      Object.entries(result.fieldErrors).forEach(([key, messages]) => {
-        const message = messages?.[0];
-        if (message) {
-          passwordForm.setError(key as "currentPassword" | "newPassword" | "confirmPassword", {
-            type: "server",
-            message,
-          });
-        }
-      });
-    }
-
-    if (result.message) {
-      setPasswordError(result.message);
-    }
-
-    setIsChangingPassword(false);
-  };
-
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
   const onSubmit = async (values: {
     fullName: string;
