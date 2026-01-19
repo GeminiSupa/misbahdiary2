@@ -86,13 +86,13 @@ export function SettingsTabs({
   const [activeTab, setActiveTab] = useState<string>("profile");
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
-      {/* Left vertical tab menu */}
-      <nav className="w-full rounded-2xl border border-border/60 bg-card/90 p-2 shadow-sm md:w-64 md:p-3">
-        <div className="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Settings
+    <div className="flex flex-col gap-4">
+      {/* Top horizontal tab menu for better space usage */}
+      <div className="w-full">
+        <div className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Settings Categories
         </div>
-        <div className="flex flex-row gap-1.5 overflow-x-auto pb-2 md:flex-col md:gap-1 md:pb-0">
+        <div className="flex flex-row gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -102,12 +102,12 @@ export function SettingsTabs({
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "inline-flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                  "whitespace-nowrap md:w-full min-h-[44px] sm:min-h-[40px]",
+                  "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap",
+                  "min-h-[44px] sm:min-h-[40px] flex-shrink-0",
                   "hover:scale-[1.02] active:scale-[0.98]",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground border border-border/60 bg-card/50",
                 )}
               >
                 <Icon className={cn("h-4 w-4 flex-shrink-0", isActive && "text-primary-foreground")} />
@@ -116,10 +116,10 @@ export function SettingsTabs({
             );
           })}
         </div>
-      </nav>
+      </div>
 
-      {/* Right content panel */}
-      <div className="flex-1 min-w-0">
+      {/* Content panel */}
+      <div className="w-full">
         {activeTab === "profile" && (
           <ProfileSettingsForm initialValues={profileInitial} />
         )}
