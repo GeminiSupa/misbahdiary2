@@ -88,11 +88,11 @@ export function SettingsTabs({
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
       {/* Left vertical tab menu */}
-      <nav className="w-full rounded-2xl border border-border/60 bg-card/90 p-3 shadow-sm md:w-64">
-        <div className="mb-2 px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Workspace
+      <nav className="w-full rounded-2xl border border-border/60 bg-card/90 p-2 shadow-sm md:w-64 md:p-3">
+        <div className="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Settings
         </div>
-        <div className="flex flex-row gap-2 overflow-x-auto md:flex-col md:gap-1">
+        <div className="flex flex-row gap-1.5 overflow-x-auto pb-2 md:flex-col md:gap-1 md:pb-0">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -102,14 +102,15 @@ export function SettingsTabs({
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors",
-                  "whitespace-nowrap md:w-full",
+                  "inline-flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                  "whitespace-nowrap md:w-full min-h-[44px] sm:min-h-[40px]",
+                  "hover:scale-[1.02] active:scale-[0.98]",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/60",
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={cn("h-4 w-4 flex-shrink-0", isActive && "text-primary-foreground")} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -118,105 +119,79 @@ export function SettingsTabs({
       </nav>
 
       {/* Right content panel */}
-      <div className="flex-1">
-        <div className="sap-card">
-          <div className="sap-card-body space-y-6">
-            {activeTab === "profile" && (
-              <>
-                <div className="sap-card-header">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Profile settings</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Update your name, contact details, and language preferences.
-                    </p>
-                  </div>
-                </div>
-                <ProfileSettingsForm initialValues={profileInitial} />
-              </>
-            )}
+      <div className="flex-1 min-w-0">
+        {activeTab === "profile" && (
+          <ProfileSettingsForm initialValues={profileInitial} />
+        )}
 
-            {activeTab === "firm" && (
-              <>
-                <div className="sap-card-header">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Firm information</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Manage your firm’s name, billing contact details, and address.
-                    </p>
-                  </div>
-                </div>
-                <FirmSettingsCard initialValues={firmInitial} canEdit={canEditFirm} />
-              </>
-            )}
+        {activeTab === "firm" && (
+          <FirmSettingsCard initialValues={firmInitial} canEdit={canEditFirm} />
+        )}
 
-            {activeTab === "notifications" && (
-              <>
-                <div className="sap-card-header">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Notifications</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Choose which reminders and product announcements you receive.
-                    </p>
-                  </div>
-                </div>
-                <NotificationSettingsForm initialValues={notificationInitial} />
-              </>
-            )}
+        {activeTab === "notifications" && (
+          <NotificationSettingsForm initialValues={notificationInitial} />
+        )}
 
-            {activeTab === "team" && (
-              <TeamManagement
-                teamMembers={teamMembers}
-                invitations={inviteRows}
-                staffMembers={staffRows}
-                canManageTeam={canManageStaff}
-                canCreateUsers={canCreateUsers}
-                currentUserRole={currentUserRole}
-              />
-            )}
+        {activeTab === "team" && (
+          <TeamManagement
+            teamMembers={teamMembers}
+            invitations={inviteRows}
+            staffMembers={staffRows}
+            canManageTeam={canManageStaff}
+            canCreateUsers={canCreateUsers}
+            currentUserRole={currentUserRole}
+          />
+        )}
 
-            {activeTab === "billing" && (
-              <>
-                <div className="sap-card-header">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Billing settings</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Configure invoice defaults and billing preferences. This area is a placeholder
-                      for future billing configuration.
-                    </p>
-                  </div>
-                </div>
-                <div className="sap-subtle text-sm text-muted-foreground text-left">
+        {activeTab === "billing" && (
+          <div className="sap-card">
+            <div className="sap-card-body space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Billing Settings</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Configure invoice defaults and billing preferences.
+                </p>
+              </div>
+              <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-8 text-center">
+                <CreditCard className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                <p className="text-sm font-medium text-foreground mb-1">Coming Soon</p>
+                <p className="text-xs text-muted-foreground">
                   Billing configuration (tax profiles, invoice templates, payment methods) will
-                  appear here in a future version of Lawyer Diary.
-                </div>
-              </>
-            )}
+                  appear here in a future version.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
-            {activeTab === "account" && (
-              <>
-                <div className="sap-card-header">
+        {activeTab === "account" && (
+          <div className="sap-card">
+            <div className="sap-card-body space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Account Management</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Manage your account and sign out of Lawyer Diary.
+                </p>
+              </div>
+              <Separator />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-border/60 bg-background/50">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-destructive/10 p-2">
+                    <LogOut className="h-4 w-4 text-destructive" />
+                  </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-foreground">Account</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Sign out of Lawyer Diary on this device.
+                    <p className="text-sm font-medium text-foreground">Sign Out</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Sign out of your account on this device
                     </p>
                   </div>
                 </div>
-                <Separator />
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <LogOut className="h-4 w-4 text-destructive" />
-                    <span>Sign out of your account</span>
-                  </div>
-                  <SignOutButton variant="destructive" />
-                </div>
-              </>
-            )}
+                <SignOutButton variant="destructive" className="w-full sm:w-auto" />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
-
-
