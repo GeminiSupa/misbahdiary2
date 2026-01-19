@@ -139,13 +139,99 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
     setIsChangingPassword(false);
   };
 
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+
+  const onSubmit = async (values: {
+    fullName: string;
+    phone: string;
+    languagePreference: "en" | "ur";
+  }) => {
+    setFormError(null);
+    setFormSuccess(null);
+    setIsSubmitting(true);
+
+    const result = await updateProfileSettings({
+      fullName: values.fullName,
+      phone: values.phone,
+      languagePreference: values.languagePreference,
+    });
+
+    if (result.success) {
+      setFormSuccess("Profile updated successfully!");
+      router.refresh();
+      setTimeout(() => setFormSuccess(null), 3000);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (result.fieldErrors) {
+      Object.entries(result.fieldErrors).forEach(([key, messages]) => {
+        const message = messages?.[0];
+        if (message) {
+          form.setError(key as "fullName" | "phone" | "languagePreference", {
+            type: "server",
+            message,
+          });
+        }
+      });
+    }
+
+    if (result.message) {
+      setFormError(result.message);
+    }
+
+    setIsSubmitting(false);
+  };
+
+  const onPasswordSubmit = async (values: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    setPasswordError(null);
+    setIsChangingPassword(true);
+
+    const result = await changePassword({
+      currentPassword: values.currentPassword,
+      newPassword: values.newPassword,
+      confirmPassword: values.confirmPassword,
+    });
+
+    if (result.success) {
+      passwordForm.reset();
+      setFormSuccess("Password changed successfully!");
+      router.refresh();
+      setTimeout(() => setFormSuccess(null), 3000);
+      setIsChangingPassword(false);
+      return;
+    }
+
+    if (result.fieldErrors) {
+      Object.entries(result.fieldErrors).forEach(([key, messages]) => {
+        const message = messages?.[0];
+        if (message) {
+          passwordForm.setError(key as "currentPassword" | "newPassword" | "confirmPassword", {
+            type: "server",
+            message,
+          });
+        }
+      });
+    }
+
+    if (result.message) {
+      setPasswordError(result.message);
+    }
+
+    setIsChangingPassword(false);
+  };
+
   return (
     <div className="sap-card">
       <div className="sap-card-body space-y-6">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Profile Settings</h2>
-          <p className="text-sm text-muted-foreground">
-            Update your contact details and choose your preferred language (English / Urdu).
+          <p className="text-sm text-muted-foreground mt-1">
+            Update your personal information, contact details, and language preferences.
           </p>
         </div>
 
@@ -156,11 +242,23 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
           </Alert>
         )}
 
+        {formSuccess && (
+          <Alert className="border-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/20">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <AlertTitle className="text-emerald-700 dark:text-emerald-400">Success</AlertTitle>
+            <AlertDescription className="text-emerald-600 dark:text-emerald-300">
+              {formSuccess}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+              <div className="flex items-center gap-2 pb-3 border-b border-border/60">
+                <div className="rounded-lg bg-primary/10 p-1.5">
                 <User className="h-4 w-4 text-primary" />
+                </div>
                 <h3 className="text-sm font-semibold text-foreground">Personal Information</h3>
               </div>
 
@@ -202,8 +300,10 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
             <Separator />
 
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+              <div className="flex items-center gap-2 pb-3 border-b border-border/60">
+                <div className="rounded-lg bg-primary/10 p-1.5">
                 <Globe className="h-4 w-4 text-primary" />
+                </div>
                 <h3 className="text-sm font-semibold text-foreground">Language Preference</h3>
               </div>
 
@@ -249,8 +349,10 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
 
             {/* Password Change Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <Lock className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-2 pb-3 border-b border-border/60">
+                <div className="rounded-lg bg-primary/10 p-1.5">
+                  <Lock className="h-4 w-4 text-primary" />
+                </div>
                 <h3 className="text-sm font-semibold text-foreground">Change Password</h3>
               </div>
 
@@ -402,16 +504,21 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
 
             <Separator />
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-border/60">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => form.reset()}
+                onClick={() => {
+                  form.reset();
+                  setFormError(null);
+                  setFormSuccess(null);
+                }}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto"
               >
                 Reset
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
+              <Button type="submit" disabled={isSubmitting} className="min-w-[140px] w-full sm:w-auto">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

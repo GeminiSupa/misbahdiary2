@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, ShieldQuestion } from "lucide-react";
+import { Loader2, ShieldQuestion, CheckCircle2 } from "lucide-react";
 import { firmFormSchema } from "@/lib/validation/settings";
 
 type FirmSettingsCardProps = {
@@ -89,23 +89,80 @@ export function FirmSettingsCard({ initialValues, canEdit }: FirmSettingsCardPro
     setIsSubmitting(false);
   };
 
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+
+  const onSubmit = async (values: {
+    name: string;
+    contactEmail: string;
+    contactPhone: string;
+    address: string;
+  }) => {
+    if (!canEdit) return;
+    setFormError(null);
+    setFormSuccess(null);
+    setIsSubmitting(true);
+
+    const result = await updateFirmSettings({
+      name: values.name,
+      contactEmail: values.contactEmail,
+      contactPhone: values.contactPhone,
+      address: values.address,
+    });
+
+    if (result.success) {
+      setFormSuccess("Firm information updated successfully!");
+      router.refresh();
+      setTimeout(() => setFormSuccess(null), 3000);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (result.fieldErrors) {
+      Object.entries(result.fieldErrors).forEach(([key, messages]) => {
+        const message = messages?.[0];
+        if (message) {
+          form.setError(key as "name" | "contactEmail" | "contactPhone" | "address", {
+            type: "server",
+            message,
+          });
+        }
+      });
+    }
+
+    if (result.message) {
+      setFormError(result.message);
+    }
+
+    setIsSubmitting(false);
+  };
+
   return (
     <div className="sap-card">
-      <div className="sap-card-body space-y-4">
+      <div className="sap-card-body space-y-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Firm profile</h2>
-            <p className="text-sm text-muted-foreground">
-              Share accurate firm information across invoices, case exports, and client portals.
+            <h2 className="text-lg font-semibold text-foreground">Firm Information</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage your firm's name, contact details, and address. This information appears on invoices and client communications.
             </p>
           </div>
-          {!canEdit ? (
-            <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
+          {!canEdit && (
+            <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 dark:bg-amber-950/20 px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 flex-shrink-0">
               <ShieldQuestion className="h-3.5 w-3.5" />
               Owner only
             </div>
-          ) : null}
+          )}
         </div>
+
+        {formSuccess && (
+          <Alert className="border-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/20">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <AlertTitle className="text-emerald-700 dark:text-emerald-400">Success</AlertTitle>
+            <AlertDescription className="text-emerald-600 dark:text-emerald-300">
+              {formSuccess}
+            </AlertDescription>
+          </Alert>
+        )}
 
       {formError ? (
         <Alert variant="destructive">
@@ -179,12 +236,36 @@ export function FirmSettingsCard({ initialValues, canEdit }: FirmSettingsCardPro
             )}
           />
 
-          {canEdit ? (
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Save firm details
-            </Button>
-          ) : null}
+          {canEdit && (
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-border/60">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  form.reset();
+                  setFormError(null);
+                  setFormSuccess(null);
+                }}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+              >
+                Reset
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="min-w-[140px] w-full sm:w-auto">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>
