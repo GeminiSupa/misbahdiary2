@@ -143,36 +143,36 @@ export function TeamManagement({
   const currentRoleInfo = getRoleInfo(currentUserRole);
 
   return (
-    <div className="space-y-6">
-      {/* Access Control Overview */}
-      <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-background">
-        <CardHeader>
+    <div className="space-y-5">
+      {/* Access Control Overview - More compact */}
+      <Card className="border border-border/60 bg-card">
+        <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-primary/10 p-2">
-              <Shield className="h-5 w-5 text-primary" />
+            <div className="rounded-lg bg-primary/10 p-2">
+              <Shield className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <CardTitle>Access Control & Permissions</CardTitle>
-              <CardDescription>
-                Understand who can see what based on their role in your workspace
+              <CardTitle className="text-base">Your Role & Permissions</CardTitle>
+              <CardDescription className="text-xs">
+                Current access level and role capabilities
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-xl border-2 border-primary/20 bg-background/80 p-4">
-            <div className="flex items-start gap-3">
-              <div className={`rounded-lg ${currentRoleInfo.bgColor} p-2`}>
+        <CardContent className="space-y-3">
+          <div className="rounded-lg border border-border/60 bg-gradient-to-br from-background to-muted/20 p-4">
+            <div className="flex items-center gap-3">
+              <div className={`rounded-lg ${currentRoleInfo.bgColor} p-2.5`}>
                 {currentRoleInfo.icon && (
                   <currentRoleInfo.icon className={`h-5 w-5 ${currentRoleInfo.color}`} />
                 )}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold">Your Role: {currentRoleInfo.label}</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-sm">Your Role: {currentRoleInfo.label}</p>
                   <Badge
                     variant="outline"
-                    className={`${currentRoleInfo.borderColor} ${currentRoleInfo.bgColor} ${currentRoleInfo.color}`}
+                    className={`${currentRoleInfo.borderColor} ${currentRoleInfo.bgColor} ${currentRoleInfo.color} text-xs`}
                   >
                     {currentRoleInfo.canSeeAllCases ? (
                       <>
@@ -187,114 +187,68 @@ export function TeamManagement({
                     )}
                   </Badge>
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">{currentRoleInfo.description}</p>
+                <p className="mt-1.5 text-xs text-muted-foreground">{currentRoleInfo.description}</p>
               </div>
             </div>
-          </div>
-
-          <Separator />
-
-          <div className="grid gap-3 md:grid-cols-2">
-            {Object.entries(ROLE_INFO).map(([role, info]) => {
-              if (role === "client") return null; // Skip client role in overview
-              const Icon = info.icon;
-              return (
-                <div
-                  key={role}
-                  className={`rounded-xl border ${info.borderColor} ${info.bgColor} p-3`}
-                >
-                  <div className="flex items-start gap-2">
-                    <Icon className={`h-4 w-4 ${info.color} mt-0.5`} />
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold">{info.label}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{info.description}</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        {info.canSeeAllCases ? (
-                          <Badge variant="outline" className="text-xs">
-                            <Eye className="mr-1 h-3 w-3" />
-                            All Cases
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-xs">
-                            <EyeOff className="mr-1 h-3 w-3" />
-                            Assigned Only
-                          </Badge>
-                        )}
-                        {info.canManageTeam && (
-                          <Badge variant="outline" className="text-xs">
-                            <UserPlus className="mr-1 h-3 w-3" />
-                            Can Invite
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </CardContent>
       </Card>
 
       {/* Team Members List */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-blue-500/10 p-2">
-                <Users className="h-5 w-5 text-blue-600" />
+              <div className="rounded-lg bg-blue-500/10 p-2">
+                <Users className="h-4 w-4 text-blue-600" />
               </div>
               <div>
-                <CardTitle>Team Members ({teamMembers.length})</CardTitle>
-                <CardDescription>All members of your workspace</CardDescription>
+                <CardTitle className="text-base">Team Members</CardTitle>
+                <CardDescription className="text-xs">
+                  {teamMembers.length} {teamMembers.length === 1 ? "member" : "members"} in your workspace
+                </CardDescription>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {teamMembers.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {teamMembers.map((member) => {
                 const roleInfo = getRoleInfo(member.role);
                 const Icon = roleInfo.icon;
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background/80 p-4 transition hover:shadow-md"
+                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/50 p-3.5 transition hover:border-primary/40 hover:bg-background/80"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`rounded-lg ${roleInfo.bgColor} p-2`}>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`rounded-lg ${roleInfo.bgColor} p-2 flex-shrink-0`}>
                         <Icon className={`h-4 w-4 ${roleInfo.color}`} />
                       </div>
-                      <div>
-                        <p className="font-semibold">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">{member.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{member.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <Badge
                         variant="outline"
-                        className={`${roleInfo.borderColor} ${roleInfo.bgColor} ${roleInfo.color}`}
+                        className={`${roleInfo.borderColor} ${roleInfo.bgColor} ${roleInfo.color} text-xs`}
                       >
                         {roleInfo.label}
                       </Badge>
-                      {roleInfo.canSeeAllCases && (
-                        <Badge variant="outline" className="text-xs">
-                          <Eye className="mr-1 h-3 w-3" />
-                          All Cases
-                        </Badge>
-                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-8 text-center">
-              <Users className="mx-auto h-10 w-10 text-muted-foreground/50 mb-2" />
-              <p className="text-sm font-medium text-muted-foreground">No team members yet</p>
+            <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-6 text-center">
+              <Users className="mx-auto h-8 w-8 text-muted-foreground/40 mb-2" />
+              <p className="text-sm font-medium text-foreground">No team members yet</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Invite colleagues to join your workspace
+                {canCreateUsers ? "Create accounts or send invitations to get started" : "Contact a Principal Partner to add team members"}
               </p>
             </div>
           )}
@@ -303,60 +257,54 @@ export function TeamManagement({
 
       {/* Add Team Members Section */}
       {canCreateUsers && (
-        <>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-emerald-500/10 p-2">
-                  <UserPlus className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <CardTitle>Add Team Members</CardTitle>
-                  <CardDescription>
-                    Create user accounts directly or send email invitations. Only Principal Partners
-                    can add new team members.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="create" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="create">Create User Account</TabsTrigger>
-                  <TabsTrigger value="invite">Send Invitation</TabsTrigger>
-                </TabsList>
-                <TabsContent value="create" className="mt-6">
-                  <CreateUserForm />
-                </TabsContent>
-                <TabsContent value="invite" className="mt-6">
-                  <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-4 mb-4">
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Invitation Method:</strong> Send an email invitation link. The user
-                      will set their own password when they accept the invitation. This is the
-                      recommended method for better security.
-                    </p>
-                  </div>
-                  <InviteManager invitations={invitations} canInvite={canCreateUsers} />
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </>
-      )}
-
-      {/* Staff Assignments - can be managed by Firm Owners and Principal Partners */}
-      {canManageTeam && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-purple-500/10 p-2">
-                <Briefcase className="h-5 w-5 text-purple-600" />
+              <div className="rounded-lg bg-emerald-500/10 p-2">
+                <UserPlus className="h-4 w-4 text-emerald-600" />
               </div>
               <div>
-                <CardTitle>Staff Assignments</CardTitle>
-                <CardDescription>
-                  Assign staff members to specific courts and districts for better case
-                  management.
+                <CardTitle className="text-base">Add Team Members</CardTitle>
+                <CardDescription className="text-xs">
+                  Create accounts directly or send email invitations
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="create" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 h-10">
+                <TabsTrigger value="create" className="text-sm">Create Account</TabsTrigger>
+                <TabsTrigger value="invite" className="text-sm">Send Invitation</TabsTrigger>
+              </TabsList>
+              <TabsContent value="create" className="mt-4">
+                <CreateUserForm />
+              </TabsContent>
+              <TabsContent value="invite" className="mt-4">
+                <div className="rounded-lg border border-border/60 bg-muted/20 p-3 mb-4">
+                  <p className="text-xs text-muted-foreground">
+                    <strong className="text-foreground">Recommended:</strong> Send an email invitation. Users will set their own password when accepting, which is more secure.
+                  </p>
+                </div>
+                <InviteManager invitations={invitations} canInvite={canCreateUsers} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Staff Assignments */}
+      {canManageTeam && (
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-purple-500/10 p-2">
+                <Briefcase className="h-4 w-4 text-purple-600" />
+              </div>
+              <div>
+                <CardTitle className="text-base">Staff Assignments</CardTitle>
+                <CardDescription className="text-xs">
+                  Assign team members to courts and districts for case management
                 </CardDescription>
               </div>
             </div>
@@ -372,10 +320,10 @@ export function TeamManagement({
       )}
 
       {!canCreateUsers && (
-        <Alert>
-          <Shield className="h-4 w-4" />
-          <AlertTitle>Restricted Access</AlertTitle>
-          <AlertDescription>
+        <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+          <Shield className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-800 dark:text-amber-400">Restricted Access</AlertTitle>
+          <AlertDescription className="text-amber-700 dark:text-amber-300 text-sm">
             Only <strong>Principal Partners</strong> can create user accounts and send invitations.
             {canManageTeam
               ? " You can manage staff assignments, but cannot add new team members."

@@ -110,16 +110,15 @@ export function CreateUserForm() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-background p-4">
-        <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <UserPlus className="h-5 w-5 text-primary" />
+      <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+        <div className="flex items-start gap-2.5">
+          <div className="rounded bg-primary/10 p-1.5 mt-0.5">
+            <UserPlus className="h-3.5 w-3.5 text-primary" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-foreground">Create User Account</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Create a new user account directly. The user will be able to sign in immediately with
-              the email and password you set.
+            <h3 className="font-medium text-sm text-foreground">Direct Account Creation</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Create a user account immediately. They can sign in right away with the credentials you set.
             </p>
           </div>
         </div>
