@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { updateProfileSettings } from "@/app/(app)/settings/actions";
+import { updateProfileSettings, changePassword } from "@/app/(app)/settings/actions";
 import {
   Form,
   FormControl,
@@ -20,8 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, User, Phone, Globe, CheckCircle2 } from "lucide-react";
-import { profileFormSchema } from "@/lib/validation/settings";
+import { Loader2, User, Phone, Globe, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
+import { profileFormSchema, changePasswordSchema } from "@/lib/validation/settings";
 import { cn } from "@/lib/utils";
 
 type ProfileSettingsFormProps = {
@@ -36,6 +36,11 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(profileFormSchema),
@@ -43,6 +48,15 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
       fullName: initialValues.fullName,
       phone: initialValues.phone ?? "",
       languagePreference: initialValues.languagePreference ?? "en",
+    },
+  });
+
+  const passwordForm = useForm({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     },
   });
 
@@ -83,6 +97,46 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
     }
 
     setIsSubmitting(false);
+  };
+
+  const onPasswordSubmit = async (values: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    setPasswordError(null);
+    setIsChangingPassword(true);
+
+    const result = await changePassword({
+      currentPassword: values.currentPassword,
+      newPassword: values.newPassword,
+      confirmPassword: values.confirmPassword,
+    });
+
+    if (result.success) {
+      passwordForm.reset();
+      router.refresh();
+      setIsChangingPassword(false);
+      return;
+    }
+
+    if (result.fieldErrors) {
+      Object.entries(result.fieldErrors).forEach(([key, messages]) => {
+        const message = messages?.[0];
+        if (message) {
+          passwordForm.setError(key as "currentPassword" | "newPassword" | "confirmPassword", {
+            type: "server",
+            message,
+          });
+        }
+      });
+    }
+
+    if (result.message) {
+      setPasswordError(result.message);
+    }
+
+    setIsChangingPassword(false);
   };
 
   return (
@@ -189,6 +243,161 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
                   </FormItem>
                 )}
               />
+            </div>
+
+            <Separator />
+
+            {/* Password Change Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+                <Lock className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">Change Password</h3>
+              </div>
+
+              {passwordError && (
+                <Alert variant="destructive">
+                  <AlertTitle>Unable to change password</AlertTitle>
+                  <AlertDescription>{passwordError}</AlertDescription>
+                </Alert>
+              )}
+
+              <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                  <FormField
+                    control={passwordForm.control}
+                    name="currentPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Lock className="h-3.5 w-3.5" />
+                          Current Password
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showCurrentPassword ? "text" : "password"}
+                              {...field}
+                              className="h-10 pr-10"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                            >
+                              {showCurrentPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={passwordForm.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Lock className="h-3.5 w-3.5" />
+                            New Password
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showNewPassword ? "text" : "password"}
+                                {...field}
+                                className="h-10 pr-10"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                onClick={() => setShowNewPassword(!showNewPassword)}
+                              >
+                                {showNewPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormDescription className="text-xs">
+                            Must be at least 8 characters with uppercase, lowercase, and number.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Lock className="h-3.5 w-3.5" />
+                            Confirm New Password
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showConfirmPassword ? "text" : "password"}
+                                {...field}
+                                className="h-10 pr-10"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              >
+                                {showConfirmPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      disabled={isChangingPassword}
+                      variant="outline"
+                      className="min-w-[120px]"
+                    >
+                      {isChangingPassword ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Changing...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="mr-2 h-4 w-4" />
+                          Change Password
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </div>
 
             <Separator />
