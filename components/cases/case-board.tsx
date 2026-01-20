@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { DeleteMatterButton } from "@/components/cases/delete-matter-button";
 
 type CaseItem = {
   id: string;
@@ -161,9 +162,15 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                   ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto">
+                  <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial">
                     <Link href={`/cases/${matter.id}`}>Open detail</Link>
                   </Button>
+                  <DeleteMatterButton
+                    matterId={matter.id}
+                    matterSerial={matter.serialNumber}
+                    size="sm"
+                    className="flex-1 sm:flex-initial"
+                  />
                 </div>
               </article>
             ))

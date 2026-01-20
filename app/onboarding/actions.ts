@@ -55,6 +55,10 @@ export async function completeOnboarding(
     return { message: `Could not create firm: ${firmError.message}` };
   }
 
+  // Firm Owner should automatically be assigned principal_partner role
+  // (They are the firm owner, so they must have principal_partner permissions)
+  const userRole = "principal_partner";
+
   const { error: profileError } = await supabase
     .from("profiles")
     .upsert(
@@ -62,7 +66,7 @@ export async function completeOnboarding(
         id: user.id,
         firm_id: firm.id,
         full_name: fullName,
-        role,
+        role: userRole,
         phone: contactPhone ? contactPhone : null,
       },
       { onConflict: "id" },

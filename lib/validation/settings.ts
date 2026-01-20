@@ -47,8 +47,32 @@ export const notificationPreferencesSchema = z.object({
   announcementUpdates: z.boolean(),
 });
 
+export const billingSettingsSchema = z.object({
+  invoicePrefix: z.string().min(1, "Invoice prefix is required").max(10, "Prefix too long"),
+  invoiceNumberFormat: z.enum(["YYYY-####", "####", "INV-YYYY-####", "INV-####"]),
+  nextInvoiceNumber: z.coerce.number().int().min(1, "Next invoice number must be at least 1"),
+  defaultPaymentTermsDays: z.coerce.number().int().min(0).max(365),
+  defaultCurrency: z.string().default("PKR"),
+  salesTaxRate: z.coerce.number().min(0).max(100),
+  salesTaxLabel: z.string().min(1).max(50),
+  taxRegistrationNumber: z.string().optional().or(z.literal("")),
+  salesTaxRegistrationNumber: z.string().optional().or(z.literal("")),
+  paymentMethods: z.array(z.string()).min(1, "At least one payment method is required"),
+  bankName: z.string().optional().or(z.literal("")),
+  accountTitle: z.string().optional().or(z.literal("")),
+  accountNumber: z.string().optional().or(z.literal("")),
+  iban: z.string().optional().or(z.literal("")),
+  swiftCode: z.string().optional().or(z.literal("")),
+  branchCode: z.string().optional().or(z.literal("")),
+  branchAddress: z.string().optional().or(z.literal("")),
+  invoiceFooter: z.string().optional().or(z.literal("")),
+  invoiceNotes: z.string().optional().or(z.literal("")),
+  autoGenerateInvoiceNumber: z.boolean().default(true),
+});
+
 export type ProfileFormSchema = z.infer<typeof profileFormSchema>;
 export type FirmFormSchema = z.infer<typeof firmFormSchema>;
 export type InvitationFormSchema = z.infer<typeof invitationFormSchema>;
 export type NotificationPreferencesSchema = z.infer<typeof notificationPreferencesSchema>;
+export type BillingSettingsSchema = z.infer<typeof billingSettingsSchema>;
 

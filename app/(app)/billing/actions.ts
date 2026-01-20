@@ -214,3 +214,247 @@ export async function recordInvoicePayment(
   return { success: true };
 }
 
+export async function deleteInvoice(invoiceId: string): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "Join or create a firm before managing invoices." };
+  }
+
+  // Check permissions - only Firm Owners and Principal Partners can delete invoices
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canDelete = isOwner || profile.role === "principal_partner";
+
+  if (!canDelete) {
+    return { message: "Only Firm Owners and Principal Partners can delete invoices." };
+  }
+
+  // Check if invoice exists and belongs to the firm
+  const { data: invoice } = await supabase
+    .from("invoices")
+    .select("id, firm_id, status, invoice_number")
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!invoice) {
+    return { message: "Invoice not found or you do not have access." };
+  }
+
+  // Only allow deletion of draft invoices
+  if (invoice.status !== "draft") {
+    return {
+      message: `Cannot delete invoice. Only draft invoices can be deleted. This invoice is ${invoice.status}. To remove a sent or paid invoice, mark it as void instead.`,
+    };
+  }
+
+  // Unlink associated time entries
+  await supabase
+    .from("time_entries")
+    .update({ invoice_id: null })
+    .eq("invoice_id", invoiceId);
+
+  // Delete invoice
+  const { error: deleteError } = await supabase
+    .from("invoices")
+    .delete()
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id);
+
+  if (deleteError) {
+    return { message: `Could not delete invoice: ${deleteError.message}` };
+  }
+
+  revalidatePath("/billing");
+  revalidatePath("/dashboard");
+
+  return { success: true };
+}
+
+export async function voidInvoice(invoiceId: string): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "Join or create a firm before managing invoices." };
+  }
+
+  // Check permissions - only Firm Owners and Principal Partners can void invoices
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canVoid = isOwner || profile.role === "principal_partner";
+
+  if (!canVoid) {
+    return { message: "Only Firm Owners and Principal Partners can void invoices." };
+  }
+
+  // Check if invoice exists and belongs to the firm
+  const { data: invoice } = await supabase
+    .from("invoices")
+    .select("id, firm_id, status, invoice_number")
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!invoice) {
+    return { message: "Invoice not found or you do not have access." };
+  }
+
+  // Cannot void already voided invoices
+  if (invoice.status === "void") {
+    return { message: "Invoice is already voided." };
+  }
+
+  // Update invoice status to void
+  const { error: updateError } = await supabase
+    .from("invoices")
+    .update({ status: "void" })
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id);
+
+  if (updateError) {
+    return { message: `Could not void invoice: ${updateError.message}` };
+  }
+
+  revalidatePath("/billing");
+  revalidatePath("/dashboard");
+
+  return { success: true };
+}
+
+export async function deletePayment(paymentId: string, invoiceId: string): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "Join or create a firm before managing payments." };
+  }
+
+  // Check permissions - only Firm Owners and Principal Partners can delete payments
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canDelete = isOwner || profile.role === "principal_partner";
+
+  if (!canDelete) {
+    return { message: "Only Firm Owners and Principal Partners can delete payments." };
+  }
+
+  // Verify invoice belongs to firm
+  const { data: invoice } = await supabase
+    .from("invoices")
+    .select("id, firm_id, amount_paid, total_amount")
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!invoice) {
+    return { message: "Invoice not found or you do not have access." };
+  }
+
+  // Note: Payments are stored in finances table, not a separate payments table
+  // Check if payment exists in finances table
+  const { data: payment } = await supabase
+    .from("finances")
+    .select("id, firm_id, matter_id, amount, type")
+    .eq("id", paymentId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!payment) {
+    return { message: "Payment not found or you do not have access." };
+  }
+
+  // Delete payment record
+  const { error: deleteError } = await supabase
+    .from("finances")
+    .delete()
+    .eq("id", paymentId)
+    .eq("firm_id", profile.firm_id);
+
+  if (deleteError) {
+    return { message: `Could not delete payment: ${deleteError.message}` };
+  }
+
+  // Recalculate invoice amount_paid if needed
+  const { data: remainingPayments } = await supabase
+    .from("finances")
+    .select("amount")
+    .eq("firm_id", profile.firm_id)
+    .eq("matter_id", payment.matter_id)
+    .eq("type", "payment");
+
+  const newAmountPaid = remainingPayments?.reduce((sum, p) => sum + Number(p.amount ?? 0), 0) ?? 0;
+
+  // Update invoice amount_paid
+  await supabase
+    .from("invoices")
+    .update({
+      amount_paid: newAmountPaid,
+      status: newAmountPaid >= Number(invoice.total_amount ?? 0) ? "paid" : "sent",
+      paid_at: newAmountPaid > 0 ? new Date().toISOString() : null,
+    })
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id);
+
+  revalidatePath("/billing");
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${payment.matter_id}`);
+
+  return { success: true };
+}

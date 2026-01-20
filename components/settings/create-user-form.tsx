@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createUser } from "@/app/(app)/settings/actions";
+import { useToast } from "@/hooks/use-toast";
 
 const createUserSchema = z
   .object({
@@ -56,6 +57,7 @@ type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
 export function CreateUserForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -87,12 +89,23 @@ export function CreateUserForm() {
 
       if (result.success) {
         setSuccess(true);
+        toast({
+          title: "User created",
+          description: `User account for ${values.email} has been created successfully. A welcome email has been sent.`,
+          variant: "success",
+        });
         form.reset();
         router.refresh();
         // Clear success message after 3 seconds
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.message || "Failed to create user");
+        const errorMsg = result.message || "Failed to create user";
+        setError(errorMsg);
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
         if (result.fieldErrors) {
           Object.entries(result.fieldErrors).forEach(([key, messages]) => {
             const message = messages?.[0];
@@ -142,7 +155,7 @@ export function CreateUserForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
             <FormField
               control={form.control}
               name="fullName"
@@ -210,7 +223,7 @@ export function CreateUserForm() {
             )}
           />
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
             <FormField
               control={form.control}
               name="password"

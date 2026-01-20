@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 "use client";
 
 import { useState } from "react";
@@ -21,8 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, User, Phone, Globe, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
-import { profileFormSchema, changePasswordSchema } from "@/lib/validation/settings";
+import { profileFormSchema, changePasswordSchema, type ProfileFormSchema } from "@/lib/validation/settings";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import type { z } from "zod";
 
 type ProfileSettingsFormProps = {
   initialValues: {
@@ -34,6 +34,7 @@ type ProfileSettingsFormProps = {
 
 export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,11 +62,7 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
     },
   });
 
-  const onSubmit = async (values: {
-    fullName: string;
-    phone: string;
-    languagePreference: "en" | "ur";
-  }) => {
+  const onSubmit = async (values: ProfileFormSchema) => {
     setFormError(null);
     setFormSuccess(null);
     setIsSubmitting(true);
@@ -78,6 +75,11 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
 
     if (result.success) {
       setFormSuccess("Profile updated successfully!");
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+        variant: "success",
+      });
       router.refresh();
       setTimeout(() => setFormSuccess(null), 3000);
       setIsSubmitting(false);
@@ -103,11 +105,7 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
     setIsSubmitting(false);
   };
 
-  const onPasswordSubmit = async (values: {
-    currentPassword: string;
-    newPassword: string;
-    confirmPassword: string;
-  }) => {
+  const onPasswordSubmit = async (values: z.infer<typeof changePasswordSchema>) => {
     setPasswordError(null);
     setIsChangingPassword(true);
 
@@ -120,6 +118,11 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
     if (result.success) {
       passwordForm.reset();
       setFormSuccess("Password changed successfully!");
+      toast({
+        title: "Password changed",
+        description: "Your password has been successfully changed. A confirmation email has been sent.",
+        variant: "success",
+      });
       router.refresh();
       setTimeout(() => setFormSuccess(null), 3000);
       setIsChangingPassword(false);
@@ -147,12 +150,14 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
 
   return (
     <div className="sap-card">
-      <div className="sap-card-body space-y-6">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Profile Settings</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update your personal information, contact details, and language preferences.
-          </p>
+      <div className="sap-card-body space-y-4 sm:space-y-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">Personal Profile</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Update your information and preferences
+            </p>
+          </div>
         </div>
 
         {formError && (
@@ -173,12 +178,11 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-border/60">
-                <div className="rounded-lg bg-primary/10 p-1.5">
-                <User className="h-4 w-4 text-primary" />
-                </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+            {/* Personal Information - Compact SAP Fiori style */}
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+                <User className="h-4 w-4 text-primary shrink-0" />
                 <h3 className="text-sm font-semibold text-foreground">Personal Information</h3>
               </div>
 
@@ -217,13 +221,12 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
               />
             </div>
 
-            <Separator />
+            <Separator className="my-4" />
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-border/60">
-                <div className="rounded-lg bg-primary/10 p-1.5">
-                <Globe className="h-4 w-4 text-primary" />
-                </div>
+            {/* Language Preference - Compact */}
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+                <Globe className="h-4 w-4 text-primary shrink-0" />
                 <h3 className="text-sm font-semibold text-foreground">Language Preference</h3>
               </div>
 
@@ -265,26 +268,56 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
               />
             </div>
 
-            <Separator />
+            {/* SAP Fiori-style action bar - Mobile optimized */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border/60">
+              <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-[140px] min-h-[44px] sm:min-h-[40px]">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  form.reset();
+                  setFormError(null);
+                  setFormSuccess(null);
+                }}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
+              >
+                Reset
+              </Button>
+            </div>
+          </form>
+        </Form>
 
-            {/* Password Change Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-border/60">
-                <div className="rounded-lg bg-primary/10 p-1.5">
-                  <Lock className="h-4 w-4 text-primary" />
-                </div>
-                <h3 className="text-sm font-semibold text-foreground">Change Password</h3>
-              </div>
+        <Separator className="my-4 sm:my-6" />
 
-              {passwordError && (
-                <Alert variant="destructive">
-                  <AlertTitle>Unable to change password</AlertTitle>
-                  <AlertDescription>{passwordError}</AlertDescription>
-                </Alert>
-              )}
+        {/* Password Change Section - Compact */}
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+            <Lock className="h-4 w-4 text-primary shrink-0" />
+            <h3 className="text-sm font-semibold text-foreground">Change Password</h3>
+          </div>
 
-              <Form {...passwordForm}>
-                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+          {passwordError && (
+            <Alert variant="destructive">
+              <AlertTitle>Unable to change password</AlertTitle>
+              <AlertDescription>{passwordError}</AlertDescription>
+            </Alert>
+          )}
+
+          <Form {...passwordForm}>
+            <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
                   <FormField
                     control={passwordForm.control}
                     name="currentPassword"
@@ -398,12 +431,12 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
                     />
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex justify-end pt-2">
                     <Button
                       type="submit"
                       disabled={isChangingPassword}
                       variant="outline"
-                      className="min-w-[120px]"
+                      className="min-w-[140px] w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
                     >
                       {isChangingPassword ? (
                         <>
@@ -421,39 +454,6 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
                 </form>
               </Form>
             </div>
-
-            <Separator />
-
-            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-border/60">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  form.reset();
-                  setFormError(null);
-                  setFormSuccess(null);
-                }}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto"
-              >
-                Reset
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="min-w-[140px] w-full sm:w-auto">
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Save Changes
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
       </div>
     </div>
   );

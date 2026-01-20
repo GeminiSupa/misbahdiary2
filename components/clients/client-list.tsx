@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteClientButton } from "@/components/clients/delete-client-button";
 
 type ClientListProps = {
   clients: Array<{
@@ -73,9 +74,15 @@ export function ClientList({ clients }: ClientListProps) {
                 {client.city ? <span className="truncate">City: {client.city}</span> : null}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                <Button asChild size="sm" variant="outline" className="flex-1 sm:flex-initial">
                   <Link href={`/clients/${client.id}`}>View details</Link>
                 </Button>
+                <DeleteClientButton
+                  clientId={client.id}
+                  clientName={client.fullName}
+                  size="sm"
+                  className="flex-1 sm:flex-initial"
+                />
               </div>
             </article>
           ))}

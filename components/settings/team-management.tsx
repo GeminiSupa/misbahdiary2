@@ -194,18 +194,16 @@ export function TeamManagement({
         </CardContent>
       </Card>
 
-      {/* Team Members List */}
+      {/* Team Members List - SAP Fiori compact style */}
       <Card>
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3 sm:pb-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-500/10 p-2">
-                <Users className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <CardTitle className="text-base">Team Members</CardTitle>
-                <CardDescription className="text-xs">
-                  {teamMembers.length} {teamMembers.length === 1 ? "member" : "members"} in your workspace
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <Users className="h-4 w-4 text-blue-600 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-sm sm:text-base">Team Members</CardTitle>
+                <CardDescription className="text-[10px] sm:text-xs mt-0.5">
+                  {teamMembers.length} {teamMembers.length === 1 ? "member" : "members"} in workspace
                 </CardDescription>
               </div>
             </div>
@@ -220,21 +218,21 @@ export function TeamManagement({
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/50 p-3.5 transition hover:border-primary/40 hover:bg-background/80"
+                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/50 p-3 sm:p-3.5 transition hover:border-primary/40 hover:bg-background/80 touch-manipulation"
                   >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className={`rounded-lg ${roleInfo.bgColor} p-2 flex-shrink-0`}>
-                        <Icon className={`h-4 w-4 ${roleInfo.color}`} />
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <div className={`rounded-lg ${roleInfo.bgColor} p-1.5 sm:p-2 flex-shrink-0`}>
+                        <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${roleInfo.color}`} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">{member.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+                        <p className="font-medium text-xs sm:text-sm truncate">{member.name}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{member.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                       <Badge
                         variant="outline"
-                        className={`${roleInfo.borderColor} ${roleInfo.bgColor} ${roleInfo.color} text-xs`}
+                        className={`${roleInfo.borderColor} ${roleInfo.bgColor} ${roleInfo.color} text-[10px] sm:text-xs`}
                       >
                         {roleInfo.label}
                       </Badge>
@@ -244,9 +242,9 @@ export function TeamManagement({
               })}
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-6 text-center">
-              <Users className="mx-auto h-8 w-8 text-muted-foreground/40 mb-2" />
-              <p className="text-sm font-medium text-foreground">No team members yet</p>
+            <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-4 sm:p-6 text-center">
+              <Users className="mx-auto h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground/40 mb-2" />
+              <p className="text-xs sm:text-sm font-medium text-foreground">No team members yet</p>
               <p className="text-xs text-muted-foreground mt-1">
                 {canCreateUsers ? "Create accounts or send invitations to get started" : "Contact a Principal Partner to add team members"}
               </p>

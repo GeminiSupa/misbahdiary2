@@ -271,6 +271,7 @@
   .sap-form select {
     @apply w-full text-base sm:text-sm;
     min-height: 44px; /* Mobile touch target */
+    padding: 0.75rem 1rem; /* Better mobile padding */
   }
 
   @media (min-width: 640px) {
@@ -278,6 +279,34 @@
     .sap-form textarea,
     .sap-form select {
       min-height: 40px;
+      padding: 0.625rem 0.875rem;
+    }
+  }
+
+  /* Ensure all inputs have mobile-friendly sizing */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  textarea,
+  select {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  @media (min-width: 640px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="date"],
+    textarea,
+    select {
+      min-height: 40px;
+      font-size: 14px;
     }
   }
 

@@ -12,6 +12,7 @@ import { MatterFinanceCard } from "@/components/cases/matter-finance-card";
 import { MatterDocumentsCard } from "@/components/cases/matter-documents-card";
 import { MatterTeamCard } from "@/components/cases/matter-team-card";
 import { EditMatterSheet } from "@/components/cases/edit-matter-sheet";
+import { DeleteMatterButton } from "@/components/cases/delete-matter-button";
 import {
   ArrowLeft,
   Briefcase,
@@ -429,6 +430,11 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
                 matter={matterFormValues}
                 clients={clientOptions}
                 staff={staffOptions}
+              />
+              <DeleteMatterButton
+                matterId={matter.id}
+                matterSerial={matter.serial_number}
+                size="sm"
               />
             </div>
           </div>

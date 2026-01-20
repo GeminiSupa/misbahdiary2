@@ -71,11 +71,11 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
 
   return (
     <div className="sap-card">
-      <div className="sap-card-body space-y-6">
+      <div className="sap-card-body space-y-4 sm:space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Notification Settings</h2>
-          <p className="text-sm text-muted-foreground">
-            Choose the alerts you receive inside Lawyer Diary. Email/SMS options will arrive soon.
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">Notification Preferences</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Choose which alerts you receive
           </p>
         </div>
 
@@ -94,11 +94,11 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <Bell className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold text-foreground">Notification Preferences</h3>
+                <Bell className="h-4 w-4 text-primary flex-shrink-0" />
+                <h3 className="text-sm font-semibold text-foreground">Notification Types</h3>
               </div>
 
               <FormField
@@ -203,16 +203,9 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
 
             <Separator />
 
-            <div className="flex justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => form.reset()}
-                disabled={isSubmitting}
-              >
-                Reset
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+            {/* SAP Fiori-style action bar */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border/60">
+              <Button type="submit" disabled={isSubmitting} className="min-w-[140px] w-full sm:w-auto min-h-[44px] sm:min-h-[40px]">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -224,6 +217,15 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                     Save Preferences
                   </>
                 )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => form.reset()}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
+              >
+                Reset
               </Button>
             </div>
           </form>

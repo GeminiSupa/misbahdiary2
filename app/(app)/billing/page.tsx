@@ -46,12 +46,12 @@ export default async function BillingPage() {
         due_date,
         total_amount,
         amount_paid,
-        client:clients ( full_name ),
+        client:clients ( id, full_name ),
         matter:matters (
+          id,
           serial_number,
           case_number,
-          court_name,
-          client:clients ( full_name )
+          court_name
         )
       `,
     )
@@ -86,21 +86,27 @@ export default async function BillingPage() {
     .order("started_at", { ascending: false });
 
   const invoiceItems =
-    invoices?.map((invoice) => ({
-      id: invoice.id,
-      invoiceNumber: invoice.invoice_number,
-      status: invoice.status,
-      issueDate: invoice.issue_date,
-      dueDate: invoice.due_date,
-      totalAmount: Number(invoice.total_amount ?? 0),
-      amountPaid: Number(invoice.amount_paid ?? 0),
-      clientName: invoice.client?.full_name ?? "Unknown client",
-      matterLabel:
-        invoice.matter?.serial_number ??
-        invoice.matter?.case_number ??
-        invoice.matter?.client?.full_name ??
-        null,
-    })) ?? [];
+    invoices?.map((invoice) => {
+      // Get client name from invoice's direct client relationship
+      const clientName = invoice.client?.full_name ?? "Unknown client";
+      
+      // Get matter label - prefer serial_number, then case_number
+      const matterLabel = invoice.matter
+        ? invoice.matter.serial_number ?? invoice.matter.case_number ?? null
+        : null;
+      
+      return {
+        id: invoice.id,
+        invoiceNumber: invoice.invoice_number,
+        status: invoice.status,
+        issueDate: invoice.issue_date,
+        dueDate: invoice.due_date,
+        totalAmount: Number(invoice.total_amount ?? 0),
+        amountPaid: Number(invoice.amount_paid ?? 0),
+        clientName,
+        matterLabel,
+      };
+    }) ?? [];
 
   const clientOptions =
     clients?.map((client) => ({
@@ -196,7 +202,7 @@ export default async function BillingPage() {
         <div className="sap-card-body">
           <div className="sap-card-header">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm flex-shrink-0 sm:h-14 sm:w-14">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
                 <Banknote className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div className="min-w-0">
@@ -226,10 +232,30 @@ export default async function BillingPage() {
             "sap-kpi-tile-info",
           ];
           const colorClass = colorClasses[index % colorClasses.length];
+          
+          // Determine which tab to show based on stat
+          const tabMap: Record<number, string> = {
+            0: "outstanding", // Outstanding receivables
+            1: "paid", // Collected this cycle
+            2: "outstanding", // Invoices overdue (filtered)
+            3: "outstanding", // Due within 7 days (filtered)
+          };
+          const targetTab = tabMap[index] || "outstanding";
+          
           return (
-            <div
+            <button
               key={stat.label}
-              className={colorClass}
+              type="button"
+              onClick={() => {
+                // Scroll to invoice board and set tab
+                const invoiceBoard = document.getElementById("invoice-board");
+                if (invoiceBoard) {
+                  invoiceBoard.scrollIntoView({ behavior: "smooth", block: "start" });
+                  // Trigger tab change via custom event
+                  window.dispatchEvent(new CustomEvent("setInvoiceTab", { detail: targetTab }));
+                }
+              }}
+              className={cn(colorClass, "cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]")}
             >
               <div className="space-y-1.5 sm:space-y-2">
                 <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
@@ -239,13 +265,13 @@ export default async function BillingPage() {
                 <p className="text-lg font-bold text-foreground sm:text-xl md:text-2xl">{stat.value}</p>
                 <p className="text-[10px] text-muted-foreground sm:text-xs">{stat.hint}</p>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
 
       {/* Invoice list + aging inside cards */}
-      <div className="sap-card-success">
+      <div id="invoice-board" className="sap-card-success">
         <div className="sap-card-body space-y-4">
           <div className="sap-card-header">
             <div className="min-w-0">
@@ -254,13 +280,6 @@ export default async function BillingPage() {
                 Full invoice list with filters; creation and edits happen in the side drawer.
               </p>
             </div>
-            <NewInvoiceSheet
-              clients={clientOptions}
-              matters={matterOptions}
-              unbilledTimeEntries={unbilledEntries}
-              variant="outline"
-              size="sm"
-            />
           </div>
 
           <InvoiceBoard invoices={invoiceItems} />

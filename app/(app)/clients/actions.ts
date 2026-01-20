@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { logClientCreated, logClientDeleted } from "@/lib/audit/logger";
 import {
   clientTypeOptions,
   clientRepresentationOptions,
@@ -227,6 +228,13 @@ export async function saveClient(values: ClientFormValues): Promise<ActionState>
     console.log("[saveClient] Client created successfully:", insertedData);
   }
 
+  // Log audit event for new clients
+  if (!payload.id) {
+    await logClientCreated(insertedData.id, parsed.data.fullName).catch((error) => {
+      console.error("Failed to log audit event:", error);
+    });
+  }
+
   revalidatePath("/clients");
   revalidatePath("/cases");
 
@@ -357,6 +365,125 @@ export async function getSignedClientDocumentUrl(documentId: string) {
   }
 
   return { success: true, url: signed.signedUrl };
+}
+
+export async function deleteClient(clientId: string): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "Join or create a firm before managing clients." };
+  }
+
+  // Check permissions - only Firm Owners and Principal Partners can delete clients
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canDelete = isOwner || profile.role === "principal_partner";
+
+  if (!canDelete) {
+    return { message: "Only Firm Owners and Principal Partners can delete clients." };
+  }
+
+  // Check if client exists and belongs to the firm
+  const { data: client } = await supabase
+    .from("clients")
+    .select("id, firm_id, full_name")
+    .eq("id", clientId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!client) {
+    return { message: "Client not found or you do not have access." };
+  }
+
+  const clientName = client.full_name || "Unknown Client";
+
+  // Check for associated matters (cascade check)
+  const { data: matters, error: mattersError } = await supabase
+    .from("matters")
+    .select("id, serial_number")
+    .eq("client_id", clientId)
+    .limit(1);
+
+  if (mattersError) {
+    return { message: `Error checking associated matters: ${mattersError.message}` };
+  }
+
+  if (matters && matters.length > 0) {
+    return {
+      message: `Cannot delete client. This client has ${matters.length} associated matter(s). Please remove or reassign the matters first.`,
+    };
+  }
+
+  // Check for associated invoices
+  const { data: invoices, error: invoicesError } = await supabase
+    .from("invoices")
+    .select("id, invoice_number")
+    .eq("client_id", clientId)
+    .limit(1);
+
+  if (invoicesError) {
+    return { message: `Error checking associated invoices: ${invoicesError.message}` };
+  }
+
+  if (invoices && invoices.length > 0) {
+    return {
+      message: `Cannot delete client. This client has ${invoices.length} associated invoice(s). Please remove or reassign the invoices first.`,
+    };
+  }
+
+  // Delete associated documents from storage
+  const { data: documents } = await supabase
+    .from("documents")
+    .select("storage_path")
+    .eq("firm_id", profile.firm_id)
+    .contains("metadata", { kind: "client_document", clientId });
+
+  if (documents && documents.length > 0) {
+    const paths = documents.map((doc) => doc.storage_path).filter(Boolean);
+    if (paths.length > 0) {
+      await supabase.storage.from(DOCUMENT_BUCKET).remove(paths);
+    }
+  }
+
+  // Delete client
+  const { error: deleteError } = await supabase
+    .from("clients")
+    .delete()
+    .eq("id", clientId)
+    .eq("firm_id", profile.firm_id);
+
+  if (deleteError) {
+    return { message: `Could not delete client: ${deleteError.message}` };
+  }
+
+  // Log audit event
+  await logClientDeleted(clientId, clientName).catch((error) => {
+    console.error("Failed to log audit event:", error);
+  });
+
+  revalidatePath("/clients");
+  revalidatePath("/cases");
+
+  return { success: true };
 }
 
 

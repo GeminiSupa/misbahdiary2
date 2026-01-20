@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 "use client";
 
 import { useState } from "react";
@@ -20,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { invitationFormSchema } from "@/lib/validation/settings";
+import { invitationFormSchema, type InvitationFormSchema } from "@/lib/validation/settings";
+import { useToast } from "@/hooks/use-toast";
 
 type Invitation = {
   id: string;
@@ -39,6 +38,7 @@ type InviteManagerProps = {
 
 export function InviteManager({ invitations, canInvite = true }: InviteManagerProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,17 +50,22 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
     },
   });
 
-  const onSubmit = async (values: { email: string; role: string }) => {
+  const onSubmit = async (values: InvitationFormSchema) => {
     setFormError(null);
     setIsSubmitting(true);
 
     const result = await createInvitation({
       email: values.email,
-      role: values.role as typeof values.role,
+      role: values.role,
     });
 
     if (result.success) {
       form.reset({ email: "", role: "associate" });
+      toast({
+        title: "Invitation sent",
+        description: `An invitation has been sent to ${values.email}. They will receive an email with the invitation link.`,
+        variant: "success",
+      });
       router.refresh();
       setIsSubmitting(false);
       return;
@@ -86,17 +91,30 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
   };
 
   const handleRevoke = async (invitationId: string) => {
-    await revokeInvitation(invitationId);
+    const result = await revokeInvitation(invitationId);
+    if (result.success) {
+      toast({
+        title: "Invitation revoked",
+        description: "The invitation has been successfully revoked.",
+        variant: "success",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: result.message || "Failed to revoke invitation",
+        variant: "destructive",
+      });
+    }
     router.refresh();
   };
 
   return (
     <div className="sap-card">
-      <div className="sap-card-body space-y-4">
+      <div className="sap-card-body space-y-3 sm:space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Team invitations</h2>
-          <p className="text-sm text-muted-foreground">
-            Invite colleagues to join your workspace. Generate secure, one-time links for each role.
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">Team Invitations</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Send secure invitation links to add team members
           </p>
         </div>
 
@@ -116,7 +134,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
           </Alert>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-[2fr_1fr_auto]">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-[2fr_1fr] md:grid-cols-[2fr_1fr_auto]">
               <FormField
                 control={form.control}
                 name="email"
@@ -124,7 +142,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="colleague@lawfirm.pk" />
+                      <Input {...field} placeholder="colleague@lawfirm.pk" className="min-h-[44px] sm:min-h-[40px]" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -140,7 +158,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
                     <FormControl>
                       <select
                         {...field}
-                        className="block w-full rounded-xl border border-border bg-background px-3 py-2 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="block w-full rounded-xl border border-border bg-background px-3 py-2.5 text-base sm:text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] sm:min-h-[40px]"
                       >
                         <option value="principal_partner">Principal / Partner</option>
                         <option value="associate">Associate</option>
@@ -155,8 +173,8 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
                 )}
               />
 
-              <div className="flex items-end">
-                <Button type="submit" disabled={isSubmitting} className="w-full">
+              <div className="flex items-end sm:col-span-2 md:col-span-1">
+                <Button type="submit" disabled={isSubmitting} className="w-full min-h-[44px] sm:min-h-[40px]">
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   Send invite
                 </Button>
@@ -165,49 +183,93 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
           </Form>
         )}
 
-        <div className="rounded-2xl border border-border/60 bg-background/70">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Sent</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invitations.length > 0 ? (
-                invitations.map((invite) => (
-                  <TableRow key={invite.id}>
-                    <TableCell>{invite.email}</TableCell>
-                    <TableCell className="capitalize">{invite.role.replace("_", " ")}</TableCell>
-                    <TableCell className="capitalize">{invite.status}</TableCell>
-                    <TableCell>{new Date(invite.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {invite.status === "pending" ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRevoke(invite.id)}
-                        >
-                          Revoke
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
+        <div className="rounded-2xl border border-border/60 bg-background/70 overflow-hidden">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Sent</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invitations.length > 0 ? (
+                  invitations.map((invite) => (
+                    <TableRow key={invite.id}>
+                      <TableCell>{invite.email}</TableCell>
+                      <TableCell className="capitalize">{invite.role.replace("_", " ")}</TableCell>
+                      <TableCell className="capitalize">{invite.status}</TableCell>
+                      <TableCell>{new Date(invite.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {invite.status === "pending" ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRevoke(invite.id)}
+                            className="min-h-[44px] sm:min-h-[40px]"
+                          >
+                            Revoke
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">
+                      No invitations sent yet.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">
-                    No invitations sent yet.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3 p-4">
+            {invitations.length > 0 ? (
+              invitations.map((invite) => (
+                <div key={invite.id} className="rounded-lg border border-border/60 bg-card p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm text-foreground truncate">{invite.email}</p>
+                      <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                        {invite.role.replace("_", " ")}
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium capitalize px-2 py-1 rounded bg-muted text-muted-foreground shrink-0">
+                      {invite.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                    <span className="text-xs text-muted-foreground">
+                      Sent: {new Date(invite.createdAt).toLocaleDateString()}
+                    </span>
+                    {invite.status === "pending" ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRevoke(invite.id)}
+                        className="min-h-[44px] text-xs"
+                      >
+                        Revoke
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                No invitations sent yet.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

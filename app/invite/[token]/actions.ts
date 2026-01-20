@@ -61,6 +61,21 @@ export async function acceptInvitation(formData: FormData): Promise<ActionResult
   const existingUser = existingUserResponse.data?.user ?? null;
 
   if (existingUser) {
+    // Check if user is already in another firm (SECURITY FIX)
+    const { data: existingProfile } = await supabaseAdminClient
+      .from("profiles")
+      .select("firm_id, full_name")
+      .eq("id", existingUser.id)
+      .maybeSingle();
+
+    // If user is in a different firm, block the action
+    if (existingProfile?.firm_id && existingProfile.firm_id !== invitation.firm_id) {
+      return {
+        message: "You are already a member of another firm. Please contact your current firm administrator or leave your current firm before accepting this invitation.",
+      };
+    }
+
+    // User exists but not in a firm, or is in the same firm (updating role)
     await supabaseAdminClient
       .from("profiles")
       .update({

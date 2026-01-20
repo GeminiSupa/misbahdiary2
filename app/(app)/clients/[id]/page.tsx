@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -10,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { matterStatusOptions } from "@/lib/constants/cases";
 import { ClientDocumentsCard, type ClientDocument } from "@/components/clients/client-documents-card";
 import { EditClientSheet } from "@/components/clients/edit-client-sheet";
+import { DeleteClientButton } from "@/components/clients/delete-client-button";
 import { Download, Edit, User } from "lucide-react";
 import type { ClientFormValues } from "@/app/(app)/clients/actions";
 
@@ -161,6 +160,11 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                   Download PDF
                 </a>
               </Button>
+              <DeleteClientButton
+                clientId={client.id}
+                clientName={client.full_name ?? client.name ?? "Client"}
+                size="sm"
+              />
             </div>
           </div>
         </div>

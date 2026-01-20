@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { invoiceStatusOptions, type InvoiceStatusOption } from "@/lib/constants/invoices";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { recordInvoicePayment } from "@/app/(app)/billing/actions";
 import { Loader2, Download } from "lucide-react";
+import { DeleteInvoiceButton, VoidInvoiceButton } from "@/components/billing/delete-invoice-button";
+import { useRouter } from "next/navigation";
 
 type InvoiceRecord = {
   id: string;
@@ -28,8 +30,24 @@ type InvoiceBoardProps = {
 };
 
 export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const [defaultTab, setDefaultTab] = useState<string>("outstanding");
+
+  // Listen for tab change events from stat cards
+  useEffect(() => {
+    const handleTabChange = (event: Event) => {
+      const customEvent = event as CustomEvent<string>;
+      if (customEvent.detail) {
+        setDefaultTab(customEvent.detail);
+      }
+    };
+    window.addEventListener("setInvoiceTab", handleTabChange);
+    return () => {
+      window.removeEventListener("setInvoiceTab", handleTabChange);
+    };
+  }, []);
 
   const statusLabel = useMemo(
     () => new Map(invoiceStatusOptions.map((option) => [option.value, option.label])),
@@ -103,7 +121,7 @@ export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
           </div>
         </div>
 
-      <Tabs defaultValue="outstanding" className="mt-2">
+      <Tabs value={defaultTab} onValueChange={setDefaultTab} className="mt-2">
         <TabsList className="grid w-full grid-cols-4 rounded-full bg-muted/60">
           <TabsTrigger value="outstanding">Outstanding</TabsTrigger>
           <TabsTrigger value="paid">Paid</TabsTrigger>
@@ -179,12 +197,24 @@ function InvoiceCard({
   invoice: InvoiceRecord;
   statusLabel: Map<InvoiceStatusOption, string>;
 }) {
+  const router = useRouter();
   const [isPaying, startTransition] = useTransition();
   const outstanding = Math.max(invoice.totalAmount - (invoice.amountPaid ?? 0), 0);
+  
   return (
-    <article className="sap-tile space-y-3">
+    <article 
+      className="sap-tile space-y-3 cursor-pointer transition-all hover:shadow-md hover:border-primary/20"
+      onClick={(e) => {
+        // Don't navigate if clicking on buttons
+        if ((e.target as HTMLElement).closest('button, a')) {
+          return;
+        }
+        // Navigate to invoice detail page (if exists) or open in drawer
+        router.push(`/billing?invoice=${invoice.id}`);
+      }}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
+        <div className="flex-1 min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {invoice.invoiceNumber}
           </p>
@@ -231,39 +261,43 @@ function InvoiceCard({
           </span>
         ) : null}
       </div>
-      {invoice.status === "sent" || invoice.status === "overdue" ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={isPaying}
-            onClick={() =>
-              startTransition(async () => {
-                await recordInvoicePayment(invoice.id);
-              })
-            }
-          >
-            {isPaying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Mark paid
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/api/invoices/${invoice.id}/pdf`}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Link>
-          </Button>
-        </div>
-      ) : null}
-      {invoice.status !== "sent" && invoice.status !== "overdue" ? (
-        <div className="mt-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/api/invoices/${invoice.id}/pdf`}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Link>
-          </Button>
-        </div>
-      ) : null}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {invoice.status === "sent" || invoice.status === "overdue" ? (
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={isPaying}
+              onClick={() =>
+                startTransition(async () => {
+                  await recordInvoicePayment(invoice.id);
+                })
+              }
+            >
+              {isPaying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Mark paid
+            </Button>
+            <VoidInvoiceButton
+              invoiceId={invoice.id}
+              invoiceNumber={invoice.invoiceNumber}
+              status={invoice.status}
+              size="sm"
+            />
+          </>
+        ) : null}
+        <DeleteInvoiceButton
+          invoiceId={invoice.id}
+          invoiceNumber={invoice.invoiceNumber}
+          status={invoice.status}
+          size="sm"
+        />
+        <Button variant="ghost" size="sm" asChild>
+          <Link href={`/api/invoices/${invoice.id}/pdf`}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Link>
+        </Button>
+      </div>
     </article>
   );
 }
