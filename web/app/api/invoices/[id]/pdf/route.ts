@@ -85,7 +85,7 @@ export async function GET(
   return new NextResponse(stream as unknown as ReadableStream, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename=invoice-${invoice.invoice_number}.pdf`,
+      "Content-Disposition": `attachment; filename="invoice-${invoice.invoice_number}.pdf"`,
       "Cache-Control": "private, max-age=0, must-revalidate",
     },
   });

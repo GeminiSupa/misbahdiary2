@@ -141,6 +141,138 @@ export async function createInvoice(values: InvoiceFormValues): Promise<ActionSt
   return { success: true };
 }
 
+export async function updateInvoice(
+  invoiceId: string,
+  values: InvoiceFormValues,
+): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    redirect("/sign-in");
+  }
+
+  const parsed = invoiceSchema.safeParse(values);
+
+  if (!parsed.success) {
+    return {
+      message: "Please review the highlighted fields.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const payload = parsed.data;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "You must belong to a firm before updating invoices." };
+  }
+
+  // Check permissions - only Firm Owners and Principal Partners can edit invoices
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canEdit = isOwner || profile.role === "principal_partner";
+
+  if (!canEdit) {
+    return { message: "Only Firm Owners and Principal Partners can edit invoices." };
+  }
+
+  // Check if invoice exists and belongs to the firm
+  const { data: existingInvoice } = await supabase
+    .from("invoices")
+    .select("id, firm_id, invoice_number")
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!existingInvoice) {
+    return { message: "Invoice not found or you do not have access." };
+  }
+
+  // Don't allow editing invoice number if it's different (to avoid conflicts)
+  if (payload.invoiceNumber !== existingInvoice.invoice_number) {
+    const { data: duplicateCheck } = await supabase
+      .from("invoices")
+      .select("id")
+      .eq("firm_id", profile.firm_id)
+      .eq("invoice_number", payload.invoiceNumber)
+      .neq("id", invoiceId)
+      .maybeSingle();
+
+    if (duplicateCheck) {
+      return { message: "Invoice number already exists for this firm." };
+    }
+  }
+
+  let timeEntriesTotal = 0;
+
+  if (payload.timeEntryIds && payload.timeEntryIds.length > 0) {
+    const { data: entries } = await supabase
+      .from("time_entries")
+      .select("amount")
+      .in("id", payload.timeEntryIds);
+
+    timeEntriesTotal =
+      entries?.reduce((sum, entry) => sum + Number(entry.amount ?? 0), 0) ?? 0;
+  }
+
+  const subtotal = payload.subtotal + timeEntriesTotal;
+  const total =
+    subtotal + (payload.taxAmount ?? 0) - (payload.discountAmount ?? 0);
+
+  const { error: updateError } = await supabase
+    .from("invoices")
+    .update({
+      client_id: payload.clientId,
+      matter_id: payload.matterId ? payload.matterId : null,
+      invoice_number: payload.invoiceNumber,
+      status: payload.status as any,
+      issue_date: payload.issueDate,
+      due_date: payload.dueDate || null,
+      subtotal,
+      tax_amount: payload.taxAmount ?? 0,
+      discount_amount: payload.discountAmount ?? 0,
+      total_amount: total,
+      notes: payload.notes || null,
+    } as any)
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id);
+
+  if (updateError) {
+    return { message: `Could not update invoice: ${updateError.message}` };
+  }
+
+  if (payload.timeEntryIds && payload.timeEntryIds.length > 0) {
+    // Update time entries to link to this invoice
+    const updateData: Record<string, unknown> = { invoice_id: invoiceId };
+    if (payload.matterId) {
+      updateData.matter_id = payload.matterId;
+    }
+    await supabase
+      .from("time_entries")
+      .update(updateData)
+      .in("id", payload.timeEntryIds);
+  }
+
+  revalidatePath("/billing");
+  revalidatePath(`/billing/${invoiceId}`);
+
+  return { success: true };
+}
+
 export async function recordInvoicePayment(
   invoiceId: string,
   amount?: number,
