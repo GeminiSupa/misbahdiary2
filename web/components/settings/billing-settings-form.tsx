@@ -99,7 +99,6 @@ export function BillingSettingsForm({ initialValues, canEdit }: BillingSettingsF
   };
 
   const form = useForm<BillingSettingsSchema>({
-    // @ts-expect-error - Type mismatch between schema defaults and form type
     resolver: zodResolver(billingSettingsSchema) as any,
     defaultValues: {
       invoicePrefix: safeInitialValues.invoicePrefix || "INV",
