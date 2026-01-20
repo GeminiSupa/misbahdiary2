@@ -27,6 +27,7 @@ export function DeleteInvoiceButton({
   className,
 }: DeleteInvoiceButtonProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
