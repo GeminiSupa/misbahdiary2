@@ -759,8 +759,8 @@ export async function updateBillingSettings(
   }
 
   // Upsert billing settings
-  // @ts-expect-error - billing_settings table not in TypeScript types yet
-  const { error: upsertError } = await supabase
+  // Note: billing_settings table not in TypeScript types yet, using type assertion
+  const { error: upsertError } = await (supabase as any)
     .from("billing_settings")
     .upsert(
       {
