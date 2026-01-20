@@ -732,15 +732,17 @@ export async function updateBillingSettings(
     };
   }
 
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from("profiles")
-    .select("firm_id")
+    .select("firm_id, role")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile?.firm_id) {
+  if (!profileData?.firm_id) {
     return { message: "Join or create a firm before updating billing settings." };
   }
+  
+  const profile = profileData as { firm_id: string; role?: string | null };
 
   // Check if user can edit billing settings (Firm Owners and Principal Partners)
   const { data: firm } = await supabase
