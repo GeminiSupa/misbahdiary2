@@ -47,7 +47,7 @@ export default async function SettingsPage() {
     .eq("profile_id", user.id)
     .maybeSingle();
 
-  const { data: staff } = await supabase
+  const { data: staffData } = await supabase
     .from("staff")
     .select(
       `
@@ -64,11 +64,27 @@ export default async function SettingsPage() {
     .eq("firm_id", profile.firm_id)
     .order("updated_at", { ascending: false });
 
-  const { data: team } = await supabase
+  const { data: teamData } = await supabase
     .from("profiles")
     .select("id, full_name, email, role")
     .eq("firm_id", profile.firm_id)
     .order("full_name");
+
+  // Type assertions to handle schema mismatches
+  const staff = staffData as unknown as Array<{
+    user_id: string;
+    role?: string | null;
+    assigned_courts?: string[] | null;
+    assigned_districts?: string[] | null;
+    profile?: { full_name?: string | null; email?: string | null } | null;
+  }> | null;
+
+  const team = teamData as unknown as Array<{
+    id: string;
+    full_name?: string | null;
+    email?: string | null;
+    role?: string | null;
+  }> | null;
 
   const inviteRows =
     invitations?.map((invite) => ({
@@ -96,10 +112,11 @@ export default async function SettingsPage() {
       id: member.id,
       name: member.full_name ?? member.email ?? "Unnamed teammate",
       email: member.email ?? "",
-      role: member.role,
+      role: member.role ?? "",
     })) ?? [];
 
-  const { data: billingSettings } = await supabase
+  // Note: billing_settings table not in TypeScript types yet, using type assertion
+  const { data: billingSettings } = await (supabase as any)
     .from("billing_settings")
     .select("*")
     .eq("firm_id", profile.firm_id)
