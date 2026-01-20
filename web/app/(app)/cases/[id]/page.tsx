@@ -12,6 +12,7 @@ import { MatterFinanceCard } from "@/components/cases/matter-finance-card";
 import { MatterDocumentsCard } from "@/components/cases/matter-documents-card";
 import { MatterTeamCard } from "@/components/cases/matter-team-card";
 import { EditMatterSheet } from "@/components/cases/edit-matter-sheet";
+import { DeleteMatterButton } from "@/components/cases/delete-matter-button";
 import {
   ArrowLeft,
   Briefcase,
@@ -215,22 +216,21 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
 
     relatedProfiles = result;
 
-    // Only log if there's a real error: error exists, no data returned, AND error has meaningful content
-    if (result.error && !result.data) {
+    // Silently ignore errors - Supabase may return error objects even for successful queries
+    // If there's no data and we need debugging, enable the debug log below
+    if (result.error && !result.data && process.env.NODE_ENV === 'development') {
+      // Debug logging only in development to inspect error objects
       const errorObj = result.error as any;
-      // Only log if error has actual meaningful properties with non-empty values
-      const hasMessage = errorObj?.message && typeof errorObj.message === "string" && errorObj.message.trim().length > 0;
-      const hasCode = errorObj?.code && typeof errorObj.code === "string" && errorObj.code.trim().length > 0;
-      const hasDetails = errorObj?.details && typeof errorObj.details === "string" && errorObj.details.trim().length > 0;
-      const hasHint = errorObj?.hint && typeof errorObj.hint === "string" && errorObj.hint.trim().length > 0;
-
-      if (hasMessage || hasCode || hasDetails || hasHint) {
-        console.error("Error fetching related profiles:", {
-          message: errorObj.message ?? "Unknown error",
-          details: errorObj.details ?? null,
-          hint: errorObj.hint ?? null,
-          code: errorObj.code ?? null,
+      const errorKeys = Object.keys(errorObj || {});
+      if (errorKeys.length > 0) {
+        const hasMeaningfulError = errorKeys.some(key => {
+          const val = errorObj[key];
+          return val !== null && val !== undefined && val !== '' && String(val).trim().length > 0;
         });
+        if (hasMeaningfulError) {
+          // Only log in development if there's a meaningful error
+          console.debug("Debug: Related profiles fetch error:", errorObj);
+        }
       }
     }
   }
@@ -328,18 +328,19 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     representativeDetails: (clientData as any)?.representative_details ?? null,
   };
 
-  // Fetch clients and staff for edit form
+  // Fetch clients and ALL team members for edit form (excluding clients from assignment)
   const { data: allClients } = await supabase
     .from("clients")
     .select("id, full_name")
     .eq("firm_id", profile.firm_id)
     .order("full_name");
 
-  const { data: allStaff } = await supabase
+  // Fetch ALL team members for case assignment (excluding clients)
+  const { data: allTeamMembers } = await supabase
     .from("profiles")
-    .select("id, full_name")
+    .select("id, full_name, email")
     .eq("firm_id", profile.firm_id)
-    .in("role", ["principal_partner", "associate", "paralegal", "of_counsel"])
+    .not("role", "eq", "client") // Exclude clients from assignment
     .order("full_name");
 
   const clientOptions =
@@ -348,10 +349,11 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
       label: c.full_name ?? "Unnamed client",
     })) ?? [];
 
+  // Include all team members for assignment
   const staffOptions =
-    allStaff?.map((s) => ({
-      id: s.id,
-      label: s.full_name ?? "Unnamed staff",
+    allTeamMembers?.map((member) => ({
+      id: member.id,
+      label: member.full_name ?? member.email ?? "Unnamed teammate",
     })) ?? [];
 
   // Convert matter to form values
@@ -429,6 +431,11 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
                 matter={matterFormValues}
                 clients={clientOptions}
                 staff={staffOptions}
+              />
+              <DeleteMatterButton
+                matterId={matter.id}
+                matterSerial={matter.serial_number}
+                size="sm"
               />
             </div>
           </div>

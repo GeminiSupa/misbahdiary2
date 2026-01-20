@@ -3,12 +3,10 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NewInvoiceSheet } from "@/components/billing/new-invoice-sheet";
 import { InvoiceBoard } from "@/components/billing/invoice-board";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { BillingStatsCards } from "@/components/billing/billing-stats-cards";
 import { buildAgingBuckets } from "@/lib/dashboard/metrics";
 import { AgingChartCard } from "@/components/billing/aging-chart-card";
-import { Banknote, Plus, TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Banknote } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Billing • Lawyer Diary",
@@ -46,12 +44,12 @@ export default async function BillingPage() {
         due_date,
         total_amount,
         amount_paid,
-        client:clients ( full_name ),
+        client:clients ( id, full_name ),
         matter:matters (
+          id,
           serial_number,
           case_number,
-          court_name,
-          client:clients ( full_name )
+          court_name
         )
       `,
     )
@@ -86,21 +84,27 @@ export default async function BillingPage() {
     .order("started_at", { ascending: false });
 
   const invoiceItems =
-    invoices?.map((invoice) => ({
-      id: invoice.id,
-      invoiceNumber: invoice.invoice_number,
-      status: invoice.status,
-      issueDate: invoice.issue_date,
-      dueDate: invoice.due_date,
-      totalAmount: Number(invoice.total_amount ?? 0),
-      amountPaid: Number(invoice.amount_paid ?? 0),
-      clientName: invoice.client?.full_name ?? "Unknown client",
-      matterLabel:
-        invoice.matter?.serial_number ??
-        invoice.matter?.case_number ??
-        invoice.matter?.client?.full_name ??
-        null,
-    })) ?? [];
+    invoices?.map((invoice) => {
+      // Get client name from invoice's direct client relationship
+      const clientName = invoice.client?.full_name ?? "Unknown client";
+      
+      // Get matter label - prefer serial_number, then case_number
+      const matterLabel = invoice.matter
+        ? invoice.matter.serial_number ?? invoice.matter.case_number ?? null
+        : null;
+      
+      return {
+        id: invoice.id,
+        invoiceNumber: invoice.invoice_number,
+        status: invoice.status,
+        issueDate: invoice.issue_date,
+        dueDate: invoice.due_date,
+        totalAmount: Number(invoice.total_amount ?? 0),
+        amountPaid: Number(invoice.amount_paid ?? 0),
+        clientName,
+        matterLabel,
+      };
+    }) ?? [];
 
   const clientOptions =
     clients?.map((client) => ({
@@ -196,7 +200,7 @@ export default async function BillingPage() {
         <div className="sap-card-body">
           <div className="sap-card-header">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm flex-shrink-0 sm:h-14 sm:w-14">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
                 <Banknote className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div className="min-w-0">
@@ -217,35 +221,10 @@ export default async function BillingPage() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat, index) => {
-          const colorClasses = [
-            "sap-kpi-tile-primary",
-            "sap-kpi-tile-success",
-            "sap-kpi-tile-warning",
-            "sap-kpi-tile-info",
-          ];
-          const colorClass = colorClasses[index % colorClasses.length];
-          return (
-            <div
-              key={stat.label}
-              className={colorClass}
-            >
-              <div className="space-y-1.5 sm:space-y-2">
-                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
-                  {stat.label}
-                </p>
-                <p className="text-lg font-bold text-foreground sm:text-xl md:text-2xl">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground sm:text-xs">{stat.hint}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <BillingStatsCards stats={stats} />
 
       {/* Invoice list + aging inside cards */}
-      <div className="sap-card-success">
+      <div id="invoice-board" className="sap-card-success">
         <div className="sap-card-body space-y-4">
           <div className="sap-card-header">
             <div className="min-w-0">
@@ -254,13 +233,6 @@ export default async function BillingPage() {
                 Full invoice list with filters; creation and edits happen in the side drawer.
               </p>
             </div>
-            <NewInvoiceSheet
-              clients={clientOptions}
-              matters={matterOptions}
-              unbilledTimeEntries={unbilledEntries}
-              variant="outline"
-              size="sm"
-            />
           </div>
 
           <InvoiceBoard invoices={invoiceItems} />

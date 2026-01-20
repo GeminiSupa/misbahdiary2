@@ -86,7 +86,7 @@ export default async function CalendarPage() {
         <div className="sap-card-body">
           <div className="sap-card-header">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm flex-shrink-0 sm:h-14 sm:w-14">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
                 <CalendarIcon className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div className="min-w-0">
@@ -113,7 +113,6 @@ export default async function CalendarPage() {
                 Upcoming and past hearings organised chronologically; creation happens in the side drawer.
               </p>
             </div>
-            <NewHearingSheet matters={matterOptions} variant="outline" size="sm" />
           </div>
 
           <HearingTimeline hearings={timelineHearings} matters={matterOptions} />

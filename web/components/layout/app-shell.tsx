@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { AppNav } from "@/components/layout/app-nav";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { SignOutButton } from "@/components/auth/sign-out-button";
@@ -25,11 +26,14 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
       {/* Sidebar for desktop */}
       <aside className="group hidden overflow-hidden border-r border-border bg-card shadow-sm transition-[width] duration-200 ease-out md:flex md:w-[4.5rem] md:flex-col md:justify-between md:hover:w-64">
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <div className="flex items-center justify-center px-3 py-3 sm:px-4">
+          <Link
+            href="/dashboard"
+            className="flex items-center justify-center px-3 py-3 sm:px-4 transition-opacity hover:opacity-80"
+          >
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-sm">
               LD
             </span>
-          </div>
+          </Link>
           <SidebarNav />
         </div>
         <div className="hidden md:block border-t border-border px-3 py-3 sm:px-4">
@@ -47,7 +51,7 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
           <div className="sap-container flex flex-col gap-2.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-3">
             {/* Mobile brand + nav */}
             <div className="flex items-center justify-between gap-2 sm:gap-3 md:hidden w-full">
-              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 shrink-0 transition-opacity hover:opacity-80">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground shadow-sm sm:h-10 sm:w-10 sm:text-sm">
                   LD
                 </span>
@@ -59,8 +63,8 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
                     {firmName ?? "Your practice"}
                   </span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+              </Link>
+              <div className="flex items-center gap-2 shrink-0 ml-auto">
                 <AppNav />
                 <NotificationBell notifications={notifications} />
               </div>
@@ -79,7 +83,7 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
             </div>
 
             <div className="hidden items-center justify-end gap-3 md:flex md:flex-none">
-              <div className="relative flex items-center">
+              <div className="relative">
                 <NotificationBell notifications={notifications} />
               </div>
             </div>

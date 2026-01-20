@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { logMatterDeleted } from "@/lib/audit/logger";
 import {
   matterStatusOptions,
   matterTypeOptions,
@@ -236,6 +237,113 @@ export async function uploadMatterDocument(formData: FormData) {
 
   revalidatePath(`/cases/${matterId}`);
   revalidatePath("/cases");
+
+  return { success: true };
+}
+
+export async function deleteMatter(matterId: string): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, message: "You must be signed in to delete matters." };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { success: false, message: "Join or create a firm before managing matters." };
+  }
+
+  // Check permissions - only Firm Owners and Principal Partners can delete matters
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canDelete = isOwner || profile.role === "principal_partner";
+
+  if (!canDelete) {
+    return { success: false, message: "Only Firm Owners and Principal Partners can delete matters." };
+  }
+
+  // Check if matter exists and belongs to the firm
+  const { data: matter } = await supabase
+    .from("matters")
+    .select("id, firm_id, serial_number")
+    .eq("id", matterId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!matter) {
+    return { success: false, message: "Matter not found or you do not have access." };
+  }
+
+  // Check for associated invoices
+  const { data: invoices, error: invoicesError } = await supabase
+    .from("invoices")
+    .select("id, invoice_number")
+    .eq("matter_id", matterId)
+    .limit(1);
+
+  if (invoicesError) {
+    return { success: false, message: `Error checking associated invoices: ${invoicesError.message}` };
+  }
+
+  if (invoices && invoices.length > 0) {
+    return {
+      success: false,
+      message: `Cannot delete matter. This matter has ${invoices.length} associated invoice(s). Please remove or reassign the invoices first.`,
+    };
+  }
+
+  // Check for associated hearings
+  const { data: hearings, error: hearingsError } = await supabase
+    .from("hearings")
+    .select("id")
+    .eq("matter_id", matterId)
+    .limit(1);
+
+  if (hearingsError) {
+    return { success: false, message: `Error checking associated hearings: ${hearingsError.message}` };
+  }
+
+  // Delete associated documents from storage
+  const { data: documents } = await supabase
+    .from("documents")
+    .select("storage_path")
+    .eq("firm_id", profile.firm_id)
+    .eq("matter_id", matterId);
+
+  if (documents && documents.length > 0) {
+    const paths = documents.map((doc) => doc.storage_path).filter(Boolean);
+    if (paths.length > 0) {
+      await supabase.storage.from(DOCUMENT_BUCKET).remove(paths);
+    }
+  }
+
+  // Delete matter (cascade will handle hearings and documents)
+  const { error: deleteError } = await supabase
+    .from("matters")
+    .delete()
+    .eq("id", matterId)
+    .eq("firm_id", profile.firm_id);
+
+  if (deleteError) {
+    return { success: false, message: `Could not delete matter: ${deleteError.message}` };
+  }
+
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${matterId}`);
 
   return { success: true };
 }
