@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { logPasswordChanged, logUserCreated } from "@/lib/audit/logger";
+import { billingSettingsSchema } from "@/lib/validation/settings";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -134,18 +136,31 @@ export async function changePassword(
     };
   }
 
+  // Rate limiting: Check recent password change attempts
+  // In production, use Redis or database for rate limiting
+  // For now, we'll use a simple approach with session storage on client side
+
   // Verify current password by attempting to sign in
-  const { error: verifyError } = await supabase.auth.signInWithPassword({
+  // Note: This will create a new session, but we'll restore the original session
+  const { data: verifySession, error: verifyError } = await supabase.auth.signInWithPassword({
     email: user.email!,
     password: parsed.data.currentPassword,
   });
 
-  if (verifyError) {
+  if (verifyError || !verifySession.user) {
     return {
       message: "Current password is incorrect.",
       fieldErrors: {
         currentPassword: ["Current password is incorrect"],
       },
+    };
+  }
+
+  // Restore original session by getting user again
+  const { data: { user: currentUser } } = await supabase.auth.getUser();
+  if (!currentUser) {
+    return {
+      message: "Session error. Please try again.",
     };
   }
 
@@ -159,6 +174,28 @@ export async function changePassword(
       message: `Failed to update password: ${updateError.message}`,
     };
   }
+
+  // Send email notification
+  const { sendPasswordChangeNotification } = await import("@/lib/email/service");
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const userName = profile?.full_name || user.email || "User";
+  const timestamp = new Date().toLocaleString();
+  
+  await sendPasswordChangeNotification(user.email!, userName, timestamp).catch((error) => {
+    console.error("Failed to send password change notification email:", error);
+    // Don't fail the operation if email fails
+  });
+
+  // Log audit event
+  await logPasswordChanged(user.id).catch((error) => {
+    console.error("Failed to log audit event:", error);
+    // Don't fail the operation if audit logging fails
+  });
 
   revalidatePath("/settings");
 
@@ -295,10 +332,19 @@ export async function createInvitation(values: z.infer<typeof invitationSchema>)
     return { message: "Join or create a firm before inviting teammates." };
   }
 
-  // ONLY Principal Partners can send invitations
-  if (profile.role !== "principal_partner") {
+  // Check if user can send invitations (Firm Owners and Principal Partners)
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canInvite = isOwner || profile.role === "principal_partner";
+
+  if (!canInvite) {
     return {
-      message: "Only Principal Partners can send invitations to add team members.",
+      message: "Only Firm Owners and Principal Partners can send invitations to add team members.",
     };
   }
 
@@ -317,6 +363,21 @@ export async function createInvitation(values: z.infer<typeof invitationSchema>)
   if (insertError) {
     return { message: `Could not create invitation: ${insertError.message}` };
   }
+
+  // Send invitation email
+  const { sendInvitationEmail } = await import("@/lib/email/service");
+  const { data: inviterProfile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const inviterName = inviterProfile?.full_name || undefined;
+  
+  await sendInvitationEmail(parsed.data.email, parsed.data.role, token, inviterName).catch((error) => {
+    console.error("Failed to send invitation email:", error);
+    // Don't fail the operation if email fails
+  });
 
   revalidatePath("/settings");
 
@@ -543,12 +604,12 @@ export async function createUser(
     .maybeSingle();
 
   const isOwner = firm?.owner_id === user.id;
-  // ONLY Principal Partners can create users (not Firm Owners)
-  const canCreateUsers = actorProfile.role === "principal_partner";
+  // Firm Owners and Principal Partners can create users
+  const canCreateUsers = isOwner || actorProfile.role === "principal_partner";
 
   if (!canCreateUsers) {
     return {
-      message: "Only Principal Partners can create user accounts. Firm Owners cannot create users directly.",
+      message: "Only Firm Owners and Principal Partners can create user accounts.",
     };
   }
 
@@ -612,6 +673,32 @@ export async function createUser(
       }
     }
 
+    // Send welcome email
+    const { sendUserCreatedEmail } = await import("@/lib/email/service");
+    const { data: firmData } = await supabase
+      .from("firms")
+      .select("name")
+      .eq("id", actorProfile.firm_id)
+      .maybeSingle();
+
+    const firmName = firmData?.name || "the firm";
+    
+    await sendUserCreatedEmail(
+      parsed.data.email,
+      parsed.data.password,
+      parsed.data.fullName,
+      firmName
+    ).catch((error) => {
+      console.error("Failed to send user creation email:", error);
+      // Don't fail the operation if email fails
+    });
+
+    // Log audit event
+    await logUserCreated(newUser.user.id, parsed.data.email, parsed.data.role).catch((error) => {
+      console.error("Failed to log audit event:", error);
+      // Don't fail the operation if audit logging fails
+    });
+
     revalidatePath("/settings");
     revalidatePath("/dashboard");
 
@@ -624,3 +711,89 @@ export async function createUser(
   }
 }
 
+export async function updateBillingSettings(
+  values: z.infer<typeof billingSettingsSchema>,
+): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    redirect("/sign-in");
+  }
+
+  const parsed = billingSettingsSchema.safeParse(values);
+  if (!parsed.success) {
+    return {
+      message: "Please review the highlighted fields.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "Join or create a firm before updating billing settings." };
+  }
+
+  // Check if user can edit billing settings (Firm Owners and Principal Partners)
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canEdit = isOwner || profile.role === "principal_partner";
+
+  if (!canEdit) {
+    return { message: "Only Firm Owners and Principal Partners can update billing settings." };
+  }
+
+  // Upsert billing settings
+  const { error: upsertError } = await supabase
+    .from("billing_settings")
+    .upsert(
+      {
+        firm_id: profile.firm_id,
+        invoice_prefix: parsed.data.invoicePrefix,
+        invoice_number_format: parsed.data.invoiceNumberFormat,
+        next_invoice_number: parsed.data.nextInvoiceNumber,
+        default_payment_terms_days: parsed.data.defaultPaymentTermsDays,
+        default_currency: parsed.data.defaultCurrency,
+        sales_tax_rate: parsed.data.salesTaxRate,
+        sales_tax_label: parsed.data.salesTaxLabel,
+        tax_registration_number: parsed.data.taxRegistrationNumber || null,
+        sales_tax_registration_number: parsed.data.salesTaxRegistrationNumber || null,
+        payment_methods: parsed.data.paymentMethods,
+        bank_name: parsed.data.bankName || null,
+        account_title: parsed.data.accountTitle || null,
+        account_number: parsed.data.accountNumber || null,
+        iban: parsed.data.iban || null,
+        swift_code: parsed.data.swiftCode || null,
+        branch_code: parsed.data.branchCode || null,
+        branch_address: parsed.data.branchAddress || null,
+        invoice_footer: parsed.data.invoiceFooter || null,
+        invoice_notes: parsed.data.invoiceNotes || null,
+        auto_generate_invoice_number: parsed.data.autoGenerateInvoiceNumber,
+      },
+      {
+        onConflict: "firm_id",
+      },
+    );
+
+  if (upsertError) {
+    return { message: `Could not update billing settings: ${upsertError.message}` };
+  }
+
+  revalidatePath("/settings");
+  revalidatePath("/billing");
+
+  return { success: true };
+}

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -101,9 +99,17 @@ export default async function SettingsPage() {
       role: member.role,
     })) ?? [];
 
+  const { data: billingSettings } = await supabase
+    .from("billing_settings")
+    .select("*")
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
   const canManageStaff = firm?.owner_id === user.id || profile.role === "principal_partner";
-  // ONLY Principal Partners can create users and send invitations
-  const canCreateUsers = profile.role === "principal_partner";
+  // Firm Owners and Principal Partners can create users and send invitations
+  const isOwner = firm?.owner_id === user.id;
+  const canCreateUsers = isOwner || profile.role === "principal_partner";
+  const canEditBilling = isOwner || profile.role === "principal_partner";
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
@@ -112,7 +118,7 @@ export default async function SettingsPage() {
         <div className="sap-card-body">
           <div className="sap-card-header">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm flex-shrink-0 sm:h-14 sm:w-14">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
                 <Settings className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div className="min-w-0">
@@ -144,6 +150,29 @@ export default async function SettingsPage() {
           invoiceReminders: preferences?.invoice_reminders ?? true,
           announcementUpdates: preferences?.announcement_updates ?? true,
         }}
+        billingInitial={{
+          invoicePrefix: billingSettings?.invoice_prefix ?? "INV",
+          invoiceNumberFormat: (billingSettings?.invoice_number_format as "YYYY-####" | "####" | "INV-YYYY-####" | "INV-####") ?? "YYYY-####",
+          nextInvoiceNumber: billingSettings?.next_invoice_number ?? 1,
+          defaultPaymentTermsDays: billingSettings?.default_payment_terms_days ?? 30,
+          defaultCurrency: billingSettings?.default_currency ?? "PKR",
+          salesTaxRate: Number(billingSettings?.sales_tax_rate ?? 18.0),
+          salesTaxLabel: billingSettings?.sales_tax_label ?? "GST",
+          taxRegistrationNumber: billingSettings?.tax_registration_number,
+          salesTaxRegistrationNumber: billingSettings?.sales_tax_registration_number,
+          paymentMethods: (billingSettings?.payment_methods as string[]) ?? ["Bank Transfer", "Cash", "Cheque"],
+          bankName: billingSettings?.bank_name,
+          accountTitle: billingSettings?.account_title,
+          accountNumber: billingSettings?.account_number,
+          iban: billingSettings?.iban,
+          swiftCode: billingSettings?.swift_code,
+          branchCode: billingSettings?.branch_code,
+          branchAddress: billingSettings?.branch_address,
+          invoiceFooter: billingSettings?.invoice_footer,
+          invoiceNotes: billingSettings?.invoice_notes ?? "Payment should be made within the specified due date.",
+          autoGenerateInvoiceNumber: billingSettings?.auto_generate_invoice_number ?? true,
+        }}
+        canEditBilling={canEditBilling}
         inviteRows={inviteRows}
         staffRows={staffRows}
         teamMembers={teamMembers}

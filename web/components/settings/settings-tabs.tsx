@@ -6,6 +6,7 @@ import { ProfileSettingsForm } from "@/components/settings/profile-settings-form
 import { NotificationSettingsForm } from "@/components/settings/notification-settings-form";
 import { FirmSettingsCard } from "@/components/settings/firm-settings-card";
 import { TeamManagement } from "@/components/settings/team-management";
+import { BillingSettingsForm } from "@/components/settings/billing-settings-form";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Building2, CreditCard, LogOut, Settings, User, Users } from "lucide-react";
@@ -54,6 +55,29 @@ type SettingsTabsProps = {
     invoiceReminders: boolean;
     announcementUpdates: boolean;
   };
+  billingInitial?: {
+    invoicePrefix: string;
+    invoiceNumberFormat: "YYYY-####" | "####" | "INV-YYYY-####" | "INV-####";
+    nextInvoiceNumber: number;
+    defaultPaymentTermsDays: number;
+    defaultCurrency: string;
+    salesTaxRate: number;
+    salesTaxLabel: string;
+    taxRegistrationNumber: string | null;
+    salesTaxRegistrationNumber: string | null;
+    paymentMethods: string[];
+    bankName: string | null;
+    accountTitle: string | null;
+    accountNumber: string | null;
+    iban: string | null;
+    swiftCode: string | null;
+    branchCode: string | null;
+    branchAddress: string | null;
+    invoiceFooter: string | null;
+    invoiceNotes: string | null;
+    autoGenerateInvoiceNumber: boolean;
+  };
+  canEditBilling: boolean;
   inviteRows: InviteRow[];
   staffRows: StaffRowDisplay[];
   teamMembers: TeamMemberDisplay[];
@@ -76,6 +100,8 @@ export function SettingsTabs({
   firmInitial,
   canEditFirm,
   notificationInitial,
+  billingInitial,
+  canEditBilling,
   inviteRows,
   staffRows,
   teamMembers,
@@ -86,13 +112,10 @@ export function SettingsTabs({
   const [activeTab, setActiveTab] = useState<string>("profile");
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Top horizontal tab menu for better space usage */}
-      <div className="w-full">
-        <div className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Settings Categories
-        </div>
-        <div className="flex flex-row gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex flex-col gap-3 sm:gap-4">
+      {/* SAP Fiori-style horizontal tab menu - Mobile optimized */}
+      <div className="w-full -mx-4 sm:mx-0 px-4 sm:px-0">
+        <div className="flex flex-row gap-1 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -102,16 +125,16 @@ export function SettingsTabs({
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap",
-                  "min-h-[44px] sm:min-h-[40px] flex-shrink-0",
-                  "hover:scale-[1.02] active:scale-[0.98]",
+                  "inline-flex flex-col items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-medium transition-all whitespace-nowrap snap-start",
+                  "min-h-[64px] min-w-[80px] sm:min-h-[56px] sm:min-w-[100px] flex-shrink-0",
+                  "hover:scale-[1.02] active:scale-[0.98] touch-manipulation",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground border border-border/60 bg-card/50",
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground bg-card/50 border border-border/40",
                 )}
               >
-                <Icon className={cn("h-4 w-4 flex-shrink-0", isActive && "text-primary-foreground")} />
-                <span>{tab.label}</span>
+                <Icon className={cn("h-5 w-5 sm:h-4 sm:w-4 flex-shrink-0", isActive && "text-primary-foreground")} />
+                <span className="text-[10px] sm:text-xs leading-tight text-center">{tab.label}</span>
               </button>
             );
           })}
@@ -144,24 +167,31 @@ export function SettingsTabs({
         )}
 
         {activeTab === "billing" && (
-          <div className="sap-card">
-            <div className="sap-card-body space-y-6">
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">Billing Settings</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Configure invoice defaults and billing preferences.
-                </p>
-              </div>
-              <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-8 text-center">
-                <CreditCard className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                <p className="text-sm font-medium text-foreground mb-1">Coming Soon</p>
-                <p className="text-xs text-muted-foreground">
-                  Billing configuration (tax profiles, invoice templates, payment methods) will
-                  appear here in a future version.
-                </p>
-              </div>
-            </div>
-          </div>
+          <BillingSettingsForm 
+            initialValues={billingInitial || {
+              invoicePrefix: "INV",
+              invoiceNumberFormat: "YYYY-####",
+              nextInvoiceNumber: 1,
+              defaultPaymentTermsDays: 30,
+              defaultCurrency: "PKR",
+              salesTaxRate: 18.0,
+              salesTaxLabel: "GST",
+              taxRegistrationNumber: null,
+              salesTaxRegistrationNumber: null,
+              paymentMethods: ["Bank Transfer", "Cash", "Cheque"],
+              bankName: null,
+              accountTitle: null,
+              accountNumber: null,
+              iban: null,
+              swiftCode: null,
+              branchCode: null,
+              branchAddress: null,
+              invoiceFooter: null,
+              invoiceNotes: "Payment should be made within the specified due date.",
+              autoGenerateInvoiceNumber: true,
+            }} 
+            canEdit={canEditBilling} 
+          />
         )}
 
         {activeTab === "account" && (
@@ -195,3 +225,5 @@ export function SettingsTabs({
     </div>
   );
 }
+
+
