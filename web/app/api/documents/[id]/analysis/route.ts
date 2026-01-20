@@ -29,22 +29,10 @@ export async function GET(
       );
     }
 
-    // Get document with processing status
-    // Note: AI columns may not be in TypeScript types, using type assertion
-    // Cast supabase to any so we can select AI columns even if types are outdated
-    const { data: documentData, error: docError } = await (supabase as any)
+    // Get document (without AI columns)
+    const { data: documentData, error: docError } = await supabase
       .from('documents')
-      .select(
-        `
-        id,
-        file_name,
-        ai_processed,
-        ai_processing_status,
-        ai_processed_at,
-        ai_extracted_entities,
-        ai_summary
-      `,
-      )
+      .select('id, file_name')
       .eq('id', documentId)
       .single();
 
@@ -55,15 +43,11 @@ export async function GET(
       );
     }
 
-    const document = documentData as any;
-
     return NextResponse.json({
-      status: document.ai_processing_status || 'pending',
-      summary: document.ai_summary || undefined,
-      entitiesExtracted: Array.isArray(document.ai_extracted_entities) 
-        ? document.ai_extracted_entities.length 
-        : 0,
-      processedAt: document.ai_processed_at || undefined,
+      status: 'not_applicable',
+      summary: undefined,
+      entitiesExtracted: 0,
+      processedAt: undefined,
     });
   } catch (error) {
     console.error('Error fetching document analysis:', error);
