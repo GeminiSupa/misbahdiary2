@@ -125,7 +125,6 @@ export function BillingSettingsForm({ initialValues, canEdit }: BillingSettingsF
     },
   });
 
-  // @ts-expect-error - Type mismatch between form and schema
   const onSubmit = async (values: BillingSettingsSchema) => {
     if (!canEdit) return;
     setFormError(null);
