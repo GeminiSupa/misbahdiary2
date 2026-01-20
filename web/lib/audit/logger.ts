@@ -40,7 +40,6 @@ export async function logAuditEvent(data: AuditLogData): Promise<void> {
     const userAgent = headersList.get("user-agent") || "unknown";
 
     // Use admin client to insert audit log (bypasses RLS)
-    // @ts-expect-error - audit_logs table not in TypeScript types yet
     await (supabaseAdminClient as any).from("audit_logs").insert({
       firm_id: profile.firm_id,
       user_id: user.id,
