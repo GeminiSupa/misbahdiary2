@@ -60,25 +60,12 @@ export default async function CasesPage() {
     .eq("firm_id", firmId)
     .order("full_name");
 
-  const { data: staffMembers } = await supabase
-    .from("staff")
-    .select(
-      `
-        user_id,
-        role,
-        profile:profiles (
-          full_name
-        )
-      `,
-    )
-    .eq("firm_id", firmId)
-    .order("updated_at", { ascending: false });
-
-  const { data: seniorProfiles } = await supabase
+  // Fetch ALL team members for case assignment (excluding clients)
+  const { data: allTeamMembers } = await supabase
     .from("profiles")
-    .select("id, full_name, role")
+    .select("id, full_name, email, role")
     .eq("firm_id", firmId)
-    .in("role", ["principal_partner", "associate"])
+    .not("role", "eq", "client") // Exclude clients from assignment
     .order("full_name");
 
   const matterItems =
@@ -95,19 +82,12 @@ export default async function CasesPage() {
       clientName: matter.client?.full_name ?? null,
     })) ?? [];
 
+  // Include all team members for assignment (not just staff and senior profiles)
   const staffOptions =
-    [
-      ...(staffMembers?.map((member) => ({
-        id: member.user_id,
-        name: member.profile?.full_name ?? "Unnamed",
-      })) ?? []),
-      ...(seniorProfiles?.map((member) => ({
-        id: member.id,
-        name: member.full_name ?? "Unnamed",
-      })) ?? []),
-    ].filter(
-      (value, index, self) => self.findIndex((item) => item.id === value.id) === index,
-    );
+    allTeamMembers?.map((member) => ({
+      id: member.id,
+      name: member.full_name ?? member.email ?? "Unnamed",
+    })) ?? [];
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
@@ -116,7 +96,7 @@ export default async function CasesPage() {
         <div className="sap-card-body">
           <div className="sap-card-header">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm flex-shrink-0 sm:h-14 sm:w-14">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
                 <Briefcase className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div className="min-w-0">
@@ -151,20 +131,6 @@ export default async function CasesPage() {
                 Search, filter, and open matters; creation and edits happen in the side drawer.
               </p>
             </div>
-            <NewMatterSheet
-              clients={
-                clients?.map((client: any) => ({
-                  id: client.id,
-                  name: client.full_name ?? client.name ?? "Unnamed client",
-                })) ?? []
-              }
-              staff={staffOptions}
-              trigger={
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                  New matter
-                </Button>
-              }
-            />
           </div>
 
           {/* Existing board already includes its own search + filter UI and list */}

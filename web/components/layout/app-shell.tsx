@@ -3,7 +3,6 @@ import { AppNav } from "@/components/layout/app-nav";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
-import { TimerControl } from "@/components/layout/timer-control";
 
 type NotificationSummary = {
   id: string;
@@ -62,7 +61,6 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
-                <TimerControl />
                 <AppNav />
                 <NotificationBell notifications={notifications} />
               </div>
@@ -81,7 +79,6 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
             </div>
 
             <div className="hidden items-center justify-end gap-3 md:flex md:flex-none">
-              <TimerControl />
               <div className="relative flex items-center">
                 <NotificationBell notifications={notifications} />
               </div>

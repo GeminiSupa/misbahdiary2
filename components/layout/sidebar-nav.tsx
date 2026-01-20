@@ -11,14 +11,12 @@ import {
   Banknote,
   Users,
   Settings as SettingsIcon,
-  Clock,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "primary" },
   { href: "/cases", label: "Cases", icon: Briefcase, color: "primary" },
   { href: "/calendar", label: "Calendar", icon: CalendarDays, color: "warning" },
-  { href: "/time-tracking", label: "Time Tracking", icon: Clock, color: "info" },
   { href: "/billing", label: "Billing", icon: Banknote, color: "success" },
   { href: "/clients", label: "Clients", icon: Users, color: "info" },
   { href: "/settings", label: "Settings", icon: SettingsIcon, color: "muted" },

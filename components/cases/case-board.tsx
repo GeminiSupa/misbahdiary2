@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { matterStatusOptions } from "@/lib/constants/cases";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { DeleteMatterButton } from "@/components/cases/delete-matter-button";
 
 type CaseItem = {
@@ -26,6 +28,7 @@ type CaseBoardProps = {
 };
 
 export function CaseBoard({ cases }: CaseBoardProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -122,21 +125,33 @@ export function CaseBoard({ cases }: CaseBoardProps) {
             filteredCases.map((matter) => (
               <article
                 key={matter.id}
-                className="sap-tile space-y-2 sm:space-y-3"
+                className={cn(
+                  "sap-tile space-y-2 sm:space-y-3 cursor-pointer transition-all",
+                  "hover:shadow-md hover:border-primary/20 active:scale-[0.98]",
+                  "group"
+                )}
+                onClick={(e) => {
+                  // Don't navigate if clicking on buttons or links
+                  const target = e.target as HTMLElement;
+                  if (target.closest('button, a')) {
+                    return;
+                  }
+                  router.push(`/cases/${matter.id}`);
+                }}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
                       Serial {matter.serialNumber}
                     </p>
-                    <h3 className="text-sm font-semibold text-foreground sm:text-base truncate">
+                    <h3 className="text-sm font-semibold text-foreground sm:text-base truncate group-hover:text-primary transition-colors">
                       {matter.clientName ?? "Unassigned client"}
                     </h3>
                   </div>
                   <Badge
                     variant="outline"
                     className={
-                      "capitalize border-none px-2 py-0.5 text-[10px] font-medium flex-shrink-0 sm:text-xs " +
+                      "capitalize border-none px-2 py-0.5 text-[10px] font-medium shrink-0 sm:text-xs " +
                       (matter.status === "execution" || matter.status === "review"
                         ? "bg-[var(--success-soft)] text-[var(--success)]"
                         : matter.status === "pending" || matter.status === "fresh diary"
@@ -161,16 +176,18 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                     </span>
                   ) : null}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial">
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial" onClick={(e) => e.stopPropagation()}>
                     <Link href={`/cases/${matter.id}`}>Open detail</Link>
                   </Button>
-                  <DeleteMatterButton
-                    matterId={matter.id}
-                    matterSerial={matter.serialNumber}
-                    size="sm"
-                    className="flex-1 sm:flex-initial"
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <DeleteMatterButton
+                      matterId={matter.id}
+                      matterSerial={matter.serialNumber}
+                      size="sm"
+                      className="flex-1 sm:flex-initial"
+                    />
+                  </div>
                 </div>
               </article>
             ))

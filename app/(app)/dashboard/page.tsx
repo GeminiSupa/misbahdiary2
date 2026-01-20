@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { format, startOfWeek, endOfWeek } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { DashboardKpiCards } from "@/components/dashboard/dashboard-kpi-cards";
 
 type KpiRow = {
   label: string;
   value: string | number;
   hint: string;
+  href?: string;
 };
 
 export default async function DashboardPage() {
@@ -33,10 +35,12 @@ export default async function DashboardPage() {
 
   const displayName = profile.full_name || user.email?.split("@")[0] || "User";
 
-  // --- KPIs (minimal, tested step) ---
+  // --- KPIs with additional metrics ---
   const today = new Date();
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+  const monthStart = startOfMonth(today);
+  const monthEnd = endOfMonth(today);
 
   const startOfDay = new Date(today);
   startOfDay.setHours(0, 0, 0, 0);
@@ -46,6 +50,7 @@ export default async function DashboardPage() {
   const [
     { count: activeMattersCount },
     { count: hearingsThisWeekCount },
+    { count: totalClientsCount },
     invoicesRes,
     hearingsTodayRes,
   ] = await Promise.all([
@@ -60,8 +65,12 @@ export default async function DashboardPage() {
       .gte("scheduled_at", weekStart.toISOString())
       .lte("scheduled_at", weekEnd.toISOString()),
     supabase
+      .from("clients")
+      .select("id", { count: "exact", head: true })
+      .eq("firm_id", profile.firm_id),
+    supabase
       .from("invoices")
-      .select("status,total_amount,amount_paid,due_date")
+      .select("status,total_amount,amount_paid,due_date,issue_date")
       .eq("firm_id", profile.firm_id),
     supabase
       .from("hearings")
@@ -100,6 +109,29 @@ export default async function DashboardPage() {
     (invoice) => invoice.status === "overdue",
   ).length;
 
+  // Revenue this month (invoices issued this month)
+  const revenueThisMonth = invoiceSummary.reduce((sum, invoice) => {
+    if (invoice.issue_date) {
+      const issueDate = new Date(invoice.issue_date);
+      if (issueDate >= monthStart && issueDate <= monthEnd) {
+        return sum + Number(invoice.total_amount ?? 0);
+      }
+    }
+    return sum;
+  }, 0);
+
+  // Collection rate (total paid / total invoiced)
+  const totalInvoiced = invoiceSummary.reduce(
+    (sum, invoice) => sum + Number(invoice.total_amount ?? 0),
+    0,
+  );
+  const totalPaid = invoiceSummary.reduce(
+    (sum, invoice) => sum + Number(invoice.amount_paid ?? 0),
+    0,
+  );
+  const collectionRate =
+    totalInvoiced > 0 ? Math.round((totalPaid / totalInvoiced) * 100) : 0;
+
   const currency = new Intl.NumberFormat("en-PK", {
     style: "currency",
     currency: "PKR",
@@ -111,16 +143,37 @@ export default async function DashboardPage() {
       label: "Active matters",
       value: activeMattersCount ?? 0,
       hint: "Open litigation and advisory work",
+      href: "/cases",
+    },
+    {
+      label: "Total clients",
+      value: totalClientsCount ?? 0,
+      hint: "All registered clients",
+      href: "/clients",
     },
     {
       label: "Hearings this week",
       value: hearingsThisWeekCount ?? 0,
       hint: `${format(weekStart, "MMM d")} – ${format(weekEnd, "MMM d")}`,
+      href: "/calendar",
+    },
+    {
+      label: "Revenue this month",
+      value: currency.format(revenueThisMonth),
+      hint: `Invoices issued in ${format(today, "MMMM")}`,
+      href: "/billing",
     },
     {
       label: "Outstanding invoices",
       value: currency.format(outstanding),
       hint: `${overdueCount} overdue`,
+      href: "/billing",
+    },
+    {
+      label: "Collection rate",
+      value: `${collectionRate}%`,
+      hint: `Paid: ${currency.format(totalPaid)} / Invoiced: ${currency.format(totalInvoiced)}`,
+      href: "/billing",
     },
   ];
 
@@ -152,30 +205,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI row */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-        {kpis.map((kpi, index) => {
-          const colorClasses = [
-            "sap-kpi-tile-primary",
-            "sap-kpi-tile-success",
-            "sap-kpi-tile-warning",
-          ];
-          const colorClass = colorClasses[index % colorClasses.length];
-          return (
-            <div
-              key={kpi.label}
-              className={colorClass}
-            >
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
-                {kpi.label}
-              </p>
-              <p className="mt-1.5 text-lg font-semibold text-foreground sm:text-xl">
-                {kpi.value}
-              </p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground sm:text-xs">{kpi.hint}</p>
-            </div>
-          );
-        })}
-      </div>
+      <DashboardKpiCards kpis={kpis} />
 
       {/* Today's Agenda (minimal version) */}
       <div className="sap-card-primary">
@@ -230,9 +260,6 @@ export default async function DashboardPage() {
               <p className="text-xs text-muted-foreground sm:text-sm">
                 No hearings scheduled for today.
               </p>
-              <Button asChild variant="default" className="mt-3 w-full sm:w-auto" size="sm">
-                <Link href="/calendar">Schedule a hearing</Link>
-              </Button>
             </div>
           )}
         </div>

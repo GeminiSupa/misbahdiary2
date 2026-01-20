@@ -3,12 +3,10 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NewInvoiceSheet } from "@/components/billing/new-invoice-sheet";
 import { InvoiceBoard } from "@/components/billing/invoice-board";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { BillingStatsCards } from "@/components/billing/billing-stats-cards";
 import { buildAgingBuckets } from "@/lib/dashboard/metrics";
 import { AgingChartCard } from "@/components/billing/aging-chart-card";
-import { Banknote, Plus, TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Banknote } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Billing • Lawyer Diary",
@@ -223,52 +221,7 @@ export default async function BillingPage() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat, index) => {
-          const colorClasses = [
-            "sap-kpi-tile-primary",
-            "sap-kpi-tile-success",
-            "sap-kpi-tile-warning",
-            "sap-kpi-tile-info",
-          ];
-          const colorClass = colorClasses[index % colorClasses.length];
-          
-          // Determine which tab to show based on stat
-          const tabMap: Record<number, string> = {
-            0: "outstanding", // Outstanding receivables
-            1: "paid", // Collected this cycle
-            2: "outstanding", // Invoices overdue (filtered)
-            3: "outstanding", // Due within 7 days (filtered)
-          };
-          const targetTab = tabMap[index] || "outstanding";
-          
-          return (
-            <button
-              key={stat.label}
-              type="button"
-              onClick={() => {
-                // Scroll to invoice board and set tab
-                const invoiceBoard = document.getElementById("invoice-board");
-                if (invoiceBoard) {
-                  invoiceBoard.scrollIntoView({ behavior: "smooth", block: "start" });
-                  // Trigger tab change via custom event
-                  window.dispatchEvent(new CustomEvent("setInvoiceTab", { detail: targetTab }));
-                }
-              }}
-              className={cn(colorClass, "cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]")}
-            >
-              <div className="space-y-1.5 sm:space-y-2">
-                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
-                  {stat.label}
-                </p>
-                <p className="text-lg font-bold text-foreground sm:text-xl md:text-2xl">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground sm:text-xs">{stat.hint}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      <BillingStatsCards stats={stats} />
 
       {/* Invoice list + aging inside cards */}
       <div id="invoice-board" className="sap-card-success">
