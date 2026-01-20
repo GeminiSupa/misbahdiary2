@@ -31,9 +31,11 @@ export async function GET(
 
     // Get document with processing status
     // Note: AI columns may not be in TypeScript types, using type assertion
-    const { data: documentData, error: docError } = await supabase
+    // Cast supabase to any so we can select AI columns even if types are outdated
+    const { data: documentData, error: docError } = await (supabase as any)
       .from('documents')
-      .select(`
+      .select(
+        `
         id,
         file_name,
         ai_processed,
@@ -41,7 +43,8 @@ export async function GET(
         ai_processed_at,
         ai_extracted_entities,
         ai_summary
-      `)
+      `,
+      )
       .eq('id', documentId)
       .single();
 
