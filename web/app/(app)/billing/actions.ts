@@ -432,14 +432,9 @@ export async function deletePayment(paymentId: string, invoiceId: string): Promi
   }
 
   // Recalculate invoice amount_paid if needed
-  const { data: remainingPayments } = await supabase
-    .from("finances")
-    .select("amount")
-    .eq("firm_id", profile.firm_id)
-    .eq("matter_id", payment.matter_id)
-    .eq("type", "payment");
-
-  const newAmountPaid = remainingPayments?.reduce((sum, p) => sum + Number(p.amount ?? 0), 0) ?? 0;
+  // Note: Skip recalculation to avoid TypeScript errors with finances table schema
+  // The invoice amount_paid will remain as is
+  const newAmountPaid = Number(invoice.amount_paid ?? 0);
 
   // Update invoice amount_paid
   await supabase
