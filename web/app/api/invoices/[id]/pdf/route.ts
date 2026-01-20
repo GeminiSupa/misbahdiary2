@@ -11,6 +11,20 @@ export async function GET(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
+    // Check if required environment variables are set
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("Missing Supabase environment variables:", {
+        hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      });
+      return NextResponse.json(
+        {
+          message: "Server configuration error: Supabase environment variables are not set. Please configure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel.",
+        },
+        { status: 500 },
+      );
+    }
+
     const { id } = await context.params;
     const invoiceId = id;
 
