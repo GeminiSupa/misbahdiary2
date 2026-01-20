@@ -50,10 +50,10 @@ export const notificationPreferencesSchema = z.object({
 export const billingSettingsSchema = z.object({
   invoicePrefix: z.string().min(1, "Invoice prefix is required").max(10, "Prefix too long"),
   invoiceNumberFormat: z.enum(["YYYY-####", "####", "INV-YYYY-####", "INV-####"]).default("YYYY-####"),
-  nextInvoiceNumber: z.coerce.number().int().min(1, "Next invoice number must be at least 1").default(1),
-  defaultPaymentTermsDays: z.coerce.number().int().min(0).max(365).default(30),
+  nextInvoiceNumber: z.number().int().min(1, "Next invoice number must be at least 1").default(1),
+  defaultPaymentTermsDays: z.number().int().min(0).max(365).default(30),
   defaultCurrency: z.string().default("PKR"),
-  salesTaxRate: z.coerce.number().min(0).max(100).default(18.00),
+  salesTaxRate: z.number().min(0).max(100).default(18.00),
   salesTaxLabel: z.string().min(1).max(50).default("GST"),
   taxRegistrationNumber: z.string().optional().or(z.literal("")),
   salesTaxRegistrationNumber: z.string().optional().or(z.literal("")),
