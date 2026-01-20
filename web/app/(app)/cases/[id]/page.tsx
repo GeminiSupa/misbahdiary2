@@ -336,7 +336,6 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     .order("full_name");
 
   // Fetch ALL team members for case assignment (excluding clients)
-  // @ts-expect-error - profiles table schema may not match TypeScript types
   const { data: allTeamMembersData } = await supabase
     .from("profiles")
     .select("id, full_name, email")
