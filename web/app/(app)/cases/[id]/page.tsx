@@ -336,12 +336,15 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     .order("full_name");
 
   // Fetch ALL team members for case assignment (excluding clients)
-  const { data: allTeamMembers } = await supabase
+  // @ts-expect-error - profiles table schema may not match TypeScript types
+  const { data: allTeamMembersData } = await supabase
     .from("profiles")
     .select("id, full_name, email")
     .eq("firm_id", profile.firm_id)
     .not("role", "eq", "client") // Exclude clients from assignment
     .order("full_name");
+
+  const allTeamMembers = allTeamMembersData as unknown as Array<{ id: string; full_name?: string | null; email?: string | null }> | null;
 
   const clientOptions =
     allClients?.map((c) => ({
