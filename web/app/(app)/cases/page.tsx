@@ -61,12 +61,14 @@ export default async function CasesPage() {
     .order("full_name");
 
   // Fetch ALL team members for case assignment (excluding clients)
-  const { data: allTeamMembers } = await supabase
+  const { data: allTeamMembersData } = await supabase
     .from("profiles")
     .select("id, full_name, email, role")
     .eq("firm_id", firmId)
     .not("role", "eq", "client") // Exclude clients from assignment
     .order("full_name");
+  
+  const allTeamMembers = allTeamMembersData as unknown as Array<{ id: string; full_name?: string | null; email?: string | null; role?: string | null }> | null;
 
   const matterItems =
     matters?.map((matter) => ({
