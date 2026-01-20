@@ -409,16 +409,19 @@ export async function deletePayment(paymentId: string, invoiceId: string): Promi
 
   // Note: Payments are stored in finances table, not a separate payments table
   // Check if payment exists in finances table
-  const { data: payment } = await supabase
+  const { data: paymentData } = await supabase
     .from("finances")
     .select("id, firm_id, matter_id, amount, type")
     .eq("id", paymentId)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
 
-  if (!payment) {
+  if (!paymentData) {
     return { message: "Payment not found or you do not have access." };
   }
+  
+  // Type assertion to handle schema mismatch - cast through unknown first
+  const payment = paymentData as unknown as { id: string; firm_id: string; matter_id?: string | null; amount?: number | null; type: string };
 
   // Delete payment record
   const { error: deleteError } = await supabase
@@ -449,7 +452,9 @@ export async function deletePayment(paymentId: string, invoiceId: string): Promi
 
   revalidatePath("/billing");
   revalidatePath("/cases");
-  revalidatePath(`/cases/${payment.matter_id}`);
+  if (payment && payment.matter_id) {
+    revalidatePath(`/cases/${String(payment.matter_id)}`);
+  }
 
   return { success: true };
 }
