@@ -27,15 +27,15 @@ export default async function RootLayout({
 }>) {
   const supabase = await createSupabaseServerClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   let lang = "en";
-  if (session?.user) {
+  if (user) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("language_preference")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .maybeSingle();
 
     if (profile?.language_preference) {

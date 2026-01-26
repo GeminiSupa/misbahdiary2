@@ -89,15 +89,21 @@ export function CreateUserForm() {
 
       if (result.success) {
         setSuccess(true);
+        const successMessage = result.message || `Team member "${values.fullName}" has been successfully added to your firm with the role "${values.role}". They can now sign in and will have role-based access.`;
         toast({
-          title: "User created",
-          description: `User account for ${values.email} has been created successfully. A welcome email has been sent.`,
+          title: "Team Member Added Successfully",
+          description: successMessage,
           variant: "success",
         });
         form.reset();
+        // Force immediate refresh to show new team member
         router.refresh();
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(false), 3000);
+        // Clear success message after 5 seconds to give time to see the new member
+        setTimeout(() => {
+          setSuccess(false);
+          // Force another refresh to ensure team list is updated
+          router.refresh();
+        }, 5000);
       } else {
         const errorMsg = result.message || "Failed to create user";
         setError(errorMsg);
@@ -129,9 +135,9 @@ export function CreateUserForm() {
             <UserPlus className="h-3.5 w-3.5 text-primary" />
           </div>
           <div className="flex-1">
-            <h3 className="font-medium text-sm text-foreground">Direct Account Creation</h3>
+            <h3 className="font-medium text-sm text-foreground">Add Team Member</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Create a user account immediately. They can sign in right away with the credentials you set.
+              As a Firm Owner, you can add team members to your firm. They will be assigned to your firm with the role you specify and will have access based on that role. They can sign in immediately with the credentials you set.
             </p>
           </div>
         </div>
@@ -145,10 +151,10 @@ export function CreateUserForm() {
       )}
 
       {success && (
-        <Alert className="border-emerald-500/50 bg-emerald-50">
-          <AlertTitle className="text-emerald-700">User Created Successfully</AlertTitle>
-          <AlertDescription className="text-emerald-600">
-            The user account has been created and they can now sign in with the provided credentials.
+        <Alert className="border-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/20">
+          <AlertTitle className="text-emerald-700 dark:text-emerald-400">Team Member Added Successfully</AlertTitle>
+          <AlertDescription className="text-emerald-600 dark:text-emerald-300">
+            The team member has been added to your firm and will appear in the team list above. They can now sign in with the provided credentials and will have access based on their assigned role.
           </AlertDescription>
         </Alert>
       )}

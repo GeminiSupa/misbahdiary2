@@ -66,9 +66,34 @@ export default async function SettingsPage() {
 
   const { data: teamData } = await supabase
     .from("profiles")
-    .select("id, full_name, email, role")
+    .select("id, full_name, email, role, created_by")
     .eq("firm_id", profile.firm_id)
     .order("full_name");
+
+  // Type assertions to handle schema mismatches (created_by field not in types yet)
+  const team = teamData as unknown as Array<{
+    id: string;
+    full_name?: string | null;
+    email?: string | null;
+    role?: string | null;
+    created_by?: string | null;
+  }> | null;
+
+  // Fetch creator information for team members
+  const creatorIds = team?.filter((m) => m.created_by).map((m) => m.created_by).filter((id): id is string => !!id) ?? [];
+  const { data: creatorData } =
+    creatorIds.length > 0
+      ? await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", creatorIds)
+      : { data: null };
+
+  const creatorMap = new Map(
+    (creatorData as Array<{ id: string; full_name?: string | null; email?: string | null }> | null)?.map(
+      (c) => [c.id, c],
+    ) ?? [],
+  );
 
   // Type assertions to handle schema mismatches
   const staff = staffData as unknown as Array<{
@@ -77,13 +102,6 @@ export default async function SettingsPage() {
     assigned_courts?: string[] | null;
     assigned_districts?: string[] | null;
     profile?: { full_name?: string | null; email?: string | null } | null;
-  }> | null;
-
-  const team = teamData as unknown as Array<{
-    id: string;
-    full_name?: string | null;
-    email?: string | null;
-    role?: string | null;
   }> | null;
 
   const inviteRows =
@@ -108,12 +126,21 @@ export default async function SettingsPage() {
     })) ?? [];
 
   const teamMembers =
-    team?.map((member) => ({
-      id: member.id,
-      name: member.full_name ?? member.email ?? "Unnamed teammate",
-      email: member.email ?? "",
-      role: member.role ?? "",
-    })) ?? [];
+    team?.map((member) => {
+      const creator = member.created_by ? creatorMap.get(member.created_by) : null;
+      return {
+        id: member.id,
+        name: member.full_name ?? member.email ?? "Unnamed teammate",
+        email: member.email ?? "",
+        role: member.role ?? "",
+        createdBy: member.created_by
+          ? {
+              id: member.created_by,
+              name: creator?.full_name ?? creator?.email ?? "Unknown",
+            }
+          : null,
+      };
+    }) ?? [];
 
   // Note: billing_settings table not in TypeScript types yet, using type assertion
   const { data: billingSettings } = await (supabase as any)

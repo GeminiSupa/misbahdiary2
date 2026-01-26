@@ -41,13 +41,13 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
         
         const CardContent = () => (
           <>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs truncate">
               {kpi.label}
             </p>
-            <p className="mt-1.5 text-lg font-semibold text-foreground sm:text-xl md:text-2xl">
+            <p className="mt-1.5 text-lg font-semibold text-foreground sm:text-xl md:text-2xl truncate">
               {kpi.value}
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground sm:text-xs">{kpi.hint}</p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground sm:text-xs line-clamp-2">{kpi.hint}</p>
           </>
         );
 
@@ -58,7 +58,7 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
               href={kpi.href!}
               className={cn(
                 colorClass,
-                "cursor-pointer transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
+                "cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
               )}
             >
               <CardContent />
@@ -67,7 +67,7 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
         }
 
         return (
-          <div key={kpi.label} className={colorClass}>
+          <div key={kpi.label} className={cn(colorClass, "overflow-hidden")}>
             <CardContent />
           </div>
         );

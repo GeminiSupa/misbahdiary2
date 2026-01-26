@@ -409,16 +409,23 @@ export async function deletePayment(paymentId: string, invoiceId: string): Promi
 
   // Note: Payments are stored in finances table, not a separate payments table
   // Check if payment exists in finances table
-  const { data: payment } = await supabase
+  const { data: paymentData } = await supabase
     .from("finances")
     .select("id, firm_id, matter_id, amount, type")
     .eq("id", paymentId)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
 
-  if (!payment) {
+  if (!paymentData) {
     return { message: "Payment not found or you do not have access." };
   }
+  
+  // Type assertion to handle schema mismatch - cast through unknown first
+  const payment = paymentData as unknown as { id: string; firm_id: string; matter_id?: string | null; amount?: number | null; type: string };
+
+  // Get payment amount before deletion for recalculation
+  const paymentAmount = Number(payment.amount ?? 0);
+  const currentAmountPaid = Number(invoice.amount_paid ?? 0);
 
   // Delete payment record
   const { error: deleteError } = await supabase
@@ -431,30 +438,50 @@ export async function deletePayment(paymentId: string, invoiceId: string): Promi
     return { message: `Could not delete payment: ${deleteError.message}` };
   }
 
-  // Recalculate invoice amount_paid if needed
-  const { data: remainingPayments } = await supabase
-    .from("finances")
-    .select("amount")
-    .eq("firm_id", profile.firm_id)
-    .eq("matter_id", payment.matter_id)
-    .eq("type", "payment");
+  // Recalculate invoice amount_paid by subtracting the deleted payment amount
+  const newAmountPaid = Math.max(0, currentAmountPaid - paymentAmount);
+  const totalAmount = Number(invoice.total_amount ?? 0);
 
-  const newAmountPaid = remainingPayments?.reduce((sum, p) => sum + Number(p.amount ?? 0), 0) ?? 0;
+  // Determine new status based on payment amount
+  let newStatus: string;
+  if (newAmountPaid >= totalAmount) {
+    newStatus = "paid";
+  } else if (newAmountPaid > 0) {
+    newStatus = "sent";
+  } else {
+    // If no payment, check if invoice was already sent or keep as draft
+    // Get current invoice status to determine if it should be "sent" or "draft"
+    const { data: currentInvoice } = await supabase
+      .from("invoices")
+      .select("status")
+      .eq("id", invoiceId)
+      .single();
+    
+    // If invoice was already sent/paid, keep it as "sent", otherwise "draft"
+    newStatus = currentInvoice?.status === "draft" ? "draft" : "sent";
+  }
 
-  // Update invoice amount_paid
-  await supabase
+  // Update invoice amount_paid and status
+  const { error: updateError } = await supabase
     .from("invoices")
     .update({
       amount_paid: newAmountPaid,
-      status: newAmountPaid >= Number(invoice.total_amount ?? 0) ? "paid" : "sent",
+      status: newStatus as any,
       paid_at: newAmountPaid > 0 ? new Date().toISOString() : null,
     })
     .eq("id", invoiceId)
     .eq("firm_id", profile.firm_id);
 
+  if (updateError) {
+    console.error("Error updating invoice after payment deletion:", updateError);
+    return { message: `Payment deleted but failed to update invoice: ${updateError.message}` };
+  }
+
   revalidatePath("/billing");
   revalidatePath("/cases");
-  revalidatePath(`/cases/${payment.matter_id}`);
+  if (payment && payment.matter_id) {
+    revalidatePath(`/cases/${String(payment.matter_id)}`);
+  }
 
   return { success: true };
 }

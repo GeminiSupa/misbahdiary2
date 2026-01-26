@@ -32,6 +32,7 @@ type TeamMember = {
   name: string;
   email: string;
   role: string | null;
+  createdBy?: { id: string; name: string } | null;
 };
 
 type Invitation = {
@@ -194,7 +195,7 @@ export function TeamManagement({
 
           <Separator />
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {Object.entries(ROLE_INFO).map(([role, info]) => {
               if (role === "client") return null; // Skip client role in overview
               const Icon = info.icon;
@@ -204,11 +205,11 @@ export function TeamManagement({
                   className={`rounded-xl border ${info.borderColor} ${info.bgColor} p-3`}
                 >
                   <div className="flex items-start gap-2">
-                    <Icon className={`h-4 w-4 ${info.color} mt-0.5`} />
-                    <div className="flex-1">
+                    <Icon className={`h-4 w-4 ${info.color} mt-0.5 shrink-0`} />
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold">{info.label}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">{info.description}</p>
-                      <div className="mt-2 flex items-center gap-2">
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
                         {info.canSeeAllCases ? (
                           <Badge variant="outline" className="text-xs">
                             <Eye className="mr-1 h-3 w-3" />
@@ -260,26 +261,31 @@ export function TeamManagement({
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background/80 p-4 transition hover:shadow-md"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-border/60 bg-background/80 p-4 transition hover:shadow-md"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`rounded-lg ${roleInfo.bgColor} p-2`}>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`rounded-lg ${roleInfo.bgColor} p-2 shrink-0`}>
                         <Icon className={`h-4 w-4 ${roleInfo.color}`} />
                       </div>
-                      <div>
-                        <p className="font-semibold">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold truncate">{member.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{member.email}</p>
+                        {member.createdBy && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Created by {member.createdBy.name}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
                       <Badge
                         variant="outline"
-                        className={`${roleInfo.borderColor} ${roleInfo.bgColor} ${roleInfo.color}`}
+                        className={`${roleInfo.borderColor} ${roleInfo.bgColor} ${roleInfo.color} text-xs`}
                       >
                         {roleInfo.label}
                       </Badge>
                       {roleInfo.canSeeAllCases && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs shrink-0">
                           <Eye className="mr-1 h-3 w-3" />
                           All Cases
                         </Badge>
@@ -290,8 +296,8 @@ export function TeamManagement({
               })}
             </div>
           ) : (
-            <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-8 text-center">
-              <Users className="mx-auto h-10 w-10 text-muted-foreground/50 mb-2" />
+            <div className="rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-6 sm:p-8 text-center">
+              <Users className="mx-auto h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground/50 mb-2" />
               <p className="text-sm font-medium text-muted-foreground">No team members yet</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Invite colleagues to join your workspace

@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { Loader2 } from "lucide-react";
 
@@ -71,7 +70,7 @@ export function SignInForm() {
         return;
       }
 
-      const { error: signInError, data } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: values.email.trim(),
         password: values.password,
       });
@@ -135,47 +134,48 @@ export function SignInForm() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Sign in</h1>
-        <p className="text-sm text-muted-foreground">
-          Access your Lawyer Diary workspace
+      <div className="text-center sm:text-left">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">Welcome Back</h1>
+        <p className="mt-2 text-sm text-white/70 sm:text-base">
+          Sign in to access your workspace
         </p>
       </div>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertTitle>Unable to sign in</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
+          <AlertTitle className="text-red-200">Unable to sign in</AlertTitle>
+          <AlertDescription className="text-red-300/90">{error}</AlertDescription>
         </Alert>
       ) : null}
 
       {info ? (
-        <Alert>
-          <AlertTitle>Almost there</AlertTitle>
-          <AlertDescription>{info}</AlertDescription>
+        <Alert className="border-blue-500/50 bg-blue-500/10 backdrop-blur-sm">
+          <AlertTitle className="text-blue-200">Almost there</AlertTitle>
+          <AlertDescription className="text-blue-300/90">{info}</AlertDescription>
         </Alert>
       ) : null}
 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handlePasswordSignIn)}
-          className="sap-form"
+          className="space-y-5"
         >
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className="text-white/90">Email</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     type="email"
                     placeholder="you@lawfirm.pk"
                     autoComplete="email"
+                    className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-400" />
               </FormItem>
             )}
           />
@@ -185,41 +185,53 @@ export function SignInForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className="text-white/90">Password</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     type="password"
                     placeholder="••••••••"
                     autoComplete="current-password"
+                    className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-400" />
               </FormItem>
             )}
           />
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            Continue
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </Button>
         </form>
       </Form>
 
-      <Separator className="my-6" />
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-slate-800/95 px-2 text-white/50">Or</span>
+        </div>
+      </div>
 
       <div className="space-y-4">
         <div>
-          <h2 className="text-sm font-medium text-foreground">
+          <h2 className="text-sm font-medium text-white/90">
             Prefer passwordless?
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-white/60 mt-1">
             We&apos;ll email you a secure, single-use link.
           </p>
         </div>
@@ -227,23 +239,24 @@ export function SignInForm() {
         <Form {...magicForm}>
           <form
             onSubmit={magicForm.handleSubmit(handleMagicLink)}
-            className="sap-form"
+            className="space-y-4"
           >
             <FormField
               control={magicForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-white/90">Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       type="email"
                       placeholder="you@lawfirm.pk"
                       autoComplete="email"
+                      className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -251,13 +264,17 @@ export function SignInForm() {
             <Button
               type="submit"
               variant="outline"
-              className="w-full"
+              className="w-full h-12 border-slate-600/50 bg-slate-700/30 text-white hover:bg-slate-700/50 hover:border-slate-500/50 backdrop-blur-sm transition-all duration-200 min-h-[44px] sm:min-h-[48px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Email magic link
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Email magic link"
+              )}
             </Button>
           </form>
         </Form>

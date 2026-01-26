@@ -35,6 +35,7 @@ type TeamMemberDisplay = {
   name: string;
   email: string;
   role: string | null;
+  createdBy?: string | null;
 };
 
 type SettingsTabsProps = {
@@ -84,6 +85,8 @@ type SettingsTabsProps = {
   canManageStaff: boolean;
   canCreateUsers: boolean;
   currentUserRole: string | null;
+  currentUserId: string;
+  firmOwnerId: string | null;
 };
 
 const TABS = [
@@ -108,6 +111,8 @@ export function SettingsTabs({
   canManageStaff,
   canCreateUsers,
   currentUserRole,
+  currentUserId,
+  firmOwnerId,
 }: SettingsTabsProps) {
   const [activeTab, setActiveTab] = useState<string>("profile");
 

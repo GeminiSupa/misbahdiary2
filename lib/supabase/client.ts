@@ -33,3 +33,5 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
   return browserClient;
 };
 
+// Alias for convenience
+export const createSupabaseClient = getBrowserClient;

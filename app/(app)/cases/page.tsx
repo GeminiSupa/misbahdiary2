@@ -6,6 +6,7 @@ import { CaseBoard } from "@/components/cases/case-board";
 import { Briefcase } from "lucide-react";
 import { NewMatterSheet } from "@/components/cases/new-matter-sheet";
 import { Button } from "@/components/ui/button";
+import { canUserSeeAllCases, getUserVisibleMatterIds } from "@/lib/server/access-control";
 
 export const metadata: Metadata = {
   title: "Matters • Lawyer Diary",
@@ -24,7 +25,7 @@ export default async function CasesPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id")
+    .select("firm_id, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -34,7 +35,11 @@ export default async function CasesPage() {
     redirect("/onboarding");
   }
 
-  const { data: matters } = await supabase
+  // Check if user can see all cases (firm owner or principal partner)
+  const canSeeAll = await canUserSeeAllCases(user.id, firmId);
+
+  // Get matters based on user's role and assignments
+  let mattersQuery = supabase
     .from("matters")
     .select(
       `
@@ -48,11 +53,29 @@ export default async function CasesPage() {
         court_name,
         district,
         assigned_attorneys,
+        created_by,
         client:clients ( id, full_name )
       `,
     )
-    .eq("firm_id", firmId)
-    .order("created_at", { ascending: false });
+    .eq("firm_id", firmId);
+
+  // If user cannot see all cases, filter by role-based access
+  if (!canSeeAll) {
+    const userRole = profile?.role;
+    
+    if (userRole === "associate" || userRole === "of_counsel") {
+      // Associates and of_counsel can see matters they created OR are assigned to
+      mattersQuery = mattersQuery.or(`created_by.eq.${user.id},assigned_attorneys.cs.{${user.id}}`);
+    } else if (userRole === "paralegal" || userRole === "staff") {
+      // Paralegals and staff can only see assigned matters
+      mattersQuery = mattersQuery.contains("assigned_attorneys", [user.id]);
+    } else {
+      // For other roles, return empty (RLS will handle this)
+      mattersQuery = mattersQuery.eq("id", "00000000-0000-0000-0000-000000000000"); // Impossible ID
+    }
+  }
+
+  const { data: matters } = await mattersQuery.order("created_at", { ascending: false });
 
   const { data: clients } = await supabase
     .from("clients")
@@ -61,11 +84,12 @@ export default async function CasesPage() {
     .order("full_name");
 
   // Fetch ALL team members for case assignment (excluding clients)
+  // Note: email is not in profiles table, it's in auth.users
   const { data: allTeamMembers } = await supabase
     .from("profiles")
-    .select("id, full_name, email, role")
+    .select("id, full_name, role")
     .eq("firm_id", firmId)
-    .not("role", "eq", "client") // Exclude clients from assignment
+    .neq("role", "client") // Exclude clients from assignment
     .order("full_name");
 
   const matterItems =
@@ -83,11 +107,13 @@ export default async function CasesPage() {
     })) ?? [];
 
   // Include all team members for assignment (not just staff and senior profiles)
+  // Type assertion needed due to TypeScript type inference issues
+  const teamMembersData = (allTeamMembers as Array<{ id: string; full_name?: string | null }> | null) ?? [];
   const staffOptions =
-    allTeamMembers?.map((member) => ({
+    teamMembersData.map((member) => ({
       id: member.id,
-      name: member.full_name ?? member.email ?? "Unnamed",
-    })) ?? [];
+      name: member.full_name ?? "Unnamed",
+    }));
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">

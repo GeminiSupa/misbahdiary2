@@ -17,10 +17,12 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn(
-      "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-      className
-    )}
+      className={cn(
+        "flex h-9 min-h-[44px] sm:min-h-[36px] w-full items-center justify-between rounded-lg border border-input/60 bg-background/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        "hover:border-primary/40 hover:bg-background/70 hover:shadow-md",
+        "focus:outline-none focus:border-primary/60 focus:ring-primary/20 focus:ring-2 focus:bg-background focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1),0_0_20px_rgba(59,130,246,0.15)]",
+        className
+      )}
     {...props}
   >
     {children}
@@ -67,7 +69,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-card text-card-foreground shadow-md",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg border border-border/60 bg-card/95 backdrop-blur-xl text-card-foreground shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] transition-all duration-200",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
@@ -109,10 +111,10 @@ const SelectItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
-    )}
+      className={cn(
+        "relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none transition-all duration-150 focus:bg-primary/10 focus:text-primary-foreground hover:bg-accent/50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className
+      )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

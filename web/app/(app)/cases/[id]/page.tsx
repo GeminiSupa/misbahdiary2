@@ -57,6 +57,9 @@ type TeamMemberDisplay = {
   assignmentRole?: string | null;
   courts: string[];
   districts: string[];
+  assignedBy?: { id: string; name: string } | null;
+  assignedAt?: string | null;
+  assignmentNotes?: string | null;
 };
 
 type MatterDetailPageProps = {
@@ -295,9 +298,36 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     uploadedBy: doc.uploaded_by ? profileMap.get(doc.uploaded_by)?.full_name ?? null : null,
   }));
 
+  // Fetch assignment history from matter_assignments table
+  // Note: matter_assignments table not in TypeScript types yet, using type assertion
+  const { data: assignmentHistory } = await (supabase as any)
+    .from("matter_assignments")
+    .select(
+      `
+      id,
+      user_id,
+      assigned_by,
+      assigned_at,
+      notes,
+      is_active,
+      assigner:profiles!matter_assignments_assigned_by_fkey (id, full_name, email),
+      assignee:profiles!matter_assignments_user_id_fkey (id, full_name, email)
+    `,
+    )
+    .eq("matter_id", matter.id)
+    .order("assigned_at", { ascending: false });
+
+  const assignmentMap = new Map<string, any>();
+  assignmentHistory?.forEach((assignment: any) => {
+    if (assignment.is_active) {
+      assignmentMap.set(assignment.user_id, assignment);
+    }
+  });
+
   const teamMembers: TeamMemberDisplay[] = assignedAttorneys.map((id) => {
     const profileRow = profileMap.get(id);
     const staffRow = staffMap.get(id);
+    const assignment = assignmentMap.get(id);
     return {
       id,
       name: profileRow?.full_name ?? "Unnamed teammate",
@@ -306,6 +336,14 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
       assignmentRole: staffRow?.role ?? null,
       courts: staffRow?.assigned_courts ?? [],
       districts: staffRow?.assigned_districts ?? [],
+      assignedBy: assignment?.assigner
+        ? {
+            id: assignment.assigner.id,
+            name: assignment.assigner.full_name ?? assignment.assigner.email ?? "Unknown",
+          }
+        : null,
+      assignedAt: assignment?.assigned_at ?? null,
+      assignmentNotes: assignment?.notes ?? null,
     };
   });
 

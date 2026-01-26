@@ -11,6 +11,8 @@ import {
   Banknote,
   Users,
   Settings as SettingsIcon,
+  MessageCircle,
+  MessageSquare,
 } from "lucide-react";
 
 const navItems = [
@@ -19,6 +21,9 @@ const navItems = [
   { href: "/calendar", label: "Calendar", icon: CalendarDays, color: "warning" },
   { href: "/billing", label: "Billing", icon: Banknote, color: "success" },
   { href: "/clients", label: "Clients", icon: Users, color: "info" },
+  { href: "/messages", label: "Messages", icon: MessageSquare, color: "info" },
+  { href: "/subscription", label: "Subscription", icon: Banknote, color: "success" },
+  { href: "/contact", label: "Contact", icon: MessageCircle, color: "info" },
   { href: "/settings", label: "Settings", icon: SettingsIcon, color: "muted" },
 ];
 
@@ -43,10 +48,10 @@ export function SidebarNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2.5 sm:gap-3 rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 text-sm font-medium transition-all min-h-[44px] sm:min-h-[40px]",
+                "flex items-center gap-2.5 sm:gap-3 rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 text-sm font-medium transition-all duration-200 min-h-[44px] sm:min-h-[40px]",
                 active
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground active:bg-muted",
+                  ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-[0_2px_8px_rgba(0,112,242,0.3)]"
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:shadow-sm active:bg-muted active:scale-[0.98]",
               )}
             >
               <Icon className={cn(

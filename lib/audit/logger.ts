@@ -40,7 +40,9 @@ export async function logAuditEvent(data: AuditLogData): Promise<void> {
     const userAgent = headersList.get("user-agent") || "unknown";
 
     // Use admin client to insert audit log (bypasses RLS)
-    await supabaseAdminClient.from("audit_logs").insert({
+    // Type assertion needed - audit_logs table not in TypeScript types yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabaseAdminClient as any).from("audit_logs").insert({
       firm_id: profile.firm_id,
       user_id: user.id,
       action: data.action,
@@ -66,12 +68,21 @@ export async function logUserCreated(userId: string, email: string, role: string
   });
 }
 
-export async function logUserDeleted(userId: string, email: string): Promise<void> {
+export async function logUserUpdated(userId: string, fullName: string, role: string): Promise<void> {
+  await logAuditEvent({
+    action: "user_updated",
+    entityType: "user",
+    entityId: userId,
+    details: { full_name: fullName, role },
+  });
+}
+
+export async function logUserDeleted(userId: string, fullName: string): Promise<void> {
   await logAuditEvent({
     action: "user_deleted",
     entityType: "user",
     entityId: userId,
-    details: { email },
+    details: { full_name: fullName },
   });
 }
 

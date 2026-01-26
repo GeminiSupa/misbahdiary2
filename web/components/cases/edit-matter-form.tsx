@@ -445,14 +445,14 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
                           <label
                             key={member.id}
                             className={cn(
-                              "flex cursor-pointer items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 text-sm transition-all",
+                              "flex cursor-pointer items-center justify-between gap-3 rounded-lg border-2 px-3 py-2.5 sm:px-4 sm:py-3 text-sm transition-all min-h-[44px] sm:min-h-[40px]",
                               "hover:scale-[1.01] active:scale-[0.99]",
                               checked
                                 ? "border-primary bg-primary/10 text-primary font-medium"
                                 : "border-border bg-background hover:border-primary/50",
                             )}
                           >
-                            <span className="flex-1">{member.label}</span>
+                            <span className="flex-1 min-w-0 truncate">{member.label}</span>
                             <input
                               type="checkbox"
                               checked={checked}
@@ -464,7 +464,7 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
                                   field.onChange(selected.filter((id) => id !== member.id));
                                 }
                               }}
-                              className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                              className="h-4 w-4 rounded border-primary text-primary focus:ring-primary shrink-0"
                             />
                           </label>
                         );
@@ -483,19 +483,20 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
           <Separator />
 
           {/* Submit Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
             {onCancel && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={onCancel}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
               >
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto sm:min-w-[140px] min-h-[44px] sm:min-h-[40px]">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

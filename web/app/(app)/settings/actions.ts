@@ -644,7 +644,7 @@ export async function createUser(
       };
     }
 
-    // Update the profile with firm_id and role
+    // Update the profile with firm_id, role, and created_by relationship
     // The profile should be auto-created by the trigger, but we'll update it
     const { error: profileError } = await supabase
       .from("profiles")
@@ -652,6 +652,7 @@ export async function createUser(
         firm_id: actorProfile.firm_id,
         role: parsed.data.role,
         full_name: parsed.data.fullName,
+        created_by: user.id, // Track who created this user
       })
       .eq("id", newUser.user.id);
 
@@ -662,6 +663,7 @@ export async function createUser(
         firm_id: actorProfile.firm_id,
         role: parsed.data.role,
         full_name: parsed.data.fullName,
+        created_by: user.id, // Track who created this user
       });
 
       if (insertError) {

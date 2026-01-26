@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { logPasswordChanged, logUserCreated } from "@/lib/audit/logger";
+import { logPasswordChanged, logUserCreated, logUserUpdated, logUserDeleted } from "@/lib/audit/logger";
 import { billingSettingsSchema } from "@/lib/validation/settings";
 
 const profileSchema = z.object({
@@ -604,12 +604,12 @@ export async function createUser(
     .maybeSingle();
 
   const isOwner = firm?.owner_id === user.id;
-  // Firm Owners and Principal Partners can create users
-  const canCreateUsers = isOwner || actorProfile.role === "principal_partner";
+  // Only Firm Owners can create users directly
+  const canCreateUsers = isOwner;
 
   if (!canCreateUsers) {
     return {
-      message: "Only Firm Owners and Principal Partners can create user accounts.",
+      message: "Only Firm Owners can create user accounts. Principal Partners can send invitations instead.",
     };
   }
 
@@ -623,7 +623,20 @@ export async function createUser(
   );
 
   if (existingUser) {
-    return { message: "A user with this email already exists." };
+    // Check if the existing user is already in another firm
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existingProfile } = await (supabaseAdminClient as any)
+      .from("profiles")
+      .select("firm_id, full_name")
+      .eq("id", existingUser.id)
+      .maybeSingle();
+
+    if (existingProfile?.firm_id) {
+      return {
+        message: `A user with this email already exists and is part of another firm. They cannot be added to your firm.`,
+      };
+    }
+    // If user exists but has no firm, we can still create them (they might be orphaned)
   }
 
   try {
@@ -644,33 +657,143 @@ export async function createUser(
       };
     }
 
-    // Update the profile with firm_id and role
-    // The profile should be auto-created by the trigger, but we'll update it
-    const { error: profileError } = await supabase
+    // Wait briefly for trigger to complete (100ms)
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Use admin client to update profile (bypasses RLS and ensures it works)
+    // Use upsert to handle both cases atomically
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: profileUpsertError } = await (supabaseAdminClient as any)
       .from("profiles")
-      .update({
-        firm_id: actorProfile.firm_id,
-        role: parsed.data.role,
-        full_name: parsed.data.fullName,
-      })
-      .eq("id", newUser.user.id);
+      .upsert(
+        {
+          id: newUser.user.id,
+          firm_id: actorProfile.firm_id,
+          role: parsed.data.role,
+          full_name: parsed.data.fullName,
+          created_by: user.id, // Track who created this user
+        },
+        {
+          onConflict: "id",
+        },
+      );
 
-    if (profileError) {
-      // Profile might not exist yet, try inserting
-      const { error: insertError } = await supabase.from("profiles").insert({
-        id: newUser.user.id,
-        firm_id: actorProfile.firm_id,
-        role: parsed.data.role,
-        full_name: parsed.data.fullName,
+    if (profileUpsertError) {
+      console.error("Failed to upsert profile after user creation:", profileUpsertError);
+      // Try to delete the user account if profile creation fails
+      await supabaseAdminClient.auth.admin.deleteUser(newUser.user.id).catch(() => {
+        // Ignore errors during cleanup
       });
+      return {
+        message:
+          "User account was created but profile setup failed. The account has been removed. Please try again.",
+      };
+    }
 
-      if (insertError) {
-        console.error("Failed to create/update profile after user creation:", insertError);
+    // Verify profile was created correctly
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: verifyProfile, error: verifyError } = await (supabaseAdminClient as any)
+      .from("profiles")
+      .select("id, firm_id, role, created_by, full_name")
+      .eq("id", newUser.user.id)
+      .single();
+
+    if (verifyError || !verifyProfile) {
+      console.error("Failed to verify profile after creation:", verifyError);
+      // Try to delete the user account if verification fails
+      await supabaseAdminClient.auth.admin.deleteUser(newUser.user.id).catch(() => {
+        // Ignore errors during cleanup
+      });
+      return {
+        message:
+          "User account was created but profile verification failed. The account has been removed. Please try again.",
+      };
+    }
+
+    // Type assertion for verifyProfile - cast through unknown first
+    const verifiedProfile = verifyProfile as unknown as {
+      id: string;
+      firm_id: string | null;
+      role: string | null;
+      created_by: string | null;
+      full_name: string | null;
+    };
+
+    // Verify all fields are set correctly
+    if (verifiedProfile.firm_id !== actorProfile.firm_id) {
+      console.error("Profile firm_id mismatch:", {
+        expected: actorProfile.firm_id,
+        actual: verifiedProfile.firm_id,
+      });
+      return {
+        message: "User was created but firm assignment failed. Please contact support.",
+      };
+    }
+
+    if (verifiedProfile.role !== parsed.data.role) {
+      console.error("Profile role mismatch:", {
+        expected: parsed.data.role,
+        actual: verifiedProfile.role,
+      });
+      // Try to fix the role
+      const { error: fixRoleError } = await supabaseAdminClient
+        .from("profiles")
+        .update({ role: parsed.data.role })
+        .eq("id", newUser.user.id);
+
+      if (fixRoleError) {
         return {
-          message:
-            "User account was created but profile setup failed. Please contact support.",
+          message: `User was created but role assignment failed. Expected ${parsed.data.role} but got ${verifiedProfile.role}. Please contact support.`,
         };
       }
+    }
+
+    if (verifiedProfile.created_by !== user.id) {
+      console.error("Profile created_by mismatch:", {
+        expected: user.id,
+        actual: verifiedProfile.created_by,
+      });
+      // Try to fix created_by
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: fixCreatedByError } = await (supabaseAdminClient as any)
+        .from("profiles")
+        .update({ created_by: user.id })
+        .eq("id", newUser.user.id);
+
+      if (fixCreatedByError) {
+        console.error("Failed to fix created_by:", fixCreatedByError);
+        // Don't fail the operation for this, just log it
+      }
+    }
+
+    // Final verification: Ensure the team member is properly set up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: finalCheck } = await (supabaseAdminClient as any)
+      .from("profiles")
+      .select("id, firm_id, role, created_by, full_name, email")
+      .eq("id", newUser.user.id)
+      .single();
+
+    const finalProfile = finalCheck as unknown as {
+      id: string;
+      firm_id: string | null;
+      role: string | null;
+      created_by: string | null;
+      full_name: string | null;
+      email?: string | null;
+    } | null;
+
+    if (!finalProfile || finalProfile.firm_id !== actorProfile.firm_id || finalProfile.role !== parsed.data.role) {
+      console.error("Final verification failed:", {
+        profile: finalProfile,
+        expected: {
+          firm_id: actorProfile.firm_id,
+          role: parsed.data.role,
+        },
+      });
+      return {
+        message: `Team member was created but verification failed. Please refresh the page and check the team list. If the issue persists, contact support.`,
+      };
     }
 
     // Send welcome email
@@ -699,10 +822,15 @@ export async function createUser(
       // Don't fail the operation if audit logging fails
     });
 
+    // Force revalidation of all relevant paths
     revalidatePath("/settings");
     revalidatePath("/dashboard");
+    revalidatePath("/cases");
 
-    return { success: true };
+    return { 
+      success: true,
+      message: `Team member "${parsed.data.fullName}" has been successfully added to your firm with the role "${parsed.data.role}". They can now sign in and will have access based on their role.`,
+    };
   } catch (error) {
     console.error("Error creating user:", error);
     return {
@@ -734,7 +862,7 @@ export async function updateBillingSettings(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id")
+    .select("firm_id, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -757,7 +885,9 @@ export async function updateBillingSettings(
   }
 
   // Upsert billing settings
-  const { error: upsertError } = await supabase
+  // Note: billing_settings table not in TypeScript types yet, using type assertion
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: upsertError } = await (supabase as any)
     .from("billing_settings")
     .upsert(
       {
@@ -796,4 +926,231 @@ export async function updateBillingSettings(
   revalidatePath("/billing");
 
   return { success: true };
+}
+
+// Update team member schema
+const updateTeamMemberSchema = z.object({
+  teamMemberId: z.string().uuid("Invalid user ID"),
+  fullName: z.string().min(2, "Full name is required"),
+  role: z.enum([
+    "principal_partner",
+    "associate",
+    "paralegal",
+    "of_counsel",
+    "client",
+    "staff",
+  ]),
+});
+
+export async function updateTeamMember(
+  values: z.infer<typeof updateTeamMemberSchema>,
+): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const parsed = updateTeamMemberSchema.safeParse(values);
+  if (!parsed.success) {
+    return {
+      message: "Please review the highlighted fields.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  // Check if actor can manage team members
+  const { data: actorProfile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!actorProfile?.firm_id) {
+    return { message: "Join or create a firm before managing team members." };
+  }
+
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", actorProfile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canManageTeam = isOwner || actorProfile.role === "principal_partner";
+
+  if (!canManageTeam) {
+    return {
+      message: "Only Firm Owners and Principal Partners can manage team members.",
+    };
+  }
+
+  // Check if target user is in the same firm
+  const { data: targetProfile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", parsed.data.teamMemberId)
+    .maybeSingle();
+
+  if (!targetProfile) {
+    return { message: "Team member not found." };
+  }
+
+  if (targetProfile.firm_id !== actorProfile.firm_id) {
+    return { message: "You can only manage team members in your own firm." };
+  }
+
+  // Prevent changing firm owner's role
+  if (firm?.owner_id === parsed.data.teamMemberId && parsed.data.role !== "principal_partner") {
+    return {
+      message: "Cannot change the firm owner's role. The owner must remain a Principal Partner.",
+    };
+  }
+
+  // Update profile
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({
+      full_name: parsed.data.fullName,
+      role: parsed.data.role,
+    })
+    .eq("id", parsed.data.teamMemberId)
+    .eq("firm_id", actorProfile.firm_id);
+
+  if (updateError) {
+    return { message: `Could not update team member: ${updateError.message}` };
+  }
+
+  // Update auth.users metadata for role consistency
+  const { supabaseAdminClient } = await import("@/lib/supabase/admin");
+  const { error: authUpdateError } = await supabaseAdminClient.auth.admin.updateUserById(
+    parsed.data.teamMemberId,
+    {
+      user_metadata: {
+        full_name: parsed.data.fullName,
+        role: parsed.data.role,
+      },
+    },
+  );
+
+  if (authUpdateError) {
+    console.error("Failed to update auth user metadata for team member:", authUpdateError);
+    // Don't fail the entire operation, but log the error
+  }
+
+  // Log audit event
+  await logUserUpdated(parsed.data.teamMemberId, parsed.data.fullName, parsed.data.role).catch(
+    (error) => {
+      console.error("Failed to log audit event:", error);
+    },
+  );
+
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+
+  return {
+    success: true,
+    message: `Team member "${parsed.data.fullName}" has been updated successfully.`,
+  };
+}
+
+export async function deleteTeamMember(teamMemberId: string): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  // Check if actor can manage team members
+  const { data: actorProfile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!actorProfile?.firm_id) {
+    return { message: "Join or create a firm before managing team members." };
+  }
+
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", actorProfile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canManageTeam = isOwner || actorProfile.role === "principal_partner";
+
+  if (!canManageTeam) {
+    return {
+      message: "Only Firm Owners and Principal Partners can delete team members.",
+    };
+  }
+
+  // Prevent deleting yourself
+  if (teamMemberId === user.id) {
+    return { message: "You cannot delete your own account from here." };
+  }
+
+  // Prevent deleting firm owner
+  if (teamMemberId === firm?.owner_id) {
+    return {
+      message: "The firm owner's account cannot be deleted.",
+    };
+  }
+
+  // Get the team member's profile to ensure they belong to the current firm
+  const { data: teamMemberProfile, error: fetchProfileError } = await supabase
+    .from("profiles")
+    .select("firm_id, full_name")
+    .eq("id", teamMemberId)
+    .maybeSingle();
+
+  if (fetchProfileError || !teamMemberProfile) {
+    return { message: "Team member not found." };
+  }
+
+  const teamMemberData = teamMemberProfile as { firm_id: string | null; full_name: string | null };
+  
+  if (teamMemberData.firm_id !== actorProfile.firm_id) {
+    return { message: "You can only delete team members from your own firm." };
+  }
+
+  const { supabaseAdminClient } = await import("@/lib/supabase/admin");
+
+  try {
+    // Get email from auth.users for audit log
+    const { data: authUser } = await supabaseAdminClient.auth.admin.getUserById(teamMemberId);
+    const teamMemberEmail = authUser?.user?.email ?? "unknown";
+
+    // Delete user from Supabase Auth (this will cascade delete the profile)
+    const { error: deleteError } = await supabaseAdminClient.auth.admin.deleteUser(teamMemberId);
+
+    if (deleteError) {
+      return { message: `Failed to delete team member: ${deleteError.message}` };
+    }
+
+    await logUserDeleted(teamMemberId, teamMemberEmail).catch((error) => {
+      console.error("Failed to log audit event for user deletion:", error);
+    });
+
+    revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    revalidatePath("/cases");
+
+    return { success: true, message: `Team member "${teamMemberData.full_name ?? teamMemberEmail}" deleted successfully.` };
+  } catch (error) {
+    console.error("Error deleting team member:", error);
+    return {
+      message: error instanceof Error ? error.message : "Failed to delete team member",
+    };
+  }
 }

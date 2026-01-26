@@ -64,11 +64,48 @@ export default async function SettingsPage() {
     .eq("firm_id", profile.firm_id)
     .order("updated_at", { ascending: false });
 
-  const { data: team } = await supabase
+  // Fetch all team members (excluding clients from team view, but include all roles)
+  // Note: email is not in profiles table, it's in auth.users, so we don't select it
+  let team: Array<{ id: string; full_name?: string | null; role?: string | null; created_by?: string | null }> | null = null;
+  let teamError: any = null;
+
+  // First try with created_by
+  const { data: teamWithCreatedBy, error: errorWithCreatedBy } = await supabase
     .from("profiles")
-    .select("id, full_name, email, role")
+    .select("id, full_name, role, created_by")
     .eq("firm_id", profile.firm_id)
+    .neq("role", "client")
     .order("full_name");
+
+  if (errorWithCreatedBy) {
+    const errorMessage = errorWithCreatedBy.message || JSON.stringify(errorWithCreatedBy);
+    // If error is related to created_by column, try without it
+    if (errorMessage.includes("created_by") || errorMessage.includes("column") || errorMessage.includes("does not exist")) {
+      console.warn("Error fetching with created_by, trying without:", errorWithCreatedBy);
+      const { data: teamFallback, error: fallbackError } = await supabase
+        .from("profiles")
+        .select("id, full_name, role")
+        .eq("firm_id", profile.firm_id)
+        .neq("role", "client")
+        .order("full_name");
+      
+      if (fallbackError) {
+        console.error("Error fetching team members (fallback):", fallbackError);
+        teamError = fallbackError;
+      } else {
+        // Map fallback data to include created_by as null
+        team = (teamFallback ?? []).map((member) => ({
+          ...member,
+          created_by: null,
+        }));
+      }
+    } else {
+      console.error("Error fetching team members:", errorWithCreatedBy);
+      teamError = errorWithCreatedBy;
+    }
+  } else {
+    team = teamWithCreatedBy;
+  }
 
   const inviteRows =
     invitations?.map((invite) => ({
@@ -87,28 +124,77 @@ export default async function SettingsPage() {
       role: member.role ?? "junior",
       assignedCourts: (member.assigned_courts as string[] | null) ?? [],
       assignedDistricts: (member.assigned_districts as string[] | null) ?? [],
-      name: member.profile?.full_name ?? "Unnamed teammate",
-      email: member.profile?.email ?? "",
+      // Type assertion needed due to TypeScript type inference issues
+      name: ((member.profile as { full_name?: string | null; email?: string | null } | null | undefined)?.full_name) ?? "Unnamed teammate",
+      email: ((member.profile as { full_name?: string | null; email?: string | null } | null | undefined)?.email) ?? "",
     })) ?? [];
+
+  // Type assertion needed due to TypeScript type inference issues
+  const teamData = (team as Array<{ id: string; full_name?: string | null; role?: string | null; created_by?: string | null }> | null) ?? [];
+  
+  // Fetch emails from auth.users using admin client
+  const { supabaseAdminClient } = await import("@/lib/supabase/admin");
+  const emailMap = new Map<string, string>();
+  
+  // Fetch emails for all team members
+  await Promise.all(
+    teamData.map(async (member) => {
+      if (member.id) {
+        try {
+          const { data: authUser } = await supabaseAdminClient.auth.admin.getUserById(member.id);
+          if (authUser?.user?.email) {
+            emailMap.set(member.id, authUser.user.email);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch email for user ${member.id}:`, error);
+        }
+      }
+    })
+  );
+
+  // Fetch creator information
+  const creatorIds = Array.from(new Set(teamData.map((m) => m.created_by).filter(Boolean) as string[]));
+  const creatorMap = new Map<string, string>();
+  
+  if (creatorIds.length > 0) {
+    const { data: creators } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", creatorIds);
+    
+    creators?.forEach((creator) => {
+      if (creator.id && creator.full_name) {
+        creatorMap.set(creator.id, creator.full_name);
+      }
+    });
+  }
 
   const teamMembers =
-    team?.map((member) => ({
-      id: member.id,
-      name: member.full_name ?? member.email ?? "Unnamed teammate",
-      email: member.email ?? "",
-      role: member.role,
-    })) ?? [];
+    teamData
+      .filter((member) => member.id) // Ensure member has an id
+      .map((member) => ({
+        id: member.id,
+        name: member.full_name ?? "Unnamed teammate",
+        email: emailMap.get(member.id) ?? "",
+        role: member.role ?? null,
+        createdBy: member.created_by ? {
+          id: member.created_by,
+          name: creatorMap.get(member.created_by) ?? "Unknown",
+        } : null,
+      }));
 
-  const { data: billingSettings } = await supabase
+  // Type assertion needed - billing_settings table not in TypeScript types yet
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: billingSettings } = await (supabase as any)
     .from("billing_settings")
     .select("*")
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
 
   const canManageStaff = firm?.owner_id === user.id || profile.role === "principal_partner";
-  // Firm Owners and Principal Partners can create users and send invitations
+  // Only Firm Owners can create users directly; Principal Partners can send invitations
   const isOwner = firm?.owner_id === user.id;
-  const canCreateUsers = isOwner || profile.role === "principal_partner";
+  const canCreateUsers = isOwner; // Only firm owners can create users
   const canEditBilling = isOwner || profile.role === "principal_partner";
 
   return (
@@ -179,6 +265,8 @@ export default async function SettingsPage() {
         canManageStaff={canManageStaff}
         canCreateUsers={canCreateUsers}
         currentUserRole={profile.role}
+        currentUserId={user.id}
+        firmOwnerId={firm?.owner_id ?? null}
       />
     </div>
   );

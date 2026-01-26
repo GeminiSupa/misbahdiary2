@@ -211,7 +211,7 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
   if (profileIds.size > 0) {
     const result = await supabase
       .from("profiles")
-      .select("id, full_name, email, role")
+      .select("id, full_name, role")
       .in("id", Array.from(profileIds));
 
     relatedProfiles = result;
@@ -336,11 +336,12 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     .order("full_name");
 
   // Fetch ALL team members for case assignment (excluding clients)
+  // Note: email is not in profiles table, it's in auth.users
   const { data: allTeamMembers } = await supabase
     .from("profiles")
-    .select("id, full_name, email")
+    .select("id, full_name")
     .eq("firm_id", profile.firm_id)
-    .not("role", "eq", "client") // Exclude clients from assignment
+    .neq("role", "client") // Exclude clients from assignment
     .order("full_name");
 
   const clientOptions =
@@ -350,11 +351,13 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     })) ?? [];
 
   // Include all team members for assignment
+  // Type assertion needed due to TypeScript type inference issues
+  const teamMembersData = (allTeamMembers as Array<{ id: string; full_name?: string | null }> | null) ?? [];
   const staffOptions =
-    allTeamMembers?.map((member) => ({
+    teamMembersData.map((member) => ({
       id: member.id,
-      label: member.full_name ?? member.email ?? "Unnamed teammate",
-    })) ?? [];
+      label: member.full_name ?? "Unnamed teammate",
+    }));
 
   // Convert matter to form values
   const againstPartiesData = matter.against_parties as any;

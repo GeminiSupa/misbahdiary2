@@ -129,7 +129,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
           <Alert>
             <AlertTitle>Permission Required</AlertTitle>
             <AlertDescription>
-              Only Principal Partners can send invitations to add new team members.
+              Only Firm Owners and Principal Partners can send invitations to add new team members. Contact the Firm Owner to request access.
             </AlertDescription>
           </Alert>
         ) : (

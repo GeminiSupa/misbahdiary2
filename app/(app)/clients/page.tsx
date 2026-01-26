@@ -66,7 +66,7 @@ export default async function ClientsPage() {
         </div>
       </div>
 
-      <ClientManager clients={clients ?? []} />
+      <ClientManager clients={(clients as any) ?? []} />
     </div>
   );
 }

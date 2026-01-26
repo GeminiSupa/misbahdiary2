@@ -178,7 +178,7 @@
   }
 
   .sap-shell-bar {
-    @apply sticky top-0 z-40 border-b border-border bg-card shadow-sm;
+    @apply sticky top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)];
   }
 
   .sap-container {
@@ -186,7 +186,12 @@
   }
 
   .sap-card {
-    @apply rounded-xl border border-border bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)];
+    @apply rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 overflow-hidden;
+  }
+
+  .sap-card:hover {
+    @apply border-primary/30 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_8px_rgba(0,112,242,0.1),0_8px_24px_rgba(0,112,242,0.08)];
+    transform: translateY(-1px);
   }
 
   /* Colored card variants - SAP Fiori Horizon style */
@@ -236,7 +241,11 @@
   }
 
   .sap-tile {
-    @apply rounded-xl border border-border bg-card p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] transition-all hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_4px_rgba(0,112,242,0.1)] sm:p-5;
+    @apply rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.15),0_2px_8px_rgba(0,112,242,0.12),0_8px_24px_rgba(0,112,242,0.1)] sm:p-5;
+  }
+
+  .sap-tile:hover {
+    transform: translateY(-2px) scale(1.01);
   }
 
   .sap-pill-nav {
@@ -315,30 +324,34 @@
   }
 
   .sap-kpi-tile {
-    @apply rounded-xl border border-border bg-card p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] transition text-foreground sm:p-5;
+    @apply rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 text-foreground sm:p-5 hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_8px_rgba(0,112,242,0.1),0_8px_24px_rgba(0,112,242,0.08)] overflow-hidden;
+  }
+
+  .sap-kpi-tile:hover {
+    transform: translateY(-2px);
   }
 
   /* Colored KPI tiles */
   .sap-kpi-tile-primary {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_1px_2px_rgba(0,112,242,0.08)] transition text-foreground sm:p-5;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_1px_2px_rgba(0,112,242,0.08)] transition text-foreground sm:p-5 overflow-hidden;
     border-color: rgba(0, 112, 242, 0.2);
     background: linear-gradient(to bottom right, rgba(0, 112, 242, 0.05), transparent);
   }
 
   .sap-kpi-tile-success {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(16,126,62,0.1),0_1px_2px_rgba(16,126,62,0.08)] transition text-foreground sm:p-5;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(16,126,62,0.1),0_1px_2px_rgba(16,126,62,0.08)] transition text-foreground sm:p-5 overflow-hidden;
     border-color: rgba(16, 126, 62, 0.2);
     background: linear-gradient(to bottom right, rgba(16, 126, 62, 0.05), transparent);
   }
 
   .sap-kpi-tile-warning {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(233,115,12,0.1),0_1px_2px_rgba(233,115,12,0.08)] transition text-foreground sm:p-5;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(233,115,12,0.1),0_1px_2px_rgba(233,115,12,0.08)] transition text-foreground sm:p-5 overflow-hidden;
     border-color: rgba(233, 115, 12, 0.2);
     background: linear-gradient(to bottom right, rgba(233, 115, 12, 0.05), transparent);
   }
 
   .sap-kpi-tile-info {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(92,103,229,0.1),0_1px_2px_rgba(92,103,229,0.08)] transition text-foreground sm:p-5;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(92,103,229,0.1),0_1px_2px_rgba(92,103,229,0.08)] transition text-foreground sm:p-5 overflow-hidden;
     border-color: rgba(92, 103, 229, 0.2);
     background: linear-gradient(to bottom right, rgba(92, 103, 229, 0.05), transparent);
   }
@@ -349,8 +362,12 @@
   }
 
   .sap-module-card {
-    @apply flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] transition-all hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_4px_rgba(0,112,242,0.1)] sm:p-6;
+    @apply flex flex-col gap-4 rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.15),0_2px_8px_rgba(0,112,242,0.12),0_8px_24px_rgba(0,112,242,0.1)] sm:p-6 overflow-hidden;
     color: var(--foreground);
+  }
+
+  .sap-module-card:hover {
+    transform: translateY(-2px) scale(1.01);
   }
 
   .sap-module-card p {
@@ -391,6 +408,207 @@
   @media (min-width: 640px) {
     input, textarea, select {
       font-size: 14px; /* Smaller on desktop */
+    }
+  }
+
+  /* Modern iOS 26 / Glass Morphism Style Enhancements */
+  .glass-effect {
+    @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/20 dark:border-white/10;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-xl bg-card/80 border border-border/60 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply bg-card/90 border-primary/30 shadow-[0_12px_40px_0_rgba(0,112,242,0.15)];
+    transform: translateY(-2px);
+  }
+
+  /* Gradient borders with glow */
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+    border: 1px solid transparent;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .gradient-border:hover::before {
+    opacity: 1;
+  }
+
+  /* Neon glow effects */
+  .neon-glow {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+                0 0 40px rgba(139, 92, 246, 0.2),
+                0 0 60px rgba(236, 72, 153, 0.1);
+  }
+
+  .neon-glow-hover:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4),
+                0 0 60px rgba(139, 92, 246, 0.3),
+                0 0 90px rgba(236, 72, 153, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+
+  /* Gradient shadow effects */
+  .gradient-shadow {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15),
+                0 8px 40px rgba(139, 92, 246, 0.1);
+  }
+
+  .gradient-shadow-hover:hover {
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2),
+                0 12px 50px rgba(139, 92, 246, 0.15);
+    transition: box-shadow 0.3s ease;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  /* Enhanced input focus states with gradient glow */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply border-primary/50 ring-primary/20 ring-2;
+    color: var(--foreground) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1),
+                0 0 20px rgba(59, 130, 246, 0.15),
+                inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Ensure text is always visible in inputs and textareas */
+  input,
+  textarea,
+  select {
+    color: var(--foreground) !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  /* Enhanced card hover effects with smooth animations */
+  .sap-card:hover,
+  .sap-tile:hover,
+  .sap-module-card:hover,
+  .sap-kpi-tile:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(0, 112, 242, 0.15),
+                0 4px 12px rgba(0, 112, 242, 0.1);
+  }
+
+  /* Ensure cards and tiles prevent overflow */
+  .sap-card,
+  .sap-tile,
+  .sap-module-card,
+  .sap-kpi-tile {
+    overflow: hidden;
+  }
+
+  /* Modern button styles with enhanced hover effects */
+  button:not(:disabled) {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  button:not(:disabled)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  button:not(:disabled):hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15),
+                0 0 20px rgba(59, 130, 246, 0.2);
+  }
+
+  button:not(:disabled):active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Enhanced focus states for accessibility with gradient glow */
+  *:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1),
+                0 0 20px rgba(59, 130, 246, 0.2);
+  }
+
+  /* Smooth page transitions */
+  @media (prefers-reduced-motion: no-preference) {
+    * {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Enhanced scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full hover:bg-primary/50;
+    transition: background-color 0.2s ease;
+  }
+
+  /* Mobile-optimized touch interactions */
+  @media (max-width: 640px) {
+    .sap-card:hover,
+    .sap-tile:hover,
+    .sap-module-card:hover,
+    .sap-kpi-tile:hover {
+      transform: none; /* Disable transform on mobile for better performance */
+    }
+
+    button:not(:disabled):hover {
+      transform: none; /* Disable transform on mobile */
     }
   }
 }

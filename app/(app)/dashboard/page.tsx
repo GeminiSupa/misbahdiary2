@@ -4,6 +4,8 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-f
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { DashboardKpiCards } from "@/components/dashboard/dashboard-kpi-cards";
+import { TrialBanner } from "@/components/subscription/trial-banner";
+import { getSubscriptionStatus } from "@/app/(app)/subscription/actions";
 
 type KpiRow = {
   label: string;
@@ -25,7 +27,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id, full_name")
+    .select("firm_id, full_name, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -34,6 +36,17 @@ export default async function DashboardPage() {
   }
 
   const displayName = profile.full_name || user.email?.split("@")[0] || "User";
+
+  // Get subscription status
+  const subscriptionResult = await getSubscriptionStatus(profile.firm_id);
+  const subscription =
+    "message" in subscriptionResult
+      ? null
+      : (subscriptionResult as Awaited<ReturnType<typeof getSubscriptionStatus>>);
+
+  // Import access control utilities
+  const { canUserSeeAllCases } = await import("@/lib/server/access-control");
+  const canSeeAll = await canUserSeeAllCases(user.id, profile.firm_id);
 
   // --- KPIs with additional metrics ---
   const today = new Date();
@@ -47,6 +60,23 @@ export default async function DashboardPage() {
   const endOfDay = new Date(today);
   endOfDay.setHours(23, 59, 59, 999);
 
+  // Build matters query based on role
+  let mattersCountQuery = supabase
+    .from("matters")
+    .select("id", { count: "exact", head: true })
+    .eq("firm_id", profile.firm_id);
+
+  if (!canSeeAll) {
+    const userRole = profile?.role;
+    if (userRole === "associate" || userRole === "of_counsel") {
+      mattersCountQuery = mattersCountQuery.or(`created_by.eq.${user.id},assigned_attorneys.cs.{${user.id}}`);
+    } else if (userRole === "paralegal" || userRole === "staff") {
+      mattersCountQuery = mattersCountQuery.contains("assigned_attorneys", [user.id]);
+    } else {
+      mattersCountQuery = mattersCountQuery.eq("id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
+
   const [
     { count: activeMattersCount },
     { count: hearingsThisWeekCount },
@@ -54,10 +84,7 @@ export default async function DashboardPage() {
     invoicesRes,
     hearingsTodayRes,
   ] = await Promise.all([
-    supabase
-      .from("matters")
-      .select("id", { count: "exact", head: true })
-      .eq("firm_id", profile.firm_id),
+    mattersCountQuery,
     supabase
       .from("hearings")
       .select("id", { count: "exact", head: true })
@@ -68,6 +95,7 @@ export default async function DashboardPage() {
       .from("clients")
       .select("id", { count: "exact", head: true })
       .eq("firm_id", profile.firm_id),
+    // Invoices - all team members can see all invoices in their firm
     supabase
       .from("invoices")
       .select("status,total_amount,amount_paid,due_date,issue_date")
@@ -181,6 +209,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
+      {/* Trial Banner */}
+      {subscription && (
+        <TrialBanner
+          daysRemaining={subscription.days_remaining_in_trial}
+          trialEndsAt={subscription.trial_ends_at}
+          isTrialActive={subscription.is_trial_active}
+          subscriptionStatus={subscription.status}
+        />
+      )}
+
       {/* Welcome Card */}
       <div className="sap-card-hero">
         <div className="sap-card-body">

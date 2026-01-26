@@ -16,6 +16,8 @@ import {
   Crown,
   Briefcase,
   UserCheck,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +27,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InviteManager } from "./invite-manager";
 import { StaffManager } from "./staff-manager";
 import { CreateUserForm } from "./create-user-form";
+import { EditTeamMemberSheet } from "./edit-team-member-sheet";
+import { DeleteTeamMemberButton } from "./delete-team-member-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type TeamMember = {
@@ -32,6 +36,7 @@ type TeamMember = {
   name: string;
   email: string;
   role: string | null;
+  createdBy?: { id: string; name: string } | null;
 };
 
 type Invitation = {
@@ -132,6 +137,8 @@ export function TeamManagement({
   canManageTeam,
   canCreateUsers,
   currentUserRole,
+  currentUserId,
+  firmOwnerId,
 }: TeamManagementProps) {
   const router = useRouter();
 
@@ -227,6 +234,11 @@ export function TeamManagement({
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-xs sm:text-sm truncate">{member.name}</p>
                         <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{member.email}</p>
+                        {member.createdBy && (
+                          <p className="text-[9px] sm:text-[10px] text-muted-foreground/70 mt-0.5">
+                            Created by: {member.createdBy.name}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0 ml-2">
@@ -236,6 +248,25 @@ export function TeamManagement({
                       >
                         {roleInfo.label}
                       </Badge>
+                      {canManageTeam && (
+                        <div className="flex items-center gap-1">
+                          <EditTeamMemberSheet
+                            member={member}
+                            currentUserId={currentUserId}
+                            firmOwnerId={firmOwnerId}
+                            trigger={
+                              <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                            }
+                          />
+                          <DeleteTeamMemberButton
+                            member={member}
+                            currentUserId={currentUserId}
+                            firmOwnerId={firmOwnerId}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -246,7 +277,7 @@ export function TeamManagement({
               <Users className="mx-auto h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground/40 mb-2" />
               <p className="text-xs sm:text-sm font-medium text-foreground">No team members yet</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {canCreateUsers ? "Create accounts or send invitations to get started" : "Contact a Principal Partner to add team members"}
+                {canCreateUsers ? "Create accounts or send invitations to get started" : "Contact the Firm Owner to add team members"}
               </p>
             </div>
           )}
@@ -264,7 +295,7 @@ export function TeamManagement({
               <div>
                 <CardTitle className="text-base">Add Team Members</CardTitle>
                 <CardDescription className="text-xs">
-                  Create accounts directly or send email invitations
+                  As Firm Owner, you can create accounts directly or send email invitations. Users will be assigned to your firm with role-based access.
                 </CardDescription>
               </div>
             </div>
@@ -322,10 +353,10 @@ export function TeamManagement({
           <Shield className="h-4 w-4 text-amber-600" />
           <AlertTitle className="text-amber-800 dark:text-amber-400">Restricted Access</AlertTitle>
           <AlertDescription className="text-amber-700 dark:text-amber-300 text-sm">
-            Only <strong>Principal Partners</strong> can create user accounts and send invitations.
+            Only <strong>Firm Owners</strong> can create user accounts directly. Principal Partners can send invitations to add team members.
             {canManageTeam
-              ? " You can manage staff assignments, but cannot add new team members."
-              : " Contact a Principal Partner to add new team members."}
+              ? " You can manage staff assignments, but cannot create new user accounts."
+              : " Contact the Firm Owner to add new team members."}
           </AlertDescription>
         </Alert>
       )}

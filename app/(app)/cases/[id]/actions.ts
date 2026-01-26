@@ -105,10 +105,10 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
     return { success: false, message: "You must belong to a firm before updating matters." };
   }
 
-  // Verify the matter belongs to the user's firm
+  // Verify the matter belongs to the user's firm and get existing assignments
   const { data: existingMatter } = await supabase
     .from("matters")
-    .select("id, firm_id")
+    .select("id, firm_id, serial_number, assigned_attorneys")
     .eq("id", payload.id)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
@@ -122,6 +122,18 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
   const evidenceList = normaliseList(payload.evidenceProvided);
   const documentsList = normaliseList(payload.documentsProvided);
   const pendingList = normaliseList(payload.pendingDocuments);
+
+  // Get old assignments for comparison
+  const oldAssignments = Array.isArray(existingMatter.assigned_attorneys)
+    ? (existingMatter.assigned_attorneys as string[])
+    : [];
+  const oldAssignmentSet = new Set(oldAssignments);
+  const newAssignmentSet = new Set(assignedAttorneys);
+
+  // Find newly assigned users (in new but not in old)
+  const newlyAssigned = assignedAttorneys.filter((id) => !oldAssignmentSet.has(id));
+  // Find unassigned users (in old but not in new)
+  const unassigned = oldAssignments.filter((id) => !newAssignmentSet.has(id));
 
   const { error: updateError } = await supabase
     .from("matters")
@@ -155,6 +167,57 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
       success: false,
       message: `Unable to update matter: ${updateError.message}`,
     };
+  }
+
+  // Update matter_assignments table
+  // Note: matter_assignments table not in TypeScript types yet, using type assertion
+  // Mark unassigned users as inactive
+  if (unassigned.length > 0) {
+    await (supabase as any)
+      .from("matter_assignments")
+      .update({ is_active: false })
+      .eq("matter_id", payload.id)
+      .in("user_id", unassigned);
+  }
+
+  // Add new assignments or reactivate existing ones
+  if (newlyAssigned.length > 0) {
+    const newAssignments = newlyAssigned.map((userId) => ({
+      matter_id: payload.id,
+      user_id: userId,
+      assigned_by: user.id,
+      is_active: true,
+      assigned_at: new Date().toISOString(),
+    }));
+
+    await (supabase as any)
+      .from("matter_assignments")
+      .upsert(newAssignments, {
+        onConflict: "matter_id,user_id", // This is the correct syntax for composite unique constraint
+        ignoreDuplicates: false,
+      });
+  }
+
+  // Send notifications for newly assigned users
+  if (newlyAssigned.length > 0) {
+    const { createNotificationsForRecipients } = await import("@/lib/server/notifications");
+    const matterSerial = existingMatter.serial_number ?? "matter";
+
+    await createNotificationsForRecipients(
+      {
+        firmId: profile.firm_id,
+        title: "Assigned to matter",
+        message: `You have been assigned to matter ${matterSerial}.`,
+        type: "case",
+        link: `/cases/${payload.id}`,
+        relatedEntity: "matter",
+        relatedId: payload.id,
+      },
+      newlyAssigned,
+    ).catch((error) => {
+      console.error("Failed to send assignment notifications:", error);
+      // Don't fail the operation if notifications fail
+    });
   }
 
   revalidatePath(`/cases/${payload.id}`);

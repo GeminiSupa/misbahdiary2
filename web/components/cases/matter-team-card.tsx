@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Mail, Briefcase, MapPin, User, Settings } from "lucide-react";
+import { Users, Mail, Briefcase, MapPin, User, Settings, Clock, UserPlus } from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export type MatterTeamMember = {
@@ -12,6 +13,9 @@ export type MatterTeamMember = {
   assignmentRole?: "junior" | "senior" | "staff" | null;
   courts: string[];
   districts: string[];
+  assignedBy?: { id: string; name: string } | null;
+  assignedAt?: string | null;
+  assignmentNotes?: string | null;
 };
 
 type MatterTeamCardProps = {
@@ -63,58 +67,84 @@ export function MatterTeamCard({ members, client }: MatterTeamCardProps) {
             {members.map((member) => (
               <article
                 key={member.id}
-                className="rounded-xl border-2 border-border/60 bg-gradient-to-br from-background/80 to-background/60 px-5 py-4 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
+                className="rounded-xl border-2 border-border/60 bg-gradient-to-br from-background/80 to-background/60 px-4 py-3 sm:px-5 sm:py-4 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
                       <User className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground">{member.name}</p>
+                      <p className="font-semibold text-foreground truncate">{member.name}</p>
                       {member.email && (
                         <div className="flex items-center gap-1.5 mt-1">
-                          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                          <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                           <p className="text-xs text-muted-foreground truncate">{member.email}</p>
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                     {member.assignmentRole && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs shrink-0">
                         <Briefcase className="mr-1 h-3 w-3" />
                         {ROLE_LABEL[member.assignmentRole] ?? member.assignmentRole}
                       </Badge>
                     )}
                     {member.firmRole && (
-                      <Badge variant="secondary" className="capitalize text-xs">
+                      <Badge variant="secondary" className="capitalize text-xs shrink-0">
                         {member.firmRole.replace("_", " ")}
                       </Badge>
                     )}
                   </div>
                 </div>
-                {(member.courts.length > 0 || member.districts.length > 0) && (
-                  <div className="flex flex-wrap gap-2 pt-3 border-t border-border/60">
-                    {member.courts.length > 0 && (
-                      <Badge
-                        variant="secondary"
-                        className="capitalize bg-primary/10 text-primary text-xs"
-                      >
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {member.courts.slice(0, 2).join(", ")}
-                        {member.courts.length > 2 ? ` +${member.courts.length - 2}` : ""}
-                      </Badge>
+                {(member.courts.length > 0 || member.districts.length > 0 || member.assignedBy) && (
+                  <div className="space-y-2 pt-3 border-t border-border/60">
+                    {(member.courts.length > 0 || member.districts.length > 0) && (
+                      <div className="flex flex-wrap gap-2">
+                        {member.courts.length > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="capitalize bg-primary/10 text-primary text-xs"
+                          >
+                            <MapPin className="mr-1 h-3 w-3" />
+                            {member.courts.slice(0, 2).join(", ")}
+                            {member.courts.length > 2 ? ` +${member.courts.length - 2}` : ""}
+                          </Badge>
+                        )}
+                        {member.districts.length > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="capitalize bg-secondary/20 text-secondary-foreground text-xs"
+                          >
+                            <MapPin className="mr-1 h-3 w-3" />
+                            {member.districts.slice(0, 2).join(", ")}
+                            {member.districts.length > 2 ? ` +${member.districts.length - 2}` : ""}
+                          </Badge>
+                        )}
+                      </div>
                     )}
-                    {member.districts.length > 0 && (
-                      <Badge
-                        variant="secondary"
-                        className="capitalize bg-secondary/20 text-secondary-foreground text-xs"
-                      >
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {member.districts.slice(0, 2).join(", ")}
-                        {member.districts.length > 2 ? ` +${member.districts.length - 2}` : ""}
-                      </Badge>
+                    {member.assignedBy && (
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <UserPlus className="h-3 w-3" />
+                          <span>Assigned by {member.assignedBy.name}</span>
+                        </div>
+                        {member.assignedAt && (
+                          <>
+                            <span>•</span>
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="h-3 w-3" />
+                              <span>{format(new Date(member.assignedAt), "MMM d, yyyy")}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {member.assignmentNotes && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Note: {member.assignmentNotes}
+                      </p>
                     )}
                   </div>
                 )}

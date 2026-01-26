@@ -68,7 +68,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   ]);
 
   const matters = mattersRes.data ?? [];
-  const clients = clientsRes.data ?? [];
+  // Type assertion needed due to TypeScript type inference issues
+  const clients = (clientsRes.data as Array<{ id: string; full_name?: string | null; name?: string | null; cnic?: string | null; email?: string | null }> | null) ?? [];
   const invoices = invoicesRes.data ?? [];
 
   return (
@@ -129,7 +130,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 >
                   <div>
                     <p className="font-medium">
-                      {client.full_name || client.name || "Client"}
+                      {client.full_name ?? client.name ?? "Client"}
                     </p>
                     {(client.cnic || client.email) && (
                       <p className="text-xs text-muted-foreground">

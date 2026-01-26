@@ -126,7 +126,7 @@ export function CaseBoard({ cases }: CaseBoardProps) {
               <article
                 key={matter.id}
                 className={cn(
-                  "sap-tile space-y-2 sm:space-y-3 cursor-pointer transition-all",
+                  "sap-tile space-y-2 sm:space-y-3 cursor-pointer transition-all overflow-hidden",
                   "hover:shadow-md hover:border-primary/20 active:scale-[0.98]",
                   "group"
                 )}
@@ -140,18 +140,18 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                 }}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs truncate">
                       Serial {matter.serialNumber}
                     </p>
-                    <h3 className="text-sm font-semibold text-foreground sm:text-base truncate group-hover:text-primary transition-colors">
+                    <h3 className="text-sm font-semibold text-foreground sm:text-base truncate group-hover:text-primary transition-colors" title={matter.clientName ?? "Unassigned client"}>
                       {matter.clientName ?? "Unassigned client"}
                     </h3>
                   </div>
                   <Badge
                     variant="outline"
                     className={
-                      "capitalize border-none px-2 py-0.5 text-[10px] font-medium shrink-0 sm:text-xs " +
+                      "capitalize border-none px-2 py-0.5 text-[10px] font-medium shrink-0 sm:text-xs whitespace-nowrap " +
                       (matter.status === "execution" || matter.status === "review"
                         ? "bg-[var(--success-soft)] text-[var(--success)]"
                         : matter.status === "pending" || matter.status === "fresh diary"
@@ -165,20 +165,20 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                   </Badge>
                 </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted-foreground sm:gap-x-4 sm:gap-y-2 sm:text-sm">
-                  <span className="truncate">Type: {matter.matterType}</span>
-                  {matter.caseType ? <span className="truncate">Case type: {matter.caseType}</span> : null}
-                  {matter.caseNumber ? <span className="truncate">Case #: {matter.caseNumber}</span> : null}
-                  {matter.courtName ? <span className="truncate">Court: {matter.courtName}</span> : null}
-                  {matter.district ? <span className="truncate">District: {matter.district}</span> : null}
+                  <span className="truncate max-w-full" title={`Type: ${matter.matterType}`}>Type: {matter.matterType}</span>
+                  {matter.caseType ? <span className="truncate max-w-full" title={`Case type: ${matter.caseType}`}>Case type: {matter.caseType}</span> : null}
+                  {matter.caseNumber ? <span className="truncate max-w-full" title={`Case #: ${matter.caseNumber}`}>Case #: {matter.caseNumber}</span> : null}
+                  {matter.courtName ? <span className="truncate max-w-full" title={`Court: ${matter.courtName}`}>Court: {matter.courtName}</span> : null}
+                  {matter.district ? <span className="truncate max-w-full" title={`District: ${matter.district}`}>District: {matter.district}</span> : null}
                   {matter.filingDate ? (
-                    <span className="truncate">
+                    <span className="truncate max-w-full" title={`Filed: ${formatter.format(new Date(matter.filingDate))}`}>
                       Filed: {formatter.format(new Date(matter.filingDate))}
                     </span>
                   ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial" onClick={(e) => e.stopPropagation()}>
-                    <Link href={`/cases/${matter.id}`}>Open detail</Link>
+                  <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial min-w-0" onClick={(e) => e.stopPropagation()}>
+                    <Link href={`/cases/${matter.id}`} className="truncate">Open detail</Link>
                   </Button>
                   <div onClick={(e) => e.stopPropagation()}>
                     <DeleteMatterButton

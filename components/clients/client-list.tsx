@@ -54,28 +54,28 @@ export function ClientList({ clients }: ClientListProps) {
         </div>
         <div className="space-y-2 sm:space-y-3">
           {clients.map((client) => (
-            <article key={client.id} className="sap-tile space-y-2 sm:space-y-3">
+            <article key={client.id} className="sap-tile space-y-2 sm:space-y-3 overflow-hidden">
               <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-foreground sm:text-base truncate">{client.fullName}</h3>
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <h3 className="text-sm font-semibold text-foreground sm:text-base truncate" title={client.fullName}>{client.fullName}</h3>
                   {client.organizationName ? (
-                    <p className="text-xs text-muted-foreground sm:text-sm truncate">
+                    <p className="text-xs text-muted-foreground sm:text-sm truncate" title={client.organizationName}>
                       {client.organizationName}
                     </p>
                   ) : null}
                 </div>
-                <Badge variant="outline" className="capitalize flex-shrink-0 text-[10px] sm:text-xs">
+                <Badge variant="outline" className="capitalize flex-shrink-0 text-[10px] sm:text-xs whitespace-nowrap">
                   {client.type}
                 </Badge>
               </div>
               <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted-foreground sm:gap-x-4 sm:gap-y-2 sm:text-sm">
-                {client.email ? <span className="truncate">Email: {client.email}</span> : null}
-                {client.phone ? <span className="truncate">Phone: {client.phone}</span> : null}
-                {client.city ? <span className="truncate">City: {client.city}</span> : null}
+                {client.email ? <span className="truncate max-w-full" title={client.email}>Email: {client.email}</span> : null}
+                {client.phone ? <span className="truncate max-w-full" title={client.phone}>Phone: {client.phone}</span> : null}
+                {client.city ? <span className="truncate max-w-full" title={client.city}>City: {client.city}</span> : null}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button asChild size="sm" variant="outline" className="flex-1 sm:flex-initial">
-                  <Link href={`/clients/${client.id}`}>View details</Link>
+                <Button asChild size="sm" variant="outline" className="flex-1 sm:flex-initial min-w-0">
+                  <Link href={`/clients/${client.id}`} className="truncate">View details</Link>
                 </Button>
                 <DeleteClientButton
                   clientId={client.id}

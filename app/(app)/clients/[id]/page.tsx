@@ -66,12 +66,15 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     notFound();
   }
 
+  // Type assertion needed due to TypeScript type inference issues
+  const clientData = client as unknown as { id: string; [key: string]: unknown };
+
   // Fetch related matters separately to avoid nested query issues
   const { data: matters, error: mattersError } = await supabase
     .from("matters")
     .select("id, serial_number, matter_status, matter_type, case_number, court_name, district")
     .eq("firm_id", profile.firm_id)
-    .eq("client_id", client.id)
+    .eq("client_id", clientData.id)
     .order("created_at", { ascending: false });
 
   if (mattersError) {
@@ -95,7 +98,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     documents
       ?.filter((doc) => {
         const meta = (doc.metadata as any) ?? {};
-        return meta.kind === "client_document" && meta.clientId === client.id;
+        return meta.kind === "client_document" && meta.clientId === clientData.id;
       })
       .map((doc) => ({
         id: doc.id,
@@ -106,27 +109,27 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
       })) ?? [];
 
   const statusLabel = new Map(matterStatusOptions.map((option) => [option.value, option.label]));
-  const representativeDetails = client.representative_details as
+  const representativeDetails = clientData.representative_details as
     | { to_whom?: string | null; capacity?: string | null }
     | null
     | undefined;
 
   // Convert client data to form values
   const clientFormValues: ClientFormValues = {
-    id: client.id,
-    type: client.type as "individual" | "organization",
-    fullName: client.full_name ?? client.name ?? "",
-    fatherName: client.father_name ?? "",
-    organizationName: client.organization_name ?? "",
-    email: client.email ?? "",
-    phone: client.phone ?? "",
-    cnic: client.cnic ?? "",
-    address: client.address ?? "",
-    city: client.city ?? "",
-    province: client.province ?? "",
-    country: client.country ?? "Pakistan",
-    notes: client.notes ?? "",
-    representation: client.representation as "self" | "representative",
+    id: clientData.id,
+    type: clientData.type as "individual" | "organization",
+    fullName: (clientData.full_name as string | null | undefined) ?? (clientData.name as string | null | undefined) ?? "",
+    fatherName: (clientData.father_name as string | null | undefined) ?? "",
+    organizationName: (clientData.organization_name as string | null | undefined) ?? "",
+    email: (clientData.email as string | null | undefined) ?? "",
+    phone: (clientData.phone as string | null | undefined) ?? "",
+    cnic: (clientData.cnic as string | null | undefined) ?? "",
+    address: (clientData.address as string | null | undefined) ?? "",
+    city: (clientData.city as string | null | undefined) ?? "",
+    province: (clientData.province as string | null | undefined) ?? "",
+    country: (clientData.country as string | null | undefined) ?? "Pakistan",
+    notes: (clientData.notes as string | null | undefined) ?? "",
+    representation: clientData.representation as "self" | "representative",
     representativeToWhom: representativeDetails?.to_whom ?? "",
     representativeCapacity: representativeDetails?.capacity as any ?? "",
   };
@@ -143,26 +146,29 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-primary">Client Profile</p>
-                <h1 className="text-3xl font-bold text-foreground">{client.full_name ?? client.name}</h1>
-                {client.organization_name && (
-                  <p className="mt-1 text-sm text-muted-foreground">{client.organization_name}</p>
-                )}
+                <h1 className="text-3xl font-bold text-foreground">{(clientData.full_name as string | null | undefined) ?? (clientData.name as string | null | undefined) ?? "Unnamed Client"}</h1>
+                {(() => {
+                  const orgName = clientData.organization_name;
+                  return orgName && typeof orgName === "string" ? (
+                    <p className="mt-1 text-sm text-muted-foreground">{orgName}</p>
+                  ) : null;
+                })()}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="capitalize text-sm font-medium">
-                {client.type}
+                {clientData.type as string}
               </Badge>
               <EditClientSheet client={clientFormValues} />
               <Button asChild size="sm" variant="outline">
-                <a href={`/api/clients/${client.id}/pdf`} download target="_blank" rel="noopener noreferrer">
+                <a href={`/api/clients/${clientData.id}/pdf`} download target="_blank" rel="noopener noreferrer">
                   <Download className="mr-2 h-4 w-4" />
                   Download PDF
                 </a>
               </Button>
               <DeleteClientButton
-                clientId={client.id}
-                clientName={client.full_name ?? client.name ?? "Client"}
+                clientId={clientData.id}
+                clientName={(clientData.full_name as string) ?? (clientData.name as string) ?? "Client"}
                 size="sm"
               />
             </div>
@@ -188,8 +194,8 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
           </div>
           <Separator />
           <div className="grid gap-4 md:grid-cols-2">
-            <DetailItem label="Father / Guardian" value={client.father_name} />
-            <DetailItem label="Representation" value={client.representation} />
+            <DetailItem label="Father / Guardian" value={clientData.father_name as string | null} />
+            <DetailItem label="Representation" value={clientData.representation as string | null} />
             <DetailItem
               label="Represents"
               value={representativeDetails?.to_whom ?? null}
@@ -198,19 +204,19 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
               label="Capacity"
               value={representativeDetails?.capacity ?? null}
             />
-            <DetailItem label="Email" value={client.email} />
-            <DetailItem label="Phone" value={client.phone} />
-            <DetailItem label="City" value={client.city} />
-            <DetailItem label="Province" value={client.province} />
-            <DetailItem label="Country" value={client.country} />
-            <DetailItem label="CNIC / ID" value={client.cnic} />
+            <DetailItem label="Email" value={clientData.email as string | null} />
+            <DetailItem label="Phone" value={clientData.phone as string | null} />
+            <DetailItem label="City" value={clientData.city as string | null} />
+            <DetailItem label="Province" value={clientData.province as string | null} />
+            <DetailItem label="Country" value={clientData.country as string | null} />
+            <DetailItem label="CNIC / ID" value={clientData.cnic as string | null} />
           </div>
-          <DetailItem label="Address" value={client.address} fullWidth />
-          <DetailItem label="Notes" value={client.notes} fullWidth />
+          <DetailItem label="Address" value={clientData.address as string | null} fullWidth />
+          <DetailItem label="Notes" value={clientData.notes as string | null} fullWidth />
         </div>
       </div>
 
-      <ClientDocumentsCard clientId={client.id} documents={clientDocuments} />
+      <ClientDocumentsCard clientId={clientData.id} documents={clientDocuments} />
 
       <div className="sap-card">
         <div className="sap-card-body space-y-4">

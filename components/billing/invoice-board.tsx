@@ -203,7 +203,7 @@ function InvoiceCard({
   
   return (
     <article 
-      className="sap-tile space-y-3 cursor-pointer transition-all hover:shadow-md hover:border-primary/20"
+      className="sap-tile space-y-3 cursor-pointer transition-all hover:shadow-md hover:border-primary/20 overflow-hidden"
       onClick={(e) => {
         // Don't navigate if clicking on buttons
         if ((e.target as HTMLElement).closest('button, a')) {
@@ -214,49 +214,49 @@ function InvoiceCard({
       }}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">
             {invoice.invoiceNumber}
           </p>
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-base font-semibold text-foreground truncate" title={invoice.clientName}>
             {invoice.clientName}
           </h3>
         </div>
         <Badge
           variant="outline"
           className={
-            "flex items-center gap-1 border-none px-2.5 py-0.5 text-xs font-medium capitalize " +
+            "flex items-center gap-1 border-none px-2.5 py-0.5 text-xs font-medium capitalize shrink-0 whitespace-nowrap " +
             getStatusClasses(invoice.status)
           }
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
+          <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80 shrink-0" />
           {statusLabel.get(invoice.status as InvoiceStatusOption) ?? invoice.status}
         </Badge>
       </div>
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-        <span>
+        <span className="truncate max-w-full">
           Issue date:{" "}
           <span className="font-medium text-foreground">
             {format(parseISO(invoice.issueDate), "dd MMM yyyy")}
           </span>
         </span>
         {invoice.dueDate ? (
-          <span>
+          <span className="truncate max-w-full">
             Due by:{" "}
             {format(parseISO(invoice.dueDate), "dd MMM yyyy")}
           </span>
         ) : null}
-        {invoice.matterLabel ? <span>Matter: {invoice.matterLabel}</span> : null}
+        {invoice.matterLabel ? <span className="truncate max-w-full" title={`Matter: ${invoice.matterLabel}`}>Matter: {invoice.matterLabel}</span> : null}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold text-primary font-mono">
-        <span>Total: PKR {invoice.totalAmount.toLocaleString()}</span>
+        <span className="truncate">Total: PKR {invoice.totalAmount.toLocaleString()}</span>
         {invoice.amountPaid > 0 ? (
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">
             Paid: PKR {invoice.amountPaid.toLocaleString()}
           </span>
         ) : null}
         {outstanding > 0 ? (
-          <span className="text-xs font-medium uppercase tracking-wide text-destructive">
+          <span className="text-xs font-medium uppercase tracking-wide text-destructive truncate">
             Outstanding: PKR {outstanding.toLocaleString()}
           </span>
         ) : null}
