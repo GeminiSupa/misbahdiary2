@@ -1,7 +1,6 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { checkSubscriptionAccess } from "./subscription-check";
 
 /**
  * Get user's role in a firm

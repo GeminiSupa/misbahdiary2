@@ -6,7 +6,7 @@ import { CaseBoard } from "@/components/cases/case-board";
 import { Briefcase } from "lucide-react";
 import { NewMatterSheet } from "@/components/cases/new-matter-sheet";
 import { Button } from "@/components/ui/button";
-import { canUserSeeAllCases, getUserVisibleMatterIds } from "@/lib/server/access-control";
+import { canUserSeeAllCases } from "@/lib/server/access-control";
 
 export const metadata: Metadata = {
   title: "Matters • Lawyer Diary",
@@ -63,19 +63,35 @@ export default async function CasesPage() {
   if (!canSeeAll) {
     const userRole = profile?.role;
     
-    if (userRole === "associate" || userRole === "of_counsel") {
-      // Associates and of_counsel can see matters they created OR are assigned to
-      mattersQuery = mattersQuery.or(`created_by.eq.${user.id},assigned_attorneys.cs.{${user.id}}`);
-    } else if (userRole === "paralegal" || userRole === "staff") {
-      // Paralegals and staff can only see assigned matters
-      mattersQuery = mattersQuery.contains("assigned_attorneys", [user.id]);
-    } else {
-      // For other roles, return empty (RLS will handle this)
-      mattersQuery = mattersQuery.eq("id", "00000000-0000-0000-0000-000000000000"); // Impossible ID
+    try {
+      if (userRole === "associate" || userRole === "of_counsel") {
+        // Associates and of_counsel can see matters they created OR are assigned to
+        mattersQuery = mattersQuery.or(`created_by.eq.${user.id},assigned_attorneys.cs.{${user.id}}`);
+      } else if (userRole === "paralegal" || userRole === "staff") {
+        // Paralegals and staff can only see assigned matters
+        mattersQuery = mattersQuery.contains("assigned_attorneys", [user.id]);
+      } else {
+        // For other roles, return empty (RLS will handle this)
+        mattersQuery = mattersQuery.eq("id", "00000000-0000-0000-0000-000000000000"); // Impossible ID
+      }
+    } catch (queryError) {
+      console.error("Error building matters query:", queryError);
+      // Fallback: return empty array
+      mattersQuery = mattersQuery.eq("id", "00000000-0000-0000-0000-000000000000");
     }
   }
 
-  const { data: matters } = await mattersQuery.order("created_at", { ascending: false });
+  const { data: matters, error: mattersError } = await mattersQuery.order("created_at", { ascending: false });
+  
+  if (mattersError) {
+    console.error("Error fetching matters:", {
+      message: mattersError.message,
+      details: mattersError.details,
+      hint: mattersError.hint,
+      code: mattersError.code,
+    });
+    // Return empty array on error to prevent page crash
+  }
 
   const { data: clients } = await supabase
     .from("clients")
