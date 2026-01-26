@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe/config";
-// Using supabaseAdminClient (not createSupabaseAdminClient) - it's exported as a constant
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
