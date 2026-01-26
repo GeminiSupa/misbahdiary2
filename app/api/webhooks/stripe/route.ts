@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe/config";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { supabaseAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const supabaseAdmin = createSupabaseAdminClient();
+  const supabaseAdmin = supabaseAdminClient;
 
   try {
     switch (event.type) {
