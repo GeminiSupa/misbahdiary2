@@ -111,20 +111,27 @@ export function SignInForm() {
     try {
       const redirectUrl =
         process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-        "http://localhost:3000/auth/callback";
+        window.location.origin.concat("/auth/callback");
 
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
 
       if (oauthError) {
         setError(oauthError.message || "Failed to sign in with Google. Please try again.");
         setIsOAuthLoading(false);
+      } else if (data?.url) {
+        // Redirect to Google OAuth page
+        // The PKCE code verifier is automatically stored in cookies by createBrowserClient
+        window.location.href = data.url;
       }
-      // If successful, user will be redirected to Google, so we don't need to handle success here
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to connect to the server. Please check your internet connection and try again.";
       setError(errorMessage);

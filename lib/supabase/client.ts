@@ -7,6 +7,11 @@ import type { Database } from "@/lib/supabase/database.types";
 let browserClient: SupabaseClient<Database> | undefined;
 
 export const getBrowserClient = (): SupabaseClient<Database> => {
+  // Only create client on client side
+  if (typeof window === "undefined") {
+    throw new Error("getBrowserClient should only be called on the client side");
+  }
+
   if (browserClient) return browserClient;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -20,7 +25,6 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
     const errorMsg = `Supabase environment variables are not configured. Missing: ${missingVars.join(", ")}. Please check your environment variables.`;
     console.error(errorMsg);
     
-    // In browser, we need to create a client that will fail with a clear error
     // Create a client with invalid URL so errors are clear
     browserClient = createBrowserClient<Database>(
       supabaseUrl || "",
@@ -29,6 +33,8 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
     return browserClient;
   }
 
+  // createBrowserClient from @supabase/ssr automatically handles cookies for PKCE
+  // It uses document.cookie internally, so we don't need to configure it manually
   browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
   return browserClient;
 };
