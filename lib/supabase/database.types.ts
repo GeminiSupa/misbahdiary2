@@ -1248,6 +1248,66 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_history: {
+        Row: {
+          id: string
+          firm_id: string
+          subscription_plan_id: string | null
+          status: string
+          stripe_subscription_id: string | null
+          stripe_customer_id: string | null
+          amount_paid: number | null
+          currency: string | null
+          payment_method: string | null
+          payment_reference: string | null
+          event_data: unknown
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          firm_id: string
+          subscription_plan_id?: string | null
+          status: string
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
+          amount_paid?: number | null
+          currency?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          event_data?: unknown
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          firm_id?: string
+          subscription_plan_id?: string | null
+          status?: string
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
+          amount_paid?: number | null
+          currency?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          event_data?: unknown
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_history_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "firms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_history_subscription_plan_id_fkey"
+            columns: ["subscription_plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
