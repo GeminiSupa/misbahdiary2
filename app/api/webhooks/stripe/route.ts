@@ -5,6 +5,7 @@ import { supabaseAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
 // Webhook handler for Stripe subscription events
+// Force rebuild: Fixed import to use supabaseAdminClient instead of createSupabaseAdminClient
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
