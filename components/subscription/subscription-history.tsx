@@ -9,7 +9,7 @@ type SubscriptionHistoryItem = {
   id: string;
   status: string;
   amount_paid: number | null;
-  currency: string;
+  currency: string | null;
   payment_method: string | null;
   payment_reference: string | null;
   created_at: string;
@@ -58,9 +58,9 @@ export function SubscriptionHistory({ history }: SubscriptionHistoryProps) {
     }
   };
 
-  const formatAmount = (amount: number | null, currency: string) => {
+  const formatAmount = (amount: number | null, currency: string | null) => {
     if (amount === null) return "N/A";
-    const symbol = currency === "PKR" || currency === "USD" ? currency : currency;
+    const symbol = currency || "USD";
     return `${symbol} ${amount.toFixed(2)}`;
   };
 
