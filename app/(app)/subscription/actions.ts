@@ -264,7 +264,7 @@ export async function createCheckoutSession(
       },
     });
 
-    return { url: session.url };
+    return { url: session.url || undefined };
   } catch (error) {
     console.error("Error creating checkout session:", error);
     const errorMessage =
@@ -330,7 +330,7 @@ export async function createPortalSession(
       return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription`,
     });
 
-    return { url: session.url };
+    return { url: session.url || undefined };
   } catch (error) {
     console.error("Error creating portal session:", error);
     return {
