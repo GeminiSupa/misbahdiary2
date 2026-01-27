@@ -73,15 +73,29 @@ export async function getSubscriptionStatus(
     return { message: "Firm not found." };
   }
 
+  // Type assertion: firm should have the subscription fields
+  type FirmWithSubscription = {
+    subscription_status: string | null;
+    subscription_plan_id: string | null;
+    trial_started_at: string | null;
+    trial_ends_at: string | null;
+    subscription_started_at: string | null;
+    subscription_ends_at: string | null;
+    stripe_customer_id: string | null;
+    stripe_subscription_id: string | null;
+  };
+
+  const firmData = firm as FirmWithSubscription;
+
   const now = new Date();
-  const trialEndsAt = firm.trial_ends_at ? new Date(firm.trial_ends_at) : null;
-  const subscriptionEndsAt = firm.subscription_ends_at
-    ? new Date(firm.subscription_ends_at)
+  const trialEndsAt = firmData.trial_ends_at ? new Date(firmData.trial_ends_at) : null;
+  const subscriptionEndsAt = firmData.subscription_ends_at
+    ? new Date(firmData.subscription_ends_at)
     : null;
 
   // Calculate days remaining in trial
   let daysRemainingInTrial: number | null = null;
-  if (trialEndsAt && firm.subscription_status === "trial") {
+  if (trialEndsAt && firmData.subscription_status === "trial") {
     const diffTime = trialEndsAt.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     daysRemainingInTrial = diffDays > 0 ? diffDays : 0;
@@ -89,22 +103,22 @@ export async function getSubscriptionStatus(
 
   // Check if trial is active (status is trial and hasn't expired)
   const isTrialActive =
-    firm.subscription_status === "trial" &&
+    firmData.subscription_status === "trial" &&
     trialEndsAt !== null &&
     trialEndsAt > now;
 
   // Check if subscription is active (status is active and hasn't expired)
   // For one-time payments, subscription_ends_at is set to 30 days from payment
   const isSubscriptionActive =
-    firm.subscription_status === "active" &&
+    firmData.subscription_status === "active" &&
     subscriptionEndsAt !== null &&
     subscriptionEndsAt > now;
 
   // Handle edge case: trial ended but subscription not started
   // If trial expired and no active subscription, status should be expired
-  let actualStatus = firm.subscription_status as FirmSubscription["status"];
+  let actualStatus = (firmData.subscription_status || "trial") as FirmSubscription["status"];
   if (
-    firm.subscription_status === "trial" &&
+    firmData.subscription_status === "trial" &&
     trialEndsAt !== null &&
     trialEndsAt <= now &&
     !isSubscriptionActive
@@ -114,13 +128,13 @@ export async function getSubscriptionStatus(
 
   return {
     status: actualStatus,
-    plan_id: firm.subscription_plan_id,
-    trial_started_at: firm.trial_started_at,
-    trial_ends_at: firm.trial_ends_at,
-    subscription_started_at: firm.subscription_started_at,
-    subscription_ends_at: firm.subscription_ends_at,
-    stripe_customer_id: firm.stripe_customer_id,
-    stripe_subscription_id: firm.stripe_subscription_id,
+    plan_id: firmData.subscription_plan_id,
+    trial_started_at: firmData.trial_started_at,
+    trial_ends_at: firmData.trial_ends_at,
+    subscription_started_at: firmData.subscription_started_at,
+    subscription_ends_at: firmData.subscription_ends_at,
+    stripe_customer_id: firmData.stripe_customer_id,
+    stripe_subscription_id: firmData.stripe_subscription_id,
     days_remaining_in_trial: daysRemainingInTrial,
     is_trial_active: isTrialActive,
     is_subscription_active: isSubscriptionActive,

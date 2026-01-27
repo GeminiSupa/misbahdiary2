@@ -1212,6 +1212,42 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          id: string
+          name: string
+          price_monthly: number
+          price_id_stripe: string | null
+          product_id_stripe: string | null
+          features: unknown
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          price_monthly: number
+          price_id_stripe?: string | null
+          product_id_stripe?: string | null
+          features?: unknown
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          price_monthly?: number
+          price_id_stripe?: string | null
+          product_id_stripe?: string | null
+          features?: unknown
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
