@@ -9,7 +9,11 @@ let browserClient: SupabaseClient<Database> | undefined;
 export const getBrowserClient = (): SupabaseClient<Database> => {
   // Only create client on client side
   if (typeof window === "undefined") {
-    throw new Error("getBrowserClient should only be called on the client side");
+    // Return a placeholder client that will fail gracefully
+    // This should never happen if called correctly, but prevents crashes during SSR
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+    return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
   }
 
   if (browserClient) return browserClient;

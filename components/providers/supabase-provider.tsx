@@ -1,12 +1,12 @@
 "use client";
 
-import { type ReactNode, createContext, useContext, useState } from "react";
+import { type ReactNode, createContext, useContext, useState, useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { getBrowserClient } from "@/lib/supabase/client";
 
 type SupabaseContextType = {
-  supabase: SupabaseClient<Database>;
+  supabase: SupabaseClient<Database> | null;
 };
 
 const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
@@ -16,7 +16,14 @@ type SupabaseProviderProps = {
 };
 
 export function SupabaseProvider({ children }: SupabaseProviderProps) {
-  const [supabaseClient] = useState<SupabaseClient<Database>>(() => getBrowserClient());
+  const [supabaseClient, setSupabaseClient] = useState<SupabaseClient<Database> | null>(null);
+
+  useEffect(() => {
+    // Only create client on client side after mount
+    if (typeof window !== "undefined") {
+      setSupabaseClient(getBrowserClient());
+    }
+  }, []);
 
   return (
     <SupabaseContext.Provider value={{ supabase: supabaseClient }}>
