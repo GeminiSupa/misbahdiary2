@@ -79,6 +79,20 @@ export function SignUpForm() {
     router.push("/auth/confirm");
   };
 
+  // Wait for supabase client to be initialized
+  if (!supabase) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
+          <p className="text-sm text-muted-foreground">
+            Loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>

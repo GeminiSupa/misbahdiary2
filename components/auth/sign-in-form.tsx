@@ -40,20 +40,6 @@ export function SignInForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
 
-  // Wait for supabase client to be initialized
-  if (!supabase) {
-    return (
-      <div className="space-y-6">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl font-bold text-white sm:text-3xl">Welcome Back</h1>
-          <p className="mt-2 text-sm text-white/70 sm:text-base">
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(credentialsSchema),
     defaultValues: {
@@ -70,6 +56,11 @@ export function SignInForm() {
   });
 
   const handlePasswordSignIn = async (values: CredentialsFormValues) => {
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      return;
+    }
+
     setError(null);
     setInfo(null);
     setIsSubmitting(true);
@@ -118,6 +109,11 @@ export function SignInForm() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      return;
+    }
+
     setError(null);
     setInfo(null);
     setIsOAuthLoading(true);
@@ -155,6 +151,11 @@ export function SignInForm() {
   };
 
   const handleMagicLink = async (values: MagicLinkFormValues) => {
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      return;
+    }
+
     setError(null);
     setInfo(null);
     setIsSubmitting(true);
@@ -183,6 +184,20 @@ export function SignInForm() {
       setIsSubmitting(false);
     }
   };
+
+  // Wait for supabase client to be initialized (after all hooks are called)
+  if (!supabase) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">Welcome Back</h1>
+          <p className="mt-2 text-sm text-white/70 sm:text-base">
+            Loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
