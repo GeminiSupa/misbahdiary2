@@ -48,6 +48,11 @@ export function SignUpForm() {
   });
 
   const handleSignUp = async (values: SignUpValues) => {
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 

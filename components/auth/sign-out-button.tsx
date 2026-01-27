@@ -23,6 +23,13 @@ export function SignOutButton({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignOut = async () => {
+    if (!supabase) {
+      // If supabase client is not ready, just redirect
+      router.replace("/sign-in");
+      router.refresh();
+      return;
+    }
+    
     setIsLoading(true);
     await supabase.auth.signOut();
     setIsLoading(false);
