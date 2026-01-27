@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { DashboardKpiCards } from "@/components/dashboard/dashboard-kpi-cards";
 import { TrialBanner } from "@/components/subscription/trial-banner";
 import { getSubscriptionStatus } from "@/app/(app)/subscription/actions";
+import type { FirmSubscription } from "@/lib/stripe/types";
+
+// Type guard to check if result is FirmSubscription
+function isFirmSubscription(
+  result: FirmSubscription | { message?: string }
+): result is FirmSubscription {
+  return "status" in result && !("message" in result);
+}
 
 type KpiRow = {
   label: string;
@@ -39,10 +47,8 @@ export default async function DashboardPage() {
 
   // Get subscription status
   const subscriptionResult = await getSubscriptionStatus(profile.firm_id);
-  const subscription =
-    "message" in subscriptionResult
-      ? null
-      : (subscriptionResult as Awaited<ReturnType<typeof getSubscriptionStatus>>);
+  // Type guard: FirmSubscription has 'status' property, ActionState has 'message' property
+  const subscription = isFirmSubscription(subscriptionResult) ? subscriptionResult : null;
 
   // Import access control utilities
   const { canUserSeeAllCases } = await import("@/lib/server/access-control");
