@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
               : session.subscription?.id;
 
           if (subscriptionId) {
-            const subscription = await stripe.subscriptions.retrieve(
+            const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(
               subscriptionId,
             );
             const priceId = subscription.items.data[0]?.price.id;
@@ -88,9 +88,9 @@ export async function POST(req: NextRequest) {
               .maybeSingle();
 
             const now = new Date();
-            const subscriptionEndsAt = new Date(
-              subscription.current_period_end * 1000,
-            );
+            // current_period_end is a timestamp in seconds
+            const periodEnd = (subscription as any).current_period_end || Math.floor(now.getTime() / 1000) + 2592000; // Default to 30 days if not set
+            const subscriptionEndsAt = new Date(periodEnd * 1000);
 
             // Update firm subscription
             const { error: updateError } = await supabaseAdmin
@@ -203,9 +203,9 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const subscriptionEndsAt = new Date(
-          subscription.current_period_end * 1000,
-        );
+        // current_period_end is a timestamp in seconds
+        const periodEnd = (subscription as any).current_period_end || Math.floor(new Date().getTime() / 1000) + 2592000; // Default to 30 days if not set
+        const subscriptionEndsAt = new Date(periodEnd * 1000);
 
         let status = "active";
         if (subscription.status === "canceled") {
@@ -296,12 +296,12 @@ export async function POST(req: NextRequest) {
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
         const subscriptionId =
-          typeof invoice.subscription === "string"
-            ? invoice.subscription
-            : invoice.subscription?.id;
+          typeof (invoice as any).subscription === "string"
+            ? (invoice as any).subscription
+            : (invoice as any).subscription?.id;
 
         if (subscriptionId) {
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const firmId = subscription.metadata?.firm_id;
 
           if (firmId) {
@@ -327,12 +327,12 @@ export async function POST(req: NextRequest) {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         const subscriptionId =
-          typeof invoice.subscription === "string"
-            ? invoice.subscription
-            : invoice.subscription?.id;
+          typeof (invoice as any).subscription === "string"
+            ? (invoice as any).subscription
+            : (invoice as any).subscription?.id;
 
         if (subscriptionId) {
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const firmId = subscription.metadata?.firm_id;
 
           if (firmId) {

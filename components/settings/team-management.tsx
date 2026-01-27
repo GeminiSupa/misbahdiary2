@@ -65,6 +65,8 @@ type TeamManagementProps = {
   canManageTeam: boolean;
   canCreateUsers: boolean;
   currentUserRole: string | null;
+  currentUserId: string;
+  firmOwnerId: string | null;
 };
 
 const ROLE_INFO = {

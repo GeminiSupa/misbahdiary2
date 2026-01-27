@@ -50,7 +50,7 @@ export function MessageComposer({
   const [isPending, startTransition] = useTransition();
   const [isGroup, setIsGroup] = useState(false);
 
-  const form = useForm<MessageFormValues>({
+  const form = useForm({
     resolver: zodResolver(messageSchema),
     defaultValues: {
       recipient_id: "",

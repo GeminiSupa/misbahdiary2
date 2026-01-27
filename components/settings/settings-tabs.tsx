@@ -35,7 +35,7 @@ type TeamMemberDisplay = {
   name: string;
   email: string;
   role: string | null;
-  createdBy?: string | null;
+  createdBy?: { id: string; name: string; } | null;
 };
 
 type SettingsTabsProps = {
@@ -168,6 +168,8 @@ export function SettingsTabs({
             canManageTeam={canManageStaff}
             canCreateUsers={canCreateUsers}
             currentUserRole={currentUserRole}
+            currentUserId={currentUserId}
+            firmOwnerId={firmOwnerId}
           />
         )}
 

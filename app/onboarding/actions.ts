@@ -73,7 +73,7 @@ export async function completeOnboarding(
   }
 
   // Log trial start in subscription history
-  await supabase
+  const { error: historyError } = await supabase
     .from("subscription_history")
     .insert({
       firm_id: firm.id,
@@ -83,11 +83,12 @@ export async function completeOnboarding(
         trial_started_at: trialStartedAt.toISOString(),
         trial_ends_at: trialEndsAt.toISOString(),
       },
-    })
-    .catch((error) => {
-      console.error("Failed to log trial start:", error);
-      // Don't fail the onboarding if history logging fails
     });
+    
+  if (historyError) {
+    console.error("Failed to log trial start:", historyError);
+    // Don't fail the onboarding if history logging fails
+  }
 
   // Firm Owner should automatically be assigned principal_partner role
   // (They are the firm owner, so they must have principal_partner permissions)
