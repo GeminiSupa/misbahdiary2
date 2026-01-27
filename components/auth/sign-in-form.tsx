@@ -146,12 +146,18 @@ export function SignInForm() {
       });
 
       if (oauthError) {
+        console.error("OAuth error:", oauthError);
         setError(oauthError.message || "Failed to sign in with Google. Please try again.");
         setIsOAuthLoading(false);
       } else if (data?.url) {
+        console.log("Redirecting to Google OAuth:", data.url);
         // Redirect to Google OAuth page
         // The PKCE code verifier is automatically stored in cookies by createBrowserClient
         window.location.href = data.url;
+      } else {
+        console.error("No URL returned from OAuth:", { data, oauthError });
+        setError("Failed to initiate Google sign-in. Please try again.");
+        setIsOAuthLoading(false);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to connect to the server. Please check your internet connection and try again.";

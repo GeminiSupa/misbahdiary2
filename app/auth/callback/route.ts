@@ -34,18 +34,35 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      console.error("Error exchanging code for session:", error);
+      console.error("Error exchanging code for session:", {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+        code: code?.substring(0, 20) + "...",
+      });
       const redirectUrl = new URL("/sign-in", requestUrl.origin);
       redirectUrl.searchParams.set("error", error.message || "Failed to complete authentication. Please try again.");
       return NextResponse.redirect(redirectUrl);
     }
 
+    if (!data?.session) {
+      console.error("No session created after code exchange:", { data });
+      const redirectUrl = new URL("/sign-in", requestUrl.origin);
+      redirectUrl.searchParams.set("error", "Failed to create session. Please try again.");
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    console.log("OAuth callback successful, redirecting to home page");
     // After successful OAuth, redirect to home page
     // The home page (app/page.tsx) will check if user has firm_id
     // and redirect to /onboarding if needed, or /dashboard if they have a firm
     return response;
   } catch (err) {
-    console.error("Unexpected error in OAuth callback:", err);
+    console.error("Unexpected error in OAuth callback:", {
+      error: err,
+      message: err instanceof Error ? err.message : "Unknown error",
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     const redirectUrl = new URL("/sign-in", requestUrl.origin);
     redirectUrl.searchParams.set(
       "error",
