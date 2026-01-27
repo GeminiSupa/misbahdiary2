@@ -53,6 +53,23 @@ export async function getSubscriptionStatus(
     .single();
 
   if (firmError || !firm) {
+    // If columns don't exist yet (migration not run), return default trial status
+    if (firmError?.code === "42703" || firmError?.message?.includes("column") || firmError?.message?.includes("does not exist")) {
+      console.warn("Subscription columns may not exist yet. Returning default trial status.");
+      return {
+        status: "trial" as const,
+        plan_id: null,
+        trial_started_at: null,
+        trial_ends_at: null,
+        subscription_started_at: null,
+        subscription_ends_at: null,
+        stripe_customer_id: null,
+        stripe_subscription_id: null,
+        days_remaining_in_trial: null,
+        is_trial_active: true,
+        is_subscription_active: false,
+      };
+    }
     return { message: "Firm not found." };
   }
 
