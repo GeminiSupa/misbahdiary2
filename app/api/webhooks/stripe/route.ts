@@ -4,6 +4,8 @@ import { stripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe/config";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
+// Webhook handler for Stripe subscription events
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const headersList = await headers();
