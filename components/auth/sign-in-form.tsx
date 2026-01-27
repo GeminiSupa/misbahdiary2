@@ -186,7 +186,7 @@ export function SignInForm() {
         </Alert>
       ) : null}
 
-      {/* Google OAuth Button */}
+      {/* Google OAuth Button - Force Vercel rebuild */}
       <Button
         type="button"
         onClick={handleGoogleSignIn}
