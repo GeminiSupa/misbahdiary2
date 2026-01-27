@@ -40,9 +40,50 @@ export async function GET(request: Request) {
         name: error.name,
         code: code?.substring(0, 20) + "...",
       });
-      const redirectUrl = new URL("/sign-in", requestUrl.origin);
-      redirectUrl.searchParams.set("error", error.message || "Failed to complete authentication. Please try again.");
-      return NextResponse.redirect(redirectUrl);
+      
+      // For popup flow, return error page that notifies parent
+      const errorHtml = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Authentication Failed</title>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            <script>
+              if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ 
+                  type: 'OAUTH_ERROR', 
+                  message: ${JSON.stringify(error.message || "Failed to complete authentication. Please try again.")}
+                }, window.location.origin);
+                setTimeout(() => window.close(), 100);
+              } else {
+                window.location.href = '/sign-in?error=' + encodeURIComponent(${JSON.stringify(error.message || "Failed to complete authentication. Please try again.")});
+              }
+            </script>
+            <p>Authentication failed. This window will close automatically.</p>
+          </body>
+        </html>
+      `;
+      
+      const errorResponse = new NextResponse(errorHtml, {
+        status: 200,
+        headers: { "Content-Type": "text/html" },
+      });
+      
+      // Copy cookies
+      response.cookies.getAll().forEach((cookie) => {
+        errorResponse.cookies.set(cookie.name, cookie.value, {
+          path: cookie.path || "/",
+          domain: cookie.domain,
+          maxAge: cookie.maxAge,
+          httpOnly: cookie.httpOnly,
+          secure: cookie.secure,
+          sameSite: cookie.sameSite as "strict" | "lax" | "none" | undefined,
+        });
+      });
+      
+      return errorResponse;
     }
 
     if (!data?.session) {
@@ -60,19 +101,33 @@ export async function GET(request: Request) {
       <html>
         <head>
           <title>Authentication Successful</title>
+          <meta charset="utf-8">
         </head>
         <body>
           <script>
-            // Close popup and notify parent window
-            if (window.opener) {
-              window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
-              window.close();
-            } else {
-              // If not in popup, redirect normally
-              window.location.href = '/';
+            try {
+              // Notify parent window of success
+              if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
+                // Close popup after a short delay to ensure message is sent
+                setTimeout(() => {
+                  window.close();
+                }, 100);
+              } else {
+                // If not in popup, redirect normally
+                window.location.href = '/';
+              }
+            } catch (error) {
+              console.error('Error in OAuth callback:', error);
+              // Fallback: try to redirect
+              if (window.opener) {
+                window.close();
+              } else {
+                window.location.href = '/';
+              }
             }
           </script>
-          <p>Authentication successful. You can close this window.</p>
+          <p>Authentication successful. This window will close automatically.</p>
         </body>
       </html>
     `;

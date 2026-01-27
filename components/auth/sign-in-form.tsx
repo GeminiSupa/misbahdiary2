@@ -66,32 +66,6 @@ export function SignInForm() {
     },
   });
 
-  // Listen for OAuth success message from popup
-  useEffect(() => {
-    const handleMessage = async (event: MessageEvent) => {
-      // Verify message origin
-      if (event.origin !== window.location.origin) {
-        return;
-      }
-
-      if (event.data?.type === "OAUTH_SUCCESS") {
-        setIsOAuthLoading(false);
-        // Check session and redirect
-        if (supabase) {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            router.replace("/");
-            router.refresh();
-          } else {
-            setError("Authentication failed. Please try again.");
-          }
-        }
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [router, supabase]);
 
   const handlePasswordSignIn = async (values: CredentialsFormValues) => {
     if (!supabase) {
@@ -194,62 +168,53 @@ export function SignInForm() {
           return;
         }
 
-        // Listen for the callback
-        const checkPopup = setInterval(async () => {
-          try {
-            if (popup.closed) {
-              clearInterval(checkPopup);
-              setIsOAuthLoading(false);
-              
-              // Check if we have a session
-              const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-              
-              if (sessionError || !session) {
-                setError("Authentication failed or was cancelled. Please try again.");
-              } else {
-                // Success - redirect to home page
-                router.replace("/");
-                router.refresh();
-              }
-            } else {
-              // Check if popup has navigated to our callback URL
-              try {
-                const popupUrl = popup.location.href;
-                if (popupUrl.includes("/auth/callback")) {
-                  clearInterval(checkPopup);
-                  popup.close();
-                  setIsOAuthLoading(false);
-                  
-                  // Wait a moment for session to be set, then redirect
-                  setTimeout(async () => {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    if (session) {
-                      router.replace("/");
-                      router.refresh();
-                    } else {
-                      setError("Authentication failed. Please try again.");
-                    }
-                  }, 500);
-                }
-              } catch (e) {
-                // Cross-origin error - popup is still on Google/Supabase domain
-                // This is expected, continue checking
-              }
-            }
-          } catch (err) {
-            console.error("Error checking popup:", err);
+        // Listen for postMessage from popup (callback page will send this)
+        // We can't check popup.closed due to Cross-Origin-Opener-Policy
+        const messageHandler = async (event: MessageEvent) => {
+          // Verify message origin
+          if (event.origin !== window.location.origin) {
+            return;
           }
-        }, 500);
+
+          if (event.data?.type === "OAUTH_SUCCESS") {
+            window.removeEventListener("message", messageHandler);
+            setIsOAuthLoading(false);
+            
+            // Wait a moment for session cookies to be set
+            setTimeout(async () => {
+              if (supabase) {
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError || !session) {
+                  setError("Authentication failed. Please try again.");
+                } else {
+                  // Success - redirect to home page
+                  router.replace("/");
+                  router.refresh();
+                }
+              }
+            }, 500);
+          } else if (event.data?.type === "OAUTH_ERROR") {
+            window.removeEventListener("message", messageHandler);
+            setIsOAuthLoading(false);
+            setError(event.data.message || "Authentication failed. Please try again.");
+          }
+        };
+
+        window.addEventListener("message", messageHandler);
 
         // Timeout after 5 minutes
-        setTimeout(() => {
-          if (!popup.closed) {
-            clearInterval(checkPopup);
-            popup.close();
-            setIsOAuthLoading(false);
-            setError("Authentication timed out. Please try again.");
-          }
+        const timeout = setTimeout(() => {
+          window.removeEventListener("message", messageHandler);
+          setIsOAuthLoading(false);
+          setError("Authentication timed out. Please try again.");
         }, 300000);
+
+        // Cleanup on unmount
+        return () => {
+          window.removeEventListener("message", messageHandler);
+          clearTimeout(timeout);
+        };
       } else {
         console.error("No URL returned from OAuth:", { data, oauthError });
         setError("Failed to initiate Google sign-in. Please try again.");
