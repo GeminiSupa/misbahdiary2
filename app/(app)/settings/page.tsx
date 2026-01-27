@@ -97,7 +97,7 @@ export default async function SettingsPage() {
     })) ?? [];
 
   // Type assertion needed due to TypeScript type inference issues
-  const teamData = (team as Array<{ id: string; full_name?: string | null; role?: string | null; created_by?: string | null }> | null) ?? [];
+  const teamData = (team as Array<{ id: string; full_name?: string | null; role?: string | null }> | null) ?? [];
   
   // Fetch emails from auth.users using admin client
   const { supabaseAdminClient } = await import("@/lib/supabase/admin");
@@ -119,22 +119,8 @@ export default async function SettingsPage() {
     })
   );
 
-  // Fetch creator information
-  const creatorIds = Array.from(new Set(teamData.map((m) => m.created_by).filter(Boolean) as string[]));
+  // Note: created_by column doesn't exist in profiles table, so we can't track creators
   const creatorMap = new Map<string, string>();
-  
-  if (creatorIds.length > 0) {
-    const { data: creators } = await supabase
-      .from("profiles")
-      .select("id, full_name")
-      .in("id", creatorIds);
-    
-    creators?.forEach((creator) => {
-      if (creator.id && creator.full_name) {
-        creatorMap.set(creator.id, creator.full_name);
-      }
-    });
-  }
 
   const teamMembers =
     teamData
@@ -144,10 +130,7 @@ export default async function SettingsPage() {
         name: member.full_name ?? "Unnamed teammate",
         email: emailMap.get(member.id) ?? "",
         role: member.role ?? null,
-        createdBy: member.created_by ? {
-          id: member.created_by,
-          name: creatorMap.get(member.created_by) ?? "Unknown",
-        } : null,
+        createdBy: null, // created_by column doesn't exist in profiles table
       }));
 
   // Type assertion needed - billing_settings table not in TypeScript types yet
