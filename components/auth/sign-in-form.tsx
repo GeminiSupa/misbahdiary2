@@ -35,7 +35,18 @@ export function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { supabase } = useSupabase();
-  const [error, setError] = useState<string | null>(() => params.get("error"));
+  const [error, setError] = useState<string | null>(() => {
+    const errorParam = params.get("error");
+    if (errorParam) {
+      // Decode error message if it's URL encoded
+      try {
+        return decodeURIComponent(errorParam);
+      } catch {
+        return errorParam;
+      }
+    }
+    return null;
+  });
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
