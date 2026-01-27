@@ -32,7 +32,7 @@ export default async function MessagesPage() {
   // Get team members for recipient selection
   const { data: teamMembers } = await supabase
     .from("profiles")
-    .select("id, full_name, role, email")
+    .select("id, full_name, role")
     .eq("firm_id", profile.firm_id)
     .neq("role", "client")
     .neq("id", user.id)

@@ -31,8 +31,7 @@ type MessageFormValues = z.infer<typeof messageSchema>;
 type TeamMember = {
   id: string;
   full_name: string | null;
-  role: string;
-  email?: string;
+  role: string | null;
 };
 
 type MessageComposerProps = {
@@ -124,7 +123,7 @@ export function MessageComposer({
             <SelectContent>
               {teamMembers.map((member) => (
                 <SelectItem key={member.id} value={member.id}>
-                  {member.full_name || member.email || "Unknown"} ({member.role})
+                  {member.full_name || "Unknown"} ({member.role || "No role"})
                 </SelectItem>
               ))}
             </SelectContent>
