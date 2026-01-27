@@ -691,10 +691,9 @@ export async function createUser(
     }
 
     // Verify profile was created correctly
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: verifyProfile, error: verifyError } = await (supabaseAdminClient as any)
+    const { data: verifyProfile, error: verifyError } = await supabaseAdminClient
       .from("profiles")
-      .select("id, firm_id, role, created_by, full_name")
+      .select("id, firm_id, role, full_name")
       .eq("id", newUser.user.id)
       .single();
 
@@ -710,12 +709,11 @@ export async function createUser(
       };
     }
 
-    // Type assertion for verifyProfile - cast through unknown first
-    const verifiedProfile = verifyProfile as unknown as {
+    // Type assertion for verifyProfile
+    const verifiedProfile = verifyProfile as {
       id: string;
       firm_id: string | null;
       role: string | null;
-      created_by: string | null;
       full_name: string | null;
     };
 
@@ -748,39 +746,18 @@ export async function createUser(
       }
     }
 
-    if (verifiedProfile.created_by !== user.id) {
-      console.error("Profile created_by mismatch:", {
-        expected: user.id,
-        actual: verifiedProfile.created_by,
-      });
-      // Try to fix created_by
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: fixCreatedByError } = await (supabaseAdminClient as any)
-        .from("profiles")
-        .update({ created_by: user.id })
-        .eq("id", newUser.user.id);
-
-      if (fixCreatedByError) {
-        console.error("Failed to fix created_by:", fixCreatedByError);
-        // Don't fail the operation for this, just log it
-      }
-    }
-
     // Final verification: Ensure the team member is properly set up
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: finalCheck } = await (supabaseAdminClient as any)
+    const { data: finalCheck } = await supabaseAdminClient
       .from("profiles")
-      .select("id, firm_id, role, created_by, full_name, email")
+      .select("id, firm_id, role, full_name")
       .eq("id", newUser.user.id)
       .single();
 
-    const finalProfile = finalCheck as unknown as {
+    const finalProfile = finalCheck as {
       id: string;
       firm_id: string | null;
       role: string | null;
-      created_by: string | null;
       full_name: string | null;
-      email?: string | null;
     } | null;
 
     if (!finalProfile || finalProfile.firm_id !== actorProfile.firm_id || finalProfile.role !== parsed.data.role) {

@@ -65,47 +65,14 @@ export default async function SettingsPage() {
     .order("updated_at", { ascending: false });
 
   // Fetch all team members (excluding clients from team view, but include all roles)
-  // Note: email is not in profiles table, it's in auth.users, so we don't select it
-  let team: Array<{ id: string; full_name?: string | null; role?: string | null; created_by?: string | null }> | null = null;
-  let teamError: any = null;
-
-  // First try with created_by
-  const { data: teamWithCreatedBy, error: errorWithCreatedBy } = await supabase
+  // Note: email is not in profiles table, it's in auth.users
+  // Note: created_by column doesn't exist in profiles table
+  const { data: team, error: teamError } = await supabase
     .from("profiles")
-    .select("id, full_name, role, created_by")
+    .select("id, full_name, role")
     .eq("firm_id", profile.firm_id)
     .neq("role", "client")
     .order("full_name");
-
-  if (errorWithCreatedBy) {
-    const errorMessage = errorWithCreatedBy.message || JSON.stringify(errorWithCreatedBy);
-    // If error is related to created_by column, try without it
-    if (errorMessage.includes("created_by") || errorMessage.includes("column") || errorMessage.includes("does not exist")) {
-      console.warn("Error fetching with created_by, trying without:", errorWithCreatedBy);
-      const { data: teamFallback, error: fallbackError } = await supabase
-        .from("profiles")
-        .select("id, full_name, role")
-        .eq("firm_id", profile.firm_id)
-        .neq("role", "client")
-        .order("full_name");
-      
-      if (fallbackError) {
-        console.error("Error fetching team members (fallback):", fallbackError);
-        teamError = fallbackError;
-      } else {
-        // Map fallback data to include created_by as null
-        team = (teamFallback ?? []).map((member) => ({
-          ...member,
-          created_by: null,
-        }));
-      }
-    } else {
-      console.error("Error fetching team members:", errorWithCreatedBy);
-      teamError = errorWithCreatedBy;
-    }
-  } else {
-    team = teamWithCreatedBy;
-  }
 
   const inviteRows =
     invitations?.map((invite) => ({
