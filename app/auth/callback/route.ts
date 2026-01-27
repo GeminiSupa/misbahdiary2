@@ -26,8 +26,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Create response for redirect
-  const response = NextResponse.redirect(new URL("/", requestUrl.origin));
+  // Create response - we'll set the redirect after session is created
+  let response = NextResponse.next();
 
   try {
     const supabase = createSupabaseRouteHandlerClient(request, response);
@@ -53,10 +53,29 @@ export async function GET(request: Request) {
     }
 
     console.log("OAuth callback successful, redirecting to home page");
+    
+    // Create final redirect response with cookies from tempResponse
+    const homeUrl = new URL("/", requestUrl.origin);
+    const finalResponse = NextResponse.redirect(homeUrl, {
+      status: 302,
+    });
+    
+    // Copy all cookies from response to finalResponse
+    response.cookies.getAll().forEach((cookie) => {
+      finalResponse.cookies.set(cookie.name, cookie.value, {
+        path: cookie.path || "/",
+        domain: cookie.domain,
+        maxAge: cookie.maxAge,
+        httpOnly: cookie.httpOnly,
+        secure: cookie.secure,
+        sameSite: cookie.sameSite as "strict" | "lax" | "none" | undefined,
+      });
+    });
+    
     // After successful OAuth, redirect to home page
     // The home page (app/page.tsx) will check if user has firm_id
     // and redirect to /onboarding if needed, or /dashboard if they have a firm
-    return response;
+    return finalResponse;
   } catch (err) {
     console.error("Unexpected error in OAuth callback:", {
       error: err,
