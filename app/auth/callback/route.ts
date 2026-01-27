@@ -52,12 +52,37 @@ export async function GET(request: Request) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    console.log("OAuth callback successful, redirecting to home page");
+    console.log("OAuth callback successful");
     
-    // Create final redirect response with cookies from tempResponse
-    const homeUrl = new URL("/", requestUrl.origin);
-    const finalResponse = NextResponse.redirect(homeUrl, {
-      status: 302,
+    // For popup flow, return an HTML page that closes the popup and notifies parent
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Authentication Successful</title>
+        </head>
+        <body>
+          <script>
+            // Close popup and notify parent window
+            if (window.opener) {
+              window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
+              window.close();
+            } else {
+              // If not in popup, redirect normally
+              window.location.href = '/';
+            }
+          </script>
+          <p>Authentication successful. You can close this window.</p>
+        </body>
+      </html>
+    `;
+    
+    // Create response with cookies and HTML content
+    const finalResponse = new NextResponse(html, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html",
+      },
     });
     
     // Copy all cookies from response to finalResponse
@@ -72,9 +97,6 @@ export async function GET(request: Request) {
       });
     });
     
-    // After successful OAuth, redirect to home page
-    // The home page (app/page.tsx) will check if user has firm_id
-    // and redirect to /onboarding if needed, or /dashboard if they have a firm
     return finalResponse;
   } catch (err) {
     console.error("Unexpected error in OAuth callback:", {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -65,6 +65,33 @@ export function SignInForm() {
       email: params.get("email") ?? "",
     },
   });
+
+  // Listen for OAuth success message from popup
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      // Verify message origin
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data?.type === "OAUTH_SUCCESS") {
+        setIsOAuthLoading(false);
+        // Check session and redirect
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            router.replace("/");
+            router.refresh();
+          } else {
+            setError("Authentication failed. Please try again.");
+          }
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [router, supabase]);
 
   const handlePasswordSignIn = async (values: CredentialsFormValues) => {
     if (!supabase) {
@@ -134,11 +161,12 @@ export function SignInForm() {
         process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
         window.location.origin.concat("/auth/callback");
 
+      // Use popup flow to avoid Chrome bounce tracking issues
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
-          skipBrowserRedirect: false,
+          skipBrowserRedirect: true, // We'll handle the redirect manually
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -151,10 +179,77 @@ export function SignInForm() {
         setError(oauthError.message || "Failed to sign in with Google. Please try again.");
         setIsOAuthLoading(false);
       } else if (data?.url) {
-        console.log("Redirecting to Google OAuth:", data.url);
-        // Redirect to Google OAuth page
-        // The PKCE code verifier is automatically stored in cookies by createBrowserClient
-        window.location.href = data.url;
+        console.log("Opening Google OAuth in popup:", data.url);
+        
+        // Open OAuth in a popup window to maintain user interaction context
+        const popup = window.open(
+          data.url,
+          "google-oauth",
+          "width=500,height=600,scrollbars=yes,resizable=yes"
+        );
+
+        if (!popup) {
+          setError("Popup blocked. Please allow popups for this site and try again.");
+          setIsOAuthLoading(false);
+          return;
+        }
+
+        // Listen for the callback
+        const checkPopup = setInterval(async () => {
+          try {
+            if (popup.closed) {
+              clearInterval(checkPopup);
+              setIsOAuthLoading(false);
+              
+              // Check if we have a session
+              const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+              
+              if (sessionError || !session) {
+                setError("Authentication failed or was cancelled. Please try again.");
+              } else {
+                // Success - redirect to home page
+                router.replace("/");
+                router.refresh();
+              }
+            } else {
+              // Check if popup has navigated to our callback URL
+              try {
+                const popupUrl = popup.location.href;
+                if (popupUrl.includes("/auth/callback")) {
+                  clearInterval(checkPopup);
+                  popup.close();
+                  setIsOAuthLoading(false);
+                  
+                  // Wait a moment for session to be set, then redirect
+                  setTimeout(async () => {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session) {
+                      router.replace("/");
+                      router.refresh();
+                    } else {
+                      setError("Authentication failed. Please try again.");
+                    }
+                  }, 500);
+                }
+              } catch (e) {
+                // Cross-origin error - popup is still on Google/Supabase domain
+                // This is expected, continue checking
+              }
+            }
+          } catch (err) {
+            console.error("Error checking popup:", err);
+          }
+        }, 500);
+
+        // Timeout after 5 minutes
+        setTimeout(() => {
+          if (!popup.closed) {
+            clearInterval(checkPopup);
+            popup.close();
+            setIsOAuthLoading(false);
+            setError("Authentication timed out. Please try again.");
+          }
+        }, 300000);
       } else {
         console.error("No URL returned from OAuth:", { data, oauthError });
         setError("Failed to initiate Google sign-in. Please try again.");
