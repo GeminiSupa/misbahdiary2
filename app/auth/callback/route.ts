@@ -4,7 +4,9 @@ import { createSupabaseRouteHandlerClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") ?? "/dashboard";
+  
+  // Default to home page, which will handle routing to dashboard or onboarding
+  const next = requestUrl.searchParams.get("next") ?? "/";
   const response = NextResponse.redirect(new URL(next, requestUrl.origin));
 
   if (!code) {
@@ -20,7 +22,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  return response;
+  // After successful OAuth, redirect to home page
+  // The home page (app/page.tsx) will check if user has firm_id
+  // and redirect to /onboarding if needed, or /dashboard if they have a firm
+  return NextResponse.redirect(new URL("/", requestUrl.origin));
 }
 
 
