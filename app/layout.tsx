@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Lawyer Diary & Case Management",
   description:
     "Modern legal practice management software tailored for Pakistani law firms and solo practitioners.",
-  // Auto-deploy test - commit 2026-01-28
+  // Latest commit test - 2026-01-28 - Vercel auto-deploy verification
 };
 
 export default async function RootLayout({
