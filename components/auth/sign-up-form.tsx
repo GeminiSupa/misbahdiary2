@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -30,13 +31,27 @@ const signUpSchema = z
     "Password must be at least 8 characters long",
   );
 
+const verifySchema = z.object({
+  code: z
+    .string()
+    .min(4, "Enter the code from your email")
+    .max(12, "Enter the code from your email"),
+});
+
 type SignUpValues = z.infer<typeof signUpSchema>;
+type VerifyValues = z.infer<typeof verifySchema>;
 
 export function SignUpForm() {
   const router = useRouter();
   const { supabase } = useSupabase();
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [step, setStep] = useState<"request" | "verify">("request");
+  const [pendingEmail, setPendingEmail] = useState<string>("");
+  const [pendingPassword, setPendingPassword] = useState<string>("");
+  const [pendingFullName, setPendingFullName] = useState<string>("");
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -47,36 +62,140 @@ export function SignUpForm() {
     },
   });
 
-  const handleSignUp = async (values: SignUpValues) => {
+  const verifyForm = useForm<VerifyValues>({
+    resolver: zodResolver(verifySchema),
+    defaultValues: { code: "" },
+  });
+
+  const siteUrl = useMemo(() => {
+    if (typeof window === "undefined") return process.env.NEXT_PUBLIC_SITE_URL ?? "";
+    return process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+  }, []);
+
+  const callbackUrl = useMemo(() => {
+    // Used by Supabase in some auth flows; safe to provide here too.
+    const base = siteUrl || (typeof window !== "undefined" ? window.location.origin : "");
+    return base ? `${base}/auth/callback` : "";
+  }, [siteUrl]);
+
+  const sendOtp = async (values: SignUpValues) => {
     if (!supabase) {
       setError("Authentication service is not ready. Please try again.");
       return;
     }
 
     setError(null);
+    setInfo(null);
     setIsSubmitting(true);
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email: values.email.trim(),
-      password: values.password,
+    // Store in memory only (do NOT persist). We need the password after OTP verification.
+    const email = values.email.trim();
+    const password = values.password;
+    const fullName = values.fullName.trim();
+    setPendingEmail(email);
+    setPendingPassword(password);
+    setPendingFullName(fullName);
+
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
       options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-          "http://localhost:3000/auth/callback",
-        data: {
-          full_name: values.fullName.trim(),
-        },
+        shouldCreateUser: true,
+        // keep metadata for profile creation / onboarding
+        data: { full_name: fullName },
+        ...(callbackUrl ? { emailRedirectTo: callbackUrl } : {}),
       },
     });
 
     setIsSubmitting(false);
 
-    if (signUpError) {
-      setError(signUpError.message);
+    if (otpError) {
+      setError(otpError.message);
       return;
     }
 
-    router.push("/auth/confirm");
+    setInfo("We sent a verification code to your email. Enter it below to finish creating your account.");
+    setStep("verify");
+    verifyForm.reset({ code: "" });
+  };
+
+  const verifyOtpAndSetPassword = async (values: VerifyValues) => {
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      return;
+    }
+    if (!pendingEmail || !pendingPassword) {
+      setError("Please start again and request a new code.");
+      setStep("request");
+      return;
+    }
+
+    setError(null);
+    setInfo(null);
+    setIsSubmitting(true);
+
+    try {
+      const token = values.code.trim();
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: pendingEmail,
+        token,
+        type: "email",
+      });
+
+      if (verifyError) {
+        setError(verifyError.message);
+        return;
+      }
+
+      // Now the user is signed in via OTP; set their password to enable password sign-in later.
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: pendingPassword,
+        data: pendingFullName ? { full_name: pendingFullName } : undefined,
+      });
+
+      if (updateError) {
+        setError(updateError.message);
+        return;
+      }
+
+      // Clear sensitive data ASAP
+      setPendingPassword("");
+
+      router.replace("/");
+      router.refresh();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resendCode = async () => {
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      return;
+    }
+    if (!pendingEmail) {
+      setError("Please enter your email first.");
+      setStep("request");
+      return;
+    }
+
+    setError(null);
+    setInfo(null);
+    setIsSubmitting(true);
+    const { error: resendError } = await supabase.auth.signInWithOtp({
+      email: pendingEmail,
+      options: {
+        shouldCreateUser: true,
+        ...(pendingFullName ? { data: { full_name: pendingFullName } } : {}),
+        ...(callbackUrl ? { emailRedirectTo: callbackUrl } : {}),
+      },
+    });
+    setIsSubmitting(false);
+
+    if (resendError) {
+      setError(resendError.message);
+      return;
+    }
+    setInfo("We sent a new verification code. Please check your inbox.");
   };
 
   // Wait for supabase client to be initialized
@@ -109,72 +228,145 @@ export function SignUpForm() {
         </Alert>
       ) : null}
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSignUp)} className="sap-form">
-          <FormField
-            control={form.control}
-            name="fullName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full name</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Adv. Ayesha Khan"
-                    autoComplete="name"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      {info ? (
+        <Alert className="border-blue-500/50 bg-blue-500/10 backdrop-blur-sm">
+          <AlertTitle className="text-blue-200">Next step</AlertTitle>
+          <AlertDescription className="text-blue-300/90">{info}</AlertDescription>
+        </Alert>
+      ) : null}
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="email"
-                    placeholder="you@lawfirm.pk"
-                    autoComplete="email"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      {step === "request" ? (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(sendOtp)} className="sap-form">
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Adv. Ayesha Khan"
+                      autoComplete="name"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="password"
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="you@lawfirm.pk"
+                      autoComplete="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            Create account
-          </Button>
-        </form>
-      </Form>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Send verification code
+            </Button>
+          </form>
+        </Form>
+      ) : (
+        <Form {...verifyForm}>
+          <form
+            onSubmit={verifyForm.handleSubmit(verifyOtpAndSetPassword)}
+            className="sap-form"
+          >
+            <FormField
+              control={verifyForm.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Verification code</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      inputMode="numeric"
+                      placeholder="Enter the code from your email"
+                      autoComplete="one-time-code"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Verify & create account
+            </Button>
+
+            <div className="flex items-center justify-between text-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setInfo(null);
+                  setStep("request");
+                }}
+                className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+                disabled={isSubmitting}
+              >
+                Change email
+              </button>
+
+              <button
+                type="button"
+                onClick={resendCode}
+                className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+                disabled={isSubmitting}
+              >
+                Resend code
+              </button>
+            </div>
+          </form>
+        </Form>
+      )}
+
+      <div className="pt-2 text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link href="/sign-in" className="underline underline-offset-4 hover:text-foreground">
+          Sign in
+        </Link>
+      </div>
     </div>
   );
 }

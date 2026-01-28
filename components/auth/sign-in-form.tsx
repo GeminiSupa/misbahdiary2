@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -512,6 +513,16 @@ export function SignInForm() {
             </Button>
           </form>
         </Form>
+      </div>
+
+      <div className="pt-2 text-center text-sm text-white/70">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/sign-up"
+          className="text-white underline underline-offset-4 hover:text-white/90"
+        >
+          Create account
+        </Link>
       </div>
     </div>
   );
