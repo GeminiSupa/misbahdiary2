@@ -6,19 +6,18 @@ import { redirect } from "next/navigation";
 export async function initiateGoogleOAuth(): Promise<{ url: string } | { error: string }> {
   const supabase = await createSupabaseServerClient();
   
-  const redirectUrl =
-    process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-    process.env.NEXT_PUBLIC_VERCEL_URL?.concat("/auth/callback") ??
-    "http://localhost:3000/auth/callback";
+  // Build redirect URL - must match Supabase dashboard configuration exactly
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_VERCEL_URL ??
+    "http://localhost:3000";
+  
+  const redirectUrl = `${siteUrl}/auth/callback`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: redirectUrl,
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
     },
   });
 

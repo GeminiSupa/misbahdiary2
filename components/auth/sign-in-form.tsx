@@ -205,46 +205,28 @@ export function SignInForm() {
 
       console.log("🔄 Attempting client-side OAuth with redirect:", redirectUrl);
 
-      // Try Approach 2a: Without queryParams (simplest flow)
+      // Try Approach 2a: Simple OAuth flow (recommended by Supabase)
+      // Use window.location.origin - Supabase will handle the callback routing
       let { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: `${window.location.origin}/auth/callback`,
           skipBrowserRedirect: false,
         },
       });
 
-      // Try Approach 2b: With queryParams if first attempt fails
+      // Try Approach 2b: With explicit redirect URL if first attempt fails
       if (oauthError || !data?.url) {
-        console.log("🔄 Retry: Trying OAuth with queryParams...");
+        console.log("🔄 Retry: Trying OAuth with explicit redirect URL...");
         const retry = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
             redirectTo: redirectUrl,
             skipBrowserRedirect: false,
-            queryParams: {
-              access_type: "offline",
-              prompt: "consent",
-            },
           },
         });
         data = retry.data;
         oauthError = retry.error;
-      }
-
-      // Try Approach 2c: Alternative redirect URL (using /auth/redirect page)
-      if (oauthError || !data?.url) {
-        console.log("🔄 Retry: Trying with alternative redirect page...");
-        const altRedirectUrl = redirectUrl.replace("/auth/callback", "/auth/redirect");
-        const retry2 = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: altRedirectUrl,
-            skipBrowserRedirect: false,
-          },
-        });
-        data = retry2.data;
-        oauthError = retry2.error;
       }
 
       if (oauthError) {
