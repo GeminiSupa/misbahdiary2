@@ -121,44 +121,104 @@ export function SignInForm() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!supabase) {
-      setError("Authentication service is not ready. Please try again.");
-      return;
-    }
-
     setError(null);
     setInfo(null);
     setIsOAuthLoading(true);
 
-    try {
-      const redirectUrl =
-        process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-        window.location.origin.concat("/auth/callback");
+    // Define redirect URL early for use in all approaches
+    const redirectUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
+      window.location.origin.concat("/auth/callback");
 
-      // Use standard full-page redirect (let Supabase handle it)
-      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+    try {
+      // Try multiple approaches in sequence
+      // Approach 1: Server-side OAuth initiation (bypasses client restrictions)
+      try {
+        const { initiateGoogleOAuth } = await import("@/app/(auth)/sign-in/actions");
+        const result = await initiateGoogleOAuth();
+        
+        if ("error" in result) {
+          throw new Error(result.error);
+        }
+        
+        if (result.url) {
+          console.log("✅ Server-side OAuth URL generated, redirecting:", result.url);
+          // Store redirect URL and timestamp for debugging
+          sessionStorage.setItem("oauth_initiated", Date.now().toString());
+          sessionStorage.setItem("oauth_redirect_url", redirectUrl);
+          window.location.href = result.url;
+          return;
+        }
+      } catch (serverError) {
+        console.warn("⚠️ Server-side OAuth failed, trying client-side:", serverError);
+      }
+
+      // Approach 2: Client-side OAuth with multiple parameter variations
+      if (!supabase) {
+        setError("Authentication service is not ready. Please try again.");
+        setIsOAuthLoading(false);
+        return;
+      }
+
+      console.log("🔄 Attempting client-side OAuth with redirect:", redirectUrl);
+
+      // Try Approach 2a: Without queryParams (simplest flow)
+      let { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
-          skipBrowserRedirect: false, // Let Supabase handle the redirect
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
+          skipBrowserRedirect: false,
         },
       });
 
+      // Try Approach 2b: With queryParams if first attempt fails
+      if (oauthError || !data?.url) {
+        console.log("🔄 Retry: Trying OAuth with queryParams...");
+        const retry = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: redirectUrl,
+            skipBrowserRedirect: false,
+            queryParams: {
+              access_type: "offline",
+              prompt: "consent",
+            },
+          },
+        });
+        data = retry.data;
+        oauthError = retry.error;
+      }
+
+      // Try Approach 2c: Alternative redirect URL (using /auth/redirect page)
+      if (oauthError || !data?.url) {
+        console.log("🔄 Retry: Trying with alternative redirect page...");
+        const altRedirectUrl = redirectUrl.replace("/auth/callback", "/auth/redirect");
+        const retry2 = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: altRedirectUrl,
+            skipBrowserRedirect: false,
+          },
+        });
+        data = retry2.data;
+        oauthError = retry2.error;
+      }
+
       if (oauthError) {
-        console.error("OAuth error:", oauthError);
+        console.error("❌ All OAuth attempts failed. Last error:", oauthError);
         setError(oauthError.message || "Failed to sign in with Google. Please try again.");
         setIsOAuthLoading(false);
       } else if (data?.url) {
-        // Simple full-page redirect - Supabase handles the OAuth flow
-        // User interaction context is maintained (user clicked the button)
+        console.log("✅ Client-side OAuth URL generated, redirecting:", data.url);
+        // Store debugging info
+        sessionStorage.setItem("oauth_initiated", Date.now().toString());
+        sessionStorage.setItem("oauth_redirect_url", redirectUrl);
+        sessionStorage.setItem("oauth_url", data.url);
+        // Immediate redirect
         window.location.href = data.url;
       } else {
-        console.error("No URL returned from OAuth:", { data, oauthError });
-        setError("Failed to initiate Google sign-in. Please try again.");
+        console.error("❌ No URL returned from any OAuth attempt:", { data, oauthError });
+        setError("Failed to initiate Google sign-in. Please check your browser console for details.");
         setIsOAuthLoading(false);
       }
     } catch (err) {

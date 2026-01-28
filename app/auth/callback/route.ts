@@ -26,9 +26,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Create redirect response - cookies will be set by Supabase client
+  // Try multiple approaches to ensure cookies are set properly
+  // Approach 1: Create redirect response first, then set cookies
   const homeUrl = new URL("/", requestUrl.origin);
-  const response = NextResponse.redirect(homeUrl);
+  let response = NextResponse.redirect(homeUrl);
 
   try {
     const supabase = createSupabaseRouteHandlerClient(request, response);
@@ -54,12 +55,42 @@ export async function GET(request: Request) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    console.log("OAuth callback successful, redirecting to home page");
+    console.log("✅ OAuth callback successful! Session created:", {
+      userId: data.session.user.id,
+      email: data.session.user.email,
+      expiresAt: data.session.expires_at,
+    });
     
-    // Standard redirect - cookies are already set by createSupabaseRouteHandlerClient
+    // Ensure cookies are properly set by recreating response with cookies
+    const finalResponse = NextResponse.redirect(homeUrl, {
+      status: 302,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "X-OAuth-Success": "true",
+      },
+    });
+    
+    // Copy all cookies from the Supabase client response
+    const cookiesSet: string[] = [];
+    response.cookies.getAll().forEach((cookie) => {
+      cookiesSet.push(cookie.name);
+      finalResponse.cookies.set(cookie.name, cookie.value, {
+        path: cookie.path || "/",
+        domain: cookie.domain,
+        maxAge: cookie.maxAge || 60 * 60 * 24 * 7, // 7 days default
+        httpOnly: cookie.httpOnly ?? true,
+        secure: cookie.secure ?? true,
+        sameSite: (cookie.sameSite as "strict" | "lax" | "none") || "lax",
+      });
+    });
+    
+    console.log("🍪 Cookies set in response:", cookiesSet);
+    
     // The home page (app/page.tsx) will check if user has firm_id
     // and redirect to /onboarding if needed, or /dashboard if they have a firm
-    return response;
+    return finalResponse;
   } catch (err) {
     console.error("Unexpected error in OAuth callback:", {
       error: err,
