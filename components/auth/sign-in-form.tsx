@@ -171,81 +171,75 @@ export function SignInForm() {
       process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
       window.location.origin.concat("/auth/callback");
 
+    // CRITICAL: Must use client-side OAuth to store PKCE code verifier in cookies
+    // Server-side OAuth doesn't store the code verifier in cookies, causing PKCE errors
+    if (!supabase) {
+      setError("Authentication service is not ready. Please try again.");
+      setIsOAuthLoading(false);
+      return;
+    }
+
     try {
-      // Try multiple approaches in sequence
-      // Approach 1: Server-side OAuth initiation (bypasses client restrictions)
-      try {
-        const { initiateGoogleOAuth } = await import("@/app/(auth)/sign-in/actions");
-        const result = await initiateGoogleOAuth();
-        
-        if ("error" in result) {
-          throw new Error(result.error);
-        }
-        
-        if (result.url) {
-          console.log("✅ Server-side OAuth URL generated, redirecting:", result.url);
-          // Store redirect URL and timestamp for debugging
-          sessionStorage.setItem("oauth_initiated", Date.now().toString());
-          sessionStorage.setItem("oauth_redirect_url", redirectUrl);
-          // Note: Console warnings will be suppressed during Google OAuth flow
-          // This is intentional to filter out Google's account chooser accessibility warnings
-          window.location.href = result.url;
-          return;
-        }
-      } catch (serverError) {
-        console.warn("⚠️ Server-side OAuth failed, trying client-side:", serverError);
-      }
+      console.log("🔄 Initiating client-side OAuth (required for PKCE cookie storage):", redirectUrl);
 
-      // Approach 2: Client-side OAuth with multiple parameter variations
-      if (!supabase) {
-        setError("Authentication service is not ready. Please try again.");
-        setIsOAuthLoading(false);
-        return;
-      }
-
-      console.log("🔄 Attempting client-side OAuth with redirect:", redirectUrl);
-
-      // Try Approach 2a: Simple OAuth flow (recommended by Supabase)
-      // Use window.location.origin - Supabase will handle the callback routing
-      let { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+      // Use client-side OAuth - createBrowserClient from @supabase/ssr automatically
+      // stores the PKCE code verifier in cookies, which the callback route can read
+      // CRITICAL: Use skipBrowserRedirect: true and handle redirect manually
+      // This ensures the cookie is set before redirecting
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: false,
+          redirectTo: redirectUrl,
+          // skipBrowserRedirect: true means we handle the redirect manually
+          // This gives us control to ensure the cookie is set before redirecting
+          skipBrowserRedirect: true,
         },
       });
 
-      // Try Approach 2b: With explicit redirect URL if first attempt fails
-      if (oauthError || !data?.url) {
-        console.log("🔄 Retry: Trying OAuth with explicit redirect URL...");
-        const retry = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: redirectUrl,
-            skipBrowserRedirect: false,
-          },
-        });
-        data = retry.data;
-        oauthError = retry.error;
-      }
-
       if (oauthError) {
-        console.error("❌ All OAuth attempts failed. Last error:", oauthError);
+        restoreConsole(); // Restore console before showing error
+        console.error("❌ OAuth initiation failed:", oauthError);
         setError(oauthError.message || "Failed to sign in with Google. Please try again.");
         setIsOAuthLoading(false);
       } else if (data?.url) {
-        console.log("✅ Client-side OAuth URL generated, redirecting:", data.url);
-        // Store debugging info
-        sessionStorage.setItem("oauth_initiated", Date.now().toString());
-        sessionStorage.setItem("oauth_redirect_url", redirectUrl);
-        sessionStorage.setItem("oauth_url", data.url);
+        console.log("✅ OAuth URL generated");
+        console.log("🔐 PKCE code verifier should be stored in cookies by @supabase/ssr");
+        
+        // Wait a moment for cookie to be set by createBrowserClient
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Check if code verifier cookie was set (for debugging)
+        const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+        const codeVerifierCookieName = projectRef ? `sb-${projectRef}-auth-token-code-verifier` : "auth-token-code-verifier";
+        const allCookies = document.cookie.split(";").map(c => c.trim());
+        const codeVerifierCookie = allCookies.find(c => c.startsWith(codeVerifierCookieName));
+        const hasCodeVerifier = !!codeVerifierCookie;
+        
+        console.log("🍪 Code verifier cookie check:", {
+          cookieName: codeVerifierCookieName,
+          hasCookie: hasCodeVerifier,
+          cookieValue: codeVerifierCookie ? codeVerifierCookie.substring(0, 50) + "..." : "NOT FOUND",
+          allCookieNames: allCookies.map(c => c.split("=")[0]),
+        });
+        
+        if (!hasCodeVerifier) {
+          console.error("❌ ERROR: PKCE code verifier cookie not found!");
+          console.error("   This will cause 'PKCE code verifier not found' error in callback");
+          console.error("   The cookie should be set automatically by @supabase/ssr");
+          restoreConsole();
+          setError("Failed to initialize authentication. Please try again.");
+          setIsOAuthLoading(false);
+          return;
+        }
+        
+        console.log("✅ Cookie verified, redirecting to Google...");
         // Note: Console warnings will be suppressed during Google OAuth flow
         // This is intentional to filter out Google's account chooser accessibility warnings
-        // Immediate redirect
+        // Now redirect manually after confirming cookie is set
         window.location.href = data.url;
       } else {
         restoreConsole(); // Restore console before showing error
-        console.error("❌ No URL returned from any OAuth attempt:", { data, oauthError });
+        console.error("❌ No URL returned from OAuth:", { data, oauthError });
         setError("Failed to initiate Google sign-in. Please check your browser console for details.");
         setIsOAuthLoading(false);
       }

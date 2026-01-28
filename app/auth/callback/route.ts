@@ -6,10 +6,27 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get("code");
   const errorParam = requestUrl.searchParams.get("error");
   const errorDescription = requestUrl.searchParams.get("error_description");
+  const state = requestUrl.searchParams.get("state");
+
+  // Log all incoming parameters for debugging
+  console.log("🔔 OAuth Callback received:", {
+    hasCode: !!code,
+    hasError: !!errorParam,
+    error: errorParam,
+    errorDescription,
+    hasState: !!state,
+    origin: requestUrl.origin,
+    pathname: requestUrl.pathname,
+    searchParams: Object.fromEntries(requestUrl.searchParams.entries()),
+  });
 
   // Check for OAuth provider errors (e.g., user denied access)
   if (errorParam) {
-    console.error("OAuth error:", errorParam, errorDescription);
+    console.error("❌ OAuth provider error:", {
+      error: errorParam,
+      description: errorDescription,
+      fullUrl: requestUrl.toString(),
+    });
     const redirectUrl = new URL("/sign-in", requestUrl.origin);
     redirectUrl.searchParams.set(
       "error",
@@ -20,28 +37,94 @@ export async function GET(request: Request) {
 
   // If no code, redirect to sign-in with error
   if (!code) {
-    console.error("No authorization code received in OAuth callback");
+    console.error("❌ No authorization code received in OAuth callback", {
+      url: requestUrl.toString(),
+      searchParams: Object.fromEntries(requestUrl.searchParams.entries()),
+    });
     const redirectUrl = new URL("/sign-in", requestUrl.origin);
     redirectUrl.searchParams.set("error", "No authorization code received. Please try again.");
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Try multiple approaches to ensure cookies are set properly
-  // Approach 1: Create redirect response first, then set cookies
-  const homeUrl = new URL("/", requestUrl.origin);
+  // Extract the site URL from the state parameter if available
+  // This ensures we redirect to the correct origin even if request comes from Supabase
+  let redirectOrigin = requestUrl.origin;
+  
+  try {
+    const stateParam = requestUrl.searchParams.get("state");
+    if (stateParam) {
+      // Decode JWT state to get site_url
+      const statePayload = JSON.parse(
+        Buffer.from(stateParam.split(".")[1], "base64").toString()
+      );
+      if (statePayload.site_url) {
+        redirectOrigin = new URL(statePayload.site_url).origin;
+        console.log("🔍 Using site_url from state:", redirectOrigin);
+      }
+    }
+  } catch (e) {
+    // If state parsing fails, use request origin (fallback)
+    console.log("⚠️ Could not parse state, using request origin:", redirectOrigin);
+  }
+
+  // Create redirect response - use the correct origin
+  const homeUrl = new URL("/", redirectOrigin);
   let response = NextResponse.redirect(homeUrl);
 
   try {
+    // CRITICAL: Use createSupabaseRouteHandlerClient which reads cookies
+    // The PKCE code verifier must be in cookies (set by client-side OAuth initiation)
+    
+    // Debug: Log all cookies received
+    const cookieHeader = request.headers.get("cookie") || "";
+    const allCookies = cookieHeader.split(";").map(c => c.trim());
+    console.log("🍪 All cookies received:", {
+      cookieCount: allCookies.length,
+      cookieNames: allCookies.map(c => c.split("=")[0]),
+      hasAuthCookie: cookieHeader.includes("auth-token"),
+      hasCodeVerifier: cookieHeader.includes("code-verifier"),
+    });
+    
+    // Check for PKCE code verifier cookie specifically
+    const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+    const codeVerifierCookieName = projectRef ? `sb-${projectRef}-auth-token-code-verifier` : "auth-token-code-verifier";
+    const hasCodeVerifier = cookieHeader.includes(codeVerifierCookieName);
+    console.log("🔐 PKCE Code Verifier Check:", {
+      projectRef,
+      codeVerifierCookieName,
+      hasCodeVerifier,
+      cookieHeader: cookieHeader.substring(0, 200) + "...", // First 200 chars
+    });
+    
     const supabase = createSupabaseRouteHandlerClient(request, response);
+    
+    console.log("🔐 Attempting to exchange code for session...");
+    console.log("📋 Code received:", code?.substring(0, 20) + "...");
+    
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      console.error("Error exchanging code for session:", {
+      console.error("❌ Error exchanging code for session:", {
         message: error.message,
         status: error.status,
         name: error.name,
         code: code?.substring(0, 20) + "...",
+        fullError: error,
+        requestUrl: requestUrl.toString(),
       });
+      
+      // Log specific error types for better debugging
+      if (error.message.includes("PKCE")) {
+        console.error("🔍 PKCE Error - This usually means:");
+        console.error("   - Cookies not being set properly");
+        console.error("   - OAuth flow initiated in different browser/device");
+        console.error("   - Storage was cleared during OAuth flow");
+      }
+      if (error.message.includes("redirect_uri")) {
+        console.error("🔍 Redirect URI Error - This usually means:");
+        console.error("   - Redirect URL mismatch in Supabase settings");
+        console.error("   - Redirect URL mismatch in Google Cloud Console");
+      }
       
       const redirectUrl = new URL("/sign-in", requestUrl.origin);
       redirectUrl.searchParams.set("error", error.message || "Failed to complete authentication. Please try again.");

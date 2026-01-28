@@ -39,6 +39,9 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
 
   // createBrowserClient from @supabase/ssr automatically handles cookies for PKCE
   // It uses document.cookie internally, so we don't need to configure it manually
+  // The code verifier will be stored in cookies automatically when signInWithOAuth is called
+  // NOTE: If PKCE errors occur, the cookie might not be persisting through redirects
+  // This could be due to cookie attributes (SameSite, Secure) or browser settings
   browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
   return browserClient;
 };
