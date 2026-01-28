@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Sign In • Lawyer Diary",
@@ -89,6 +89,15 @@ export default function AuthLayout({
           <p className="text-xs text-white/40 sm:text-sm">
             Secure • Professional • Trusted
           </p>
+          <div className="mt-2 flex items-center justify-center gap-3 text-xs text-white/50">
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-white/70">
+              Privacy Policy
+            </Link>
+            <span aria-hidden="true">•</span>
+            <Link href="/terms" className="underline underline-offset-4 hover:text-white/70">
+              Terms
+            </Link>
+          </div>
         </div>
       </div>
     </div>

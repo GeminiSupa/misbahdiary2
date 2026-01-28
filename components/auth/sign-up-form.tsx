@@ -202,9 +202,9 @@ export function SignUpForm() {
   if (!supabase) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
-          <p className="text-sm text-muted-foreground">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">Create account</h1>
+          <p className="mt-2 text-sm text-white/70 sm:text-base">
             Loading...
           </p>
         </div>
@@ -214,17 +214,17 @@ export function SignUpForm() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Create account</h1>
-        <p className="text-sm text-muted-foreground">
+      <div className="text-center sm:text-left">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">Create account</h1>
+        <p className="mt-2 text-sm text-white/70 sm:text-base">
           Start managing cases, clients, and hearings in one place.
         </p>
       </div>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertTitle>Unable to sign up</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="border-red-500/50 bg-red-500/10 backdrop-blur-sm">
+          <AlertTitle className="text-red-200">Unable to sign up</AlertTitle>
+          <AlertDescription className="text-red-300/90">{error}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -237,21 +237,22 @@ export function SignUpForm() {
 
       {step === "request" ? (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(sendOtp)} className="sap-form">
+          <form onSubmit={form.handleSubmit(sendOtp)} className="space-y-5">
             <FormField
               control={form.control}
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full name</FormLabel>
+                  <FormLabel className="text-white/90">Full name</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="Adv. Ayesha Khan"
                       autoComplete="name"
+                      className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -261,16 +262,17 @@ export function SignUpForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-white/90">Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       type="email"
                       placeholder="you@lawfirm.pk"
                       autoComplete="email"
+                      className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -280,25 +282,34 @@ export function SignUpForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-white/90">Password</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       type="password"
                       placeholder="••••••••"
                       autoComplete="new-password"
+                      className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Send verification code
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send verification code"
+              )}
             </Button>
           </form>
         </Form>
@@ -306,32 +317,41 @@ export function SignUpForm() {
         <Form {...verifyForm}>
           <form
             onSubmit={verifyForm.handleSubmit(verifyOtpAndSetPassword)}
-            className="sap-form"
+            className="space-y-5"
           >
             <FormField
               control={verifyForm.control}
               name="code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Verification code</FormLabel>
+                  <FormLabel className="text-white/90">Verification code</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       inputMode="numeric"
                       placeholder="Enter the code from your email"
                       autoComplete="one-time-code"
+                      className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Verify & create account
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify & create account"
+              )}
             </Button>
 
             <div className="flex items-center justify-between text-sm">
@@ -351,7 +371,7 @@ export function SignUpForm() {
               <button
                 type="button"
                 onClick={resendCode}
-                className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+                className="text-white/70 hover:text-white underline underline-offset-4"
                 disabled={isSubmitting}
               >
                 Resend code
@@ -361,9 +381,9 @@ export function SignUpForm() {
         </Form>
       )}
 
-      <div className="pt-2 text-center text-sm text-muted-foreground">
+      <div className="pt-2 text-center text-sm text-white/70">
         Already have an account?{" "}
-        <Link href="/sign-in" className="underline underline-offset-4 hover:text-foreground">
+        <Link href="/sign-in" className="text-white underline underline-offset-4 hover:text-white/90">
           Sign in
         </Link>
       </div>
