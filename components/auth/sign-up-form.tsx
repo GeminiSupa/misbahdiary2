@@ -68,8 +68,9 @@ export function SignUpForm() {
   });
 
   const siteUrl = useMemo(() => {
-    if (typeof window === "undefined") return process.env.NEXT_PUBLIC_SITE_URL ?? "";
-    return process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+    // IMPORTANT: prefer the current browser origin to avoid hostname mismatches (0.0.0.0 vs localhost).
+    if (typeof window !== "undefined") return window.location.origin;
+    return process.env.NEXT_PUBLIC_SITE_URL ?? "";
   }, []);
 
   const callbackUrl = useMemo(() => {

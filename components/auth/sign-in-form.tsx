@@ -178,10 +178,10 @@ export function SignInForm() {
     // Suppress warnings before redirect
     suppressGoogleOAuthWarnings();
 
-    // Define redirect URL early for use in all approaches
-    const redirectUrl =
-      process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-      window.location.origin.concat("/auth/callback");
+    // IMPORTANT: redirectTo MUST use the same hostname the user is currently on.
+    // Example bug: user visits http://0.0.0.0:3000 but redirectTo is http://localhost:3000/auth/callback
+    // -> PKCE cookie is set for one host, callback returns to another -> "PKCE code verifier not found".
+    const redirectUrl = window.location.origin.concat("/auth/callback");
 
     console.log("🔗 Redirect URL:", redirectUrl);
     console.log("🔗 Site URL env:", process.env.NEXT_PUBLIC_SITE_URL);
@@ -286,9 +286,7 @@ export function SignInForm() {
       const { error: magicError } = await supabase.auth.signInWithOtp({
         email: values.email.trim(),
         options: {
-          emailRedirectTo:
-            process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-            "http://localhost:3000/auth/callback",
+          emailRedirectTo: window.location.origin.concat("/auth/callback"),
         },
       });
 
