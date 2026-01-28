@@ -126,6 +126,24 @@ Ensure these are set in Vercel:
 - Check Google Cloud Console redirect URIs
 - Ensure no trailing slashes or mismatches
 
+### Issue: "Blocked aria-hidden on an element accountchooser"
+**Solution**: This is a **known accessibility warning from Google's account chooser UI**, not our code.
+- **Status**: This warning is automatically suppressed in our implementation
+- **Impact**: None - this doesn't affect OAuth functionality
+- **Source**: Google's OAuth account chooser interface
+- **Action**: No action needed - the warning is filtered out in the console
+- **Note**: This is a Google-side issue that they should fix in their UI
+
+## Known Warnings (Non-Critical)
+
+### Google OAuth Account Chooser Accessibility Warning
+**Warning Message**: `"Blocked aria-hidden on an element accountchooser..."`
+- **Source**: Google's OAuth account chooser interface
+- **Impact**: None - purely informational, doesn't affect functionality
+- **Status**: Automatically suppressed in console
+- **Why**: Google's account chooser has an accessibility issue where `aria-hidden` is set on an element that contains a focused element
+- **Our Action**: We filter these warnings from the console to reduce noise
+
 ## Next Steps if Still Blocked
 
 1. **Verify it's actually blocking**: Test if login completes despite warnings

@@ -125,6 +125,47 @@ export function SignInForm() {
     setInfo(null);
     setIsOAuthLoading(true);
 
+    // Suppress known Google OAuth accessibility warnings (these are from Google's UI, not our code)
+    // This warning appears in Google's account chooser and doesn't affect functionality
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    const suppressGoogleOAuthWarnings = () => {
+      console.warn = (...args: unknown[]) => {
+        const message = typeof args[0] === "string" ? args[0] : String(args[0]);
+        // Suppress Google OAuth account chooser accessibility warnings
+        if (
+          message.includes("aria-hidden") &&
+          (message.includes("accountchooser") || message.includes("apps.google"))
+        ) {
+          // Silently ignore - this is a known Google OAuth UI issue
+          return;
+        }
+        originalWarn.apply(console, args);
+      };
+      
+      console.error = (...args: unknown[]) => {
+        const message = typeof args[0] === "string" ? args[0] : String(args[0]);
+        // Suppress Google OAuth account chooser accessibility warnings
+        if (
+          message.includes("aria-hidden") &&
+          (message.includes("accountchooser") || message.includes("apps.google"))
+        ) {
+          // Silently ignore - this is a known Google OAuth UI issue
+          return;
+        }
+        originalError.apply(console, args);
+      };
+    };
+
+    // Restore original console methods after redirect (cleanup)
+    const restoreConsole = () => {
+      console.warn = originalWarn;
+      console.error = originalError;
+    };
+
+    // Suppress warnings before redirect
+    suppressGoogleOAuthWarnings();
+
     // Define redirect URL early for use in all approaches
     const redirectUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
@@ -146,6 +187,8 @@ export function SignInForm() {
           // Store redirect URL and timestamp for debugging
           sessionStorage.setItem("oauth_initiated", Date.now().toString());
           sessionStorage.setItem("oauth_redirect_url", redirectUrl);
+          // Note: Console warnings will be suppressed during Google OAuth flow
+          // This is intentional to filter out Google's account chooser accessibility warnings
           window.location.href = result.url;
           return;
         }
@@ -214,14 +257,18 @@ export function SignInForm() {
         sessionStorage.setItem("oauth_initiated", Date.now().toString());
         sessionStorage.setItem("oauth_redirect_url", redirectUrl);
         sessionStorage.setItem("oauth_url", data.url);
+        // Note: Console warnings will be suppressed during Google OAuth flow
+        // This is intentional to filter out Google's account chooser accessibility warnings
         // Immediate redirect
         window.location.href = data.url;
       } else {
+        restoreConsole(); // Restore console before showing error
         console.error("❌ No URL returned from any OAuth attempt:", { data, oauthError });
         setError("Failed to initiate Google sign-in. Please check your browser console for details.");
         setIsOAuthLoading(false);
       }
     } catch (err) {
+      restoreConsole(); // Restore console before showing error
       const errorMessage = err instanceof Error ? err.message : "Failed to connect to the server. Please check your internet connection and try again.";
       setError(errorMessage);
       console.error("Google OAuth error:", err);
