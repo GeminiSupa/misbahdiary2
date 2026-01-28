@@ -121,9 +121,20 @@ export function SignInForm() {
   };
 
   const handleGoogleSignIn = async () => {
+    console.log("🔵 Google Sign-In button clicked");
     setError(null);
     setInfo(null);
     setIsOAuthLoading(true);
+
+    // Check Supabase client first
+    if (!supabase) {
+      console.error("❌ Supabase client is null!");
+      setError("Authentication service is not ready. Please refresh the page and try again.");
+      setIsOAuthLoading(false);
+      return;
+    }
+
+    console.log("✅ Supabase client is available");
 
     // Suppress known Google OAuth accessibility warnings (these are from Google's UI, not our code)
     // This warning appears in Google's account chooser and doesn't affect functionality
@@ -171,13 +182,9 @@ export function SignInForm() {
       process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
       window.location.origin.concat("/auth/callback");
 
-    // CRITICAL: Must use client-side OAuth to store PKCE code verifier in cookies
-    // Server-side OAuth doesn't store the code verifier in cookies, causing PKCE errors
-    if (!supabase) {
-      setError("Authentication service is not ready. Please try again.");
-      setIsOAuthLoading(false);
-      return;
-    }
+    console.log("🔗 Redirect URL:", redirectUrl);
+    console.log("🔗 Site URL env:", process.env.NEXT_PUBLIC_SITE_URL);
+    console.log("🔗 Window origin:", window.location.origin);
 
     try {
       console.log("🔄 Initiating client-side OAuth (required for PKCE cookie storage):", redirectUrl);
@@ -199,9 +206,15 @@ export function SignInForm() {
       if (oauthError) {
         restoreConsole(); // Restore console before showing error
         console.error("❌ OAuth initiation failed:", oauthError);
+        console.error("❌ Full error details:", JSON.stringify(oauthError, null, 2));
         setError(oauthError.message || "Failed to sign in with Google. Please try again.");
         setIsOAuthLoading(false);
-      } else if (data?.url) {
+        return;
+      }
+      
+      console.log("📦 OAuth response data:", { hasUrl: !!data?.url, hasError: false });
+      
+      if (data?.url) {
         console.log("✅ OAuth URL generated");
         console.log("🔐 PKCE code verifier should be stored in cookies by @supabase/ssr");
         
@@ -239,15 +252,21 @@ export function SignInForm() {
         window.location.href = data.url;
       } else {
         restoreConsole(); // Restore console before showing error
-        console.error("❌ No URL returned from OAuth:", { data, oauthError });
-        setError("Failed to initiate Google sign-in. Please check your browser console for details.");
+        console.error("❌ No URL returned from OAuth");
+        console.error("❌ Response data:", data);
+        console.error("❌ This usually means:");
+        console.error("   1. Google OAuth is not enabled in Supabase");
+        console.error("   2. Google Client ID/Secret are missing or incorrect");
+        console.error("   3. Supabase configuration issue");
+        setError("Failed to initiate Google sign-in. Please check your browser console for details. Make sure Google OAuth is enabled in Supabase.");
         setIsOAuthLoading(false);
       }
     } catch (err) {
       restoreConsole(); // Restore console before showing error
+      console.error("❌ Exception in Google OAuth:", err);
+      console.error("❌ Error stack:", err instanceof Error ? err.stack : "No stack trace");
       const errorMessage = err instanceof Error ? err.message : "Failed to connect to the server. Please check your internet connection and try again.";
       setError(errorMessage);
-      console.error("Google OAuth error:", err);
       setIsOAuthLoading(false);
     }
   };
