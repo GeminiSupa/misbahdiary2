@@ -41,6 +41,9 @@ export async function GET(
     return NextResponse.json({ message: "Invoice not found" }, { status: 404 });
   }
 
+  // Add error handling for PDF generation
+  try {
+
   const { data: timeEntries } = await supabaseAdminClient
     .from("time_entries")
     .select("description, amount")
@@ -80,14 +83,21 @@ export async function GET(
     lineItems,
   });
 
-  const stream = await renderToStream(pdfElement as any);
+    const stream = await renderToStream(pdfElement as any);
 
-  return new NextResponse(stream as unknown as ReadableStream, {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename=invoice-${invoice.invoice_number}.pdf`,
-      "Cache-Control": "private, max-age=0, must-revalidate",
-    },
-  });
+    return new NextResponse(stream as unknown as ReadableStream, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename=invoice-${invoice.invoice_number}.pdf`,
+        "Cache-Control": "private, max-age=0, must-revalidate",
+      },
+    });
+  } catch (error) {
+    console.error("Error generating invoice PDF:", error);
+    return NextResponse.json(
+      { message: "Failed to generate PDF", error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 },
+    );
+  }
 }
 

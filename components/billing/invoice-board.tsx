@@ -292,10 +292,15 @@ function InvoiceCard({
           size="sm"
         />
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/api/invoices/${invoice.id}/pdf`}>
+          <a
+            href={`/api/invoices/${invoice.id}/pdf`}
+            download={`invoice-${invoice.invoiceNumber}.pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Download className="mr-2 h-4 w-4" />
             Export
-          </Link>
+          </a>
         </Button>
       </div>
     </article>
