@@ -116,7 +116,7 @@ export async function GET(
     return new NextResponse(stream as unknown as ReadableStream, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename=client-${clientNameSlug}-${clientId.slice(0, 8)}.pdf`,
+        "Content-Disposition": `attachment; filename=client-${clientNameSlug}-${clientId.slice(0, 8)}.pdf`,
         "Cache-Control": "private, max-age=0, must-revalidate",
       },
     });
