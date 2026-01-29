@@ -16,7 +16,7 @@ export async function signUpWithImmediateAccess(
 
   if (!parsed.success) {
     return {
-      error: parsed.error.errors[0]?.message || "Please check your input and try again.",
+      error: parsed.error.issues[0]?.message || "Please check your input and try again.",
     };
   }
 
