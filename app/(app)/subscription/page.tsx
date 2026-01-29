@@ -71,7 +71,7 @@ export default async function SubscriptionPage() {
   if (subscription.plan_id) {
     const { data: planData } = await supabase
       .from("subscription_plans")
-      .select("id, name, price_monthly, features")
+      .select("id, name, price_monthly, price_yearly, features")
       .eq("id", subscription.plan_id)
       .single();
     plan = planData;
@@ -81,7 +81,7 @@ export default async function SubscriptionPage() {
   if (!plan) {
     const { data: defaultPlan } = await supabase
       .from("subscription_plans")
-      .select("id, name, price_monthly, features")
+      .select("id, name, price_monthly, price_yearly, features")
       .eq("name", "Professional Plan")
       .eq("is_active", true)
       .maybeSingle();
@@ -95,6 +95,7 @@ export default async function SubscriptionPage() {
       id: "default",
       name: "Professional Plan",
       price_monthly: 500.00,
+      price_yearly: 4999.00,
       features: {
         features: [
           "Unlimited cases",

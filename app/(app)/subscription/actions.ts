@@ -95,17 +95,39 @@ export async function getSubscriptionStatus(
 
   // Calculate days remaining in trial
   let daysRemainingInTrial: number | null = null;
-  if (trialEndsAt && firmData.subscription_status === "trial") {
-    const diffTime = trialEndsAt.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    daysRemainingInTrial = diffDays > 0 ? diffDays : 0;
+  if (firmData.subscription_status === "trial") {
+    if (trialEndsAt) {
+      const diffTime = trialEndsAt.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      daysRemainingInTrial = diffDays > 0 ? diffDays : 0;
+    } else if (firmData.trial_started_at) {
+      // If trial_ends_at is missing but trial_started_at exists, calculate from start date
+      const trialStartedAt = new Date(firmData.trial_started_at);
+      const calculatedTrialEndsAt = new Date(trialStartedAt);
+      calculatedTrialEndsAt.setDate(calculatedTrialEndsAt.getDate() + 15);
+      const diffTime = calculatedTrialEndsAt.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      daysRemainingInTrial = diffDays > 0 ? diffDays : 0;
+    }
   }
 
   // Check if trial is active (status is trial and hasn't expired)
-  const isTrialActive =
-    firmData.subscription_status === "trial" &&
-    trialEndsAt !== null &&
-    trialEndsAt > now;
+  // If trial_ends_at is null but status is trial, assume trial is active if it started recently
+  let isTrialActive = false;
+  if (firmData.subscription_status === "trial") {
+    if (trialEndsAt) {
+      isTrialActive = trialEndsAt > now;
+    } else if (firmData.trial_started_at) {
+      // Calculate trial end from start date if end date is missing
+      const trialStartedAt = new Date(firmData.trial_started_at);
+      const calculatedTrialEndsAt = new Date(trialStartedAt);
+      calculatedTrialEndsAt.setDate(calculatedTrialEndsAt.getDate() + 15);
+      isTrialActive = calculatedTrialEndsAt > now;
+    } else {
+      // If no dates at all but status is trial, assume active (will be fixed by migration)
+      isTrialActive = true;
+    }
+  }
 
   // Check if subscription is active (status is active and hasn't expired)
   // For one-time payments, subscription_ends_at is set to 30 days from payment
@@ -126,11 +148,20 @@ export async function getSubscriptionStatus(
     actualStatus = "expired";
   }
 
+  // Calculate trial_ends_at if missing but trial_started_at exists
+  let calculatedTrialEndsAt: string | null = firmData.trial_ends_at;
+  if (!calculatedTrialEndsAt && firmData.trial_started_at && firmData.subscription_status === "trial") {
+    const trialStartedAt = new Date(firmData.trial_started_at);
+    const trialEnds = new Date(trialStartedAt);
+    trialEnds.setDate(trialEnds.getDate() + 15);
+    calculatedTrialEndsAt = trialEnds.toISOString();
+  }
+
   return {
     status: actualStatus,
     plan_id: firmData.subscription_plan_id,
     trial_started_at: firmData.trial_started_at,
-    trial_ends_at: firmData.trial_ends_at,
+    trial_ends_at: calculatedTrialEndsAt,
     subscription_started_at: firmData.subscription_started_at,
     subscription_ends_at: firmData.subscription_ends_at,
     stripe_customer_id: firmData.stripe_customer_id,
@@ -146,6 +177,7 @@ export async function getSubscriptionStatus(
  */
 export async function createCheckoutSession(
   firmId: string,
+  billingInterval: "monthly" | "yearly" = "monthly",
 ): Promise<CheckoutSessionResponse | ActionState> {
   const supabase = await createSupabaseServerClient();
   const {
@@ -177,7 +209,7 @@ export async function createCheckoutSession(
   if (firm.subscription_plan_id) {
     const { data: planData } = await supabase
       .from("subscription_plans")
-      .select("id, name, price_id_stripe, product_id_stripe, price_monthly")
+      .select("id, name, price_id_stripe, price_id_stripe_yearly, product_id_stripe, price_monthly, price_yearly")
       .eq("id", firm.subscription_plan_id)
       .single();
     plan = planData;
@@ -187,7 +219,7 @@ export async function createCheckoutSession(
   if (!plan) {
     const { data: defaultPlan } = await supabase
       .from("subscription_plans")
-      .select("id, name, price_id_stripe, product_id_stripe, price_monthly")
+      .select("id, name, price_id_stripe, price_id_stripe_yearly, product_id_stripe, price_monthly, price_yearly")
       .eq("name", "Professional Plan")
       .eq("is_active", true)
       .maybeSingle();
@@ -207,11 +239,17 @@ export async function createCheckoutSession(
     };
   }
 
-  if (!plan.price_id_stripe) {
-    console.error("Plan missing price_id_stripe:", { planId: plan.id, planName: plan.name });
+  // Select the correct Stripe price ID based on billing interval
+  const stripePriceId = billingInterval === "yearly"
+    ? plan.price_id_stripe_yearly
+    : plan.price_id_stripe;
+
+  if (!stripePriceId) {
+    const missingField = billingInterval === "yearly" ? "price_id_stripe_yearly" : "price_id_stripe";
+    console.error(`Plan missing ${missingField}:`, { planId: plan.id, planName: plan.name, billingInterval });
     return {
       message:
-        "Subscription plan is not configured with Stripe Price ID. Please run the migration to update the plan with Stripe IDs, or contact support.",
+        `Subscription plan is not configured with Stripe ${billingInterval === "yearly" ? "Yearly" : "Monthly"} Price ID. Please run the migration to update the plan with Stripe IDs, or contact support.`,
     };
   }
 
@@ -247,13 +285,13 @@ export async function createCheckoutSession(
     }
 
     // Create checkout session for recurring subscription
-    // The price is a recurring subscription price
+    // The price is a recurring subscription price (monthly or yearly based on billingInterval)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       line_items: [
         {
-          price: plan.price_id_stripe,
+          price: stripePriceId,
           quantity: 1,
         },
       ],

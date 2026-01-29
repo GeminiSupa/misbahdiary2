@@ -71,15 +71,29 @@ export function SubscriptionStatus({ subscription }: SubscriptionStatusProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {subscription.is_trial_active && (
+        {(subscription.is_trial_active || subscription.status === "trial") && (
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:bg-blue-950/20">
             <div>
               <p className="font-medium text-blue-900 dark:text-blue-100">
-                Free Trial Active
+                Free Trial {subscription.is_trial_active ? "Active" : "Status"}
               </p>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                {subscription.days_remaining_in_trial ?? 0} days remaining
-              </p>
+              {subscription.days_remaining_in_trial !== null ? (
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  {subscription.days_remaining_in_trial} days remaining
+                </p>
+              ) : subscription.trial_ends_at ? (
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Trial ends: {format(new Date(subscription.trial_ends_at), "PPP")}
+                </p>
+              ) : subscription.trial_started_at ? (
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Trial started: {format(new Date(subscription.trial_started_at), "PPP")}
+                </p>
+              ) : (
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Trial period active (15 days from signup)
+                </p>
+              )}
               {subscription.trial_ends_at && (
                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                   Trial ends: {format(new Date(subscription.trial_ends_at), "PPP")}

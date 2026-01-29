@@ -16,6 +16,7 @@ type SubscriptionManagementProps = {
     id: string;
     name: string;
     price_monthly: number;
+    price_yearly?: number | null;
     features: unknown;
   };
   firmId: string;
@@ -29,11 +30,20 @@ export function SubscriptionManagement({
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
+
+  // Calculate discount percentage for yearly
+  const yearlyPrice = plan.price_yearly || 4999.00;
+  const monthlyPrice = plan.price_monthly;
+  const monthlyYearlyTotal = monthlyPrice * 12;
+  const discountPercentage = yearlyPrice && monthlyYearlyTotal > yearlyPrice
+    ? Math.round(((monthlyYearlyTotal - yearlyPrice) / monthlyYearlyTotal) * 100)
+    : 0;
 
   const handleSubscribe = () => {
     startTransition(async () => {
       try {
-        const result = await createCheckoutSession(firmId);
+        const result = await createCheckoutSession(firmId, billingInterval);
         if ("url" in result && result.url) {
           window.location.href = result.url;
         } else if ("message" in result) {
@@ -95,17 +105,55 @@ export function SubscriptionManagement({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between mb-4">
-          <div>
+          <div className="flex-1">
             <p className="font-semibold">{plan.name}</p>
-            <p className="text-2xl font-bold">
-              PKR {plan.price_monthly.toFixed(2)}
-              <span className="text-sm font-normal text-muted-foreground">/month</span>
-            </p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="text-2xl font-bold">
+                PKR {billingInterval === "yearly" && plan.price_yearly
+                  ? plan.price_yearly.toFixed(2)
+                  : plan.price_monthly.toFixed(2)}
+              </p>
+              <span className="text-sm font-normal text-muted-foreground">
+                /{billingInterval === "yearly" ? "year" : "month"}
+              </span>
+              {billingInterval === "yearly" && discountPercentage > 0 && (
+                <Badge variant="default" className="ml-2 bg-emerald-500 hover:bg-emerald-600">
+                  Save {discountPercentage}%
+                </Badge>
+              )}
+            </div>
           </div>
           <Badge variant={subscription.is_subscription_active ? "success" : "outline"}>
             {subscription.is_subscription_active ? "Active" : subscription.status}
           </Badge>
         </div>
+
+        {/* Billing Interval Toggle */}
+        {!subscription.is_subscription_active && (
+          <div className="flex items-center justify-center gap-2 p-3 rounded-lg border bg-muted/30">
+            <Button
+              type="button"
+              variant={billingInterval === "monthly" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBillingInterval("monthly")}
+              className="flex-1"
+            >
+              Monthly
+            </Button>
+            <Button
+              type="button"
+              variant={billingInterval === "yearly" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBillingInterval("yearly")}
+              className="flex-1"
+            >
+              Yearly
+              {discountPercentage > 0 && (
+                <span className="ml-1 text-xs opacity-75">({discountPercentage}% off)</span>
+              )}
+            </Button>
+          </div>
+        )}
 
         {subscription.is_trial_active && (
           <div className="rounded-lg border p-4">
