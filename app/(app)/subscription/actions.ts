@@ -177,7 +177,7 @@ export async function createCheckoutSession(
   if (firm.subscription_plan_id) {
     const { data: planData } = await supabase
       .from("subscription_plans")
-      .select("id, price_id_stripe, product_id_stripe, price_monthly")
+      .select("id, name, price_id_stripe, product_id_stripe, price_monthly")
       .eq("id", firm.subscription_plan_id)
       .single();
     plan = planData;
@@ -187,7 +187,7 @@ export async function createCheckoutSession(
   if (!plan) {
     const { data: defaultPlan } = await supabase
       .from("subscription_plans")
-      .select("id, price_id_stripe, product_id_stripe, price_monthly")
+      .select("id, name, price_id_stripe, product_id_stripe, price_monthly")
       .eq("name", "Professional Plan")
       .eq("is_active", true)
       .maybeSingle();
