@@ -111,13 +111,13 @@ export default async function UserManualPage() {
                   <ArrowRight className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold mb-1">Add New Client</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Click the <strong>"Add Client"</strong> button. You can add:
+                    <div className="text-sm text-muted-foreground">
+                      <p className="mb-2">Click the <strong>"Add Client"</strong> button. You can add:</p>
                       <ul className="list-disc list-inside mt-2 space-y-1 ml-4">
                         <li>Individual clients (with full name, father's name, CNIC, contact details)</li>
                         <li>Organization clients (with organization name, representative details)</li>
                       </ul>
-                    </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -176,8 +176,8 @@ export default async function UserManualPage() {
                   <ArrowRight className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold mb-1">Enter Case Details</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Fill in:
+                    <div className="text-sm text-muted-foreground">
+                      <p className="mb-2">Fill in:</p>
                       <ul className="list-disc list-inside mt-2 space-y-1 ml-4">
                         <li>Case type (Civil, Criminal, Family, Corporate, etc.)</li>
                         <li>Case number (if available)</li>
@@ -185,7 +185,7 @@ export default async function UserManualPage() {
                         <li>Case status (Active, Closed, Pending, etc.)</li>
                         <li>Description and notes</li>
                       </ul>
-                    </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -408,13 +408,13 @@ export default async function UserManualPage() {
                   <ArrowRight className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 rotate-180" />
                   <div>
                     <h3 className="font-semibold mb-1">نیا کلائنٹ شامل کریں</h3>
-                    <p className="text-sm text-muted-foreground">
-                      <strong>"Add Client"</strong> بٹن پر کلک کریں۔ آپ شامل کر سکتے ہیں:
+                    <div className="text-sm text-muted-foreground">
+                      <p className="mb-2"><strong>"Add Client"</strong> بٹن پر کلک کریں۔ آپ شامل کر سکتے ہیں:</p>
                       <ul className="list-disc list-inside mt-2 space-y-1 ml-4" dir="rtl">
                         <li>انفرادی کلائنٹ (مکمل نام، والد کا نام، شناختی کارڈ، رابطے کی تفصیلات کے ساتھ)</li>
                         <li>تنظیمی کلائنٹ (تنظیم کا نام، نمائندے کی تفصیلات کے ساتھ)</li>
                       </ul>
-                    </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -473,8 +473,8 @@ export default async function UserManualPage() {
                   <ArrowRight className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 rotate-180" />
                   <div>
                     <h3 className="font-semibold mb-1">کیس کی تفصیلات درج کریں</h3>
-                    <p className="text-sm text-muted-foreground">
-                      بھریں:
+                    <div className="text-sm text-muted-foreground">
+                      <p className="mb-2">بھریں:</p>
                       <ul className="list-disc list-inside mt-2 space-y-1 ml-4" dir="rtl">
                         <li>کیس کی قسم (سول، فوجداری، خاندانی، کارپوریٹ، وغیرہ)</li>
                         <li>کیس نمبر (اگر دستیاب ہو)</li>
@@ -482,7 +482,7 @@ export default async function UserManualPage() {
                         <li>کیس کی حیثیت (فعال، بند، زیر التواء، وغیرہ)</li>
                         <li>تفصیلات اور نوٹس</li>
                       </ul>
-                    </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3">
