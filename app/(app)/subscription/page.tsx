@@ -88,6 +88,26 @@ export default async function SubscriptionPage() {
     plan = defaultPlan;
   }
 
+  // Fallback plan if no plan is found in database
+  // This ensures the component always has a plan object
+  if (!plan) {
+    plan = {
+      id: "default",
+      name: "Professional Plan",
+      price_monthly: 500.00,
+      features: {
+        features: [
+          "Unlimited cases",
+          "Unlimited clients",
+          "Team management",
+          "Document storage",
+          "Billing & invoicing",
+          "Calendar management",
+        ],
+      },
+    };
+  }
+
   // Get subscription history
   const { data: history } = await supabase
     .from("subscription_history")

@@ -17,7 +17,7 @@ type SubscriptionManagementProps = {
     name: string;
     price_monthly: number;
     features: unknown;
-  } | null;
+  };
   firmId: string;
 };
 
@@ -96,23 +96,11 @@ export function SubscriptionManagement({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            {plan ? (
-              <>
-                <p className="font-semibold">{plan.name}</p>
-                <p className="text-2xl font-bold">
-                  PKR {plan.price_monthly.toFixed(2)}
-                  <span className="text-sm font-normal text-muted-foreground">/month</span>
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="font-semibold">Professional Plan</p>
-                <p className="text-2xl font-bold">
-                  PKR 500.00
-                  <span className="text-sm font-normal text-muted-foreground">/month</span>
-                </p>
-              </>
-            )}
+            <p className="font-semibold">{plan.name}</p>
+            <p className="text-2xl font-bold">
+              PKR {plan.price_monthly.toFixed(2)}
+              <span className="text-sm font-normal text-muted-foreground">/month</span>
+            </p>
           </div>
           <Badge variant={subscription.is_subscription_active ? "success" : "outline"}>
             {subscription.is_subscription_active ? "Active" : subscription.status}
@@ -142,11 +130,6 @@ export function SubscriptionManagement({
                 </>
               )}
             </Button>
-            {!plan && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">
-                ⚠️ Subscription plan not configured. The system will use the default plan.
-              </p>
-            )}
           </div>
         )}
 
@@ -214,11 +197,6 @@ export function SubscriptionManagement({
                   )}
                 </Button>
               )}
-              {!plan && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
-                  ⚠️ Using default plan. Contact support to configure your plan.
-                </p>
-              )}
               <p className="text-xs text-muted-foreground text-center mt-2">
                 Your subscription automatically renews each month. Use "Manage Billing" to cancel or update.
               </p>
@@ -251,11 +229,6 @@ export function SubscriptionManagement({
                 </>
               )}
             </Button>
-            {!plan && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">
-                ⚠️ Subscription plan not configured. The system will use the default plan.
-              </p>
-            )}
           </div>
         )}
 
@@ -283,11 +256,6 @@ export function SubscriptionManagement({
                 </>
               )}
             </Button>
-            {!plan && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">
-                ⚠️ Using default plan. Contact support to configure your plan.
-              </p>
-            )}
           </div>
         )}
       </CardContent>
