@@ -83,9 +83,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  // If authenticated, check subscription for protected app routes
-  // Only block access to main app routes (dashboard, cases, calendar, billing, clients, settings)
-  // Always allow navigation to subscription and onboarding pages
+  // If authenticated, check subscription for ALL app routes
+  // Block access to everything except subscription, onboarding, and public routes when expired
   if (user && !isPublicRoute && !request.nextUrl.pathname.startsWith("/api")) {
     // Always allow access to subscription and onboarding pages
     if (
@@ -95,52 +94,39 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    const protectedRoutes = [
-      "/dashboard",
-      "/cases",
-      "/calendar",
-      "/billing",
-      "/clients",
-      "/settings",
-    ];
+    // Check subscription for ALL authenticated routes (not just specific ones)
+    // This ensures complete blocking when trial/subscription expires
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("firm_id")
+      .eq("id", user.id)
+      .maybeSingle();
 
-    const isProtectedRoute = protectedRoutes.some((route) =>
-      request.nextUrl.pathname.startsWith(route),
-    );
+    // If user has a firm, check subscription access
+    if (profile?.firm_id) {
+      try {
+        const subscriptionCheck = await checkSubscriptionAccess(profile.firm_id);
 
-    // Only check subscription for protected routes
-    if (isProtectedRoute) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("firm_id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      // If user has a firm, check subscription access
-      if (profile?.firm_id) {
-        try {
-          const subscriptionCheck = await checkSubscriptionAccess(profile.firm_id);
-
-          // Only redirect if subscription is explicitly expired
-          // This means: trial expired OR subscription expired
-          // We check status === "expired" because the check function sets this when trial/subscription expires
-          if (!subscriptionCheck.hasAccess && subscriptionCheck.status === "expired") {
-            const subscriptionUrl = new URL("/subscription", request.url);
-            return NextResponse.redirect(subscriptionUrl);
+        // STRICT BLOCKING: Completely block access if no active trial or subscription
+        // This blocks ALL app functionality until they subscribe
+        if (!subscriptionCheck.hasAccess) {
+          const subscriptionUrl = new URL("/subscription", request.url);
+          subscriptionUrl.searchParams.set("expired", "true");
+          if (subscriptionCheck.message) {
+            subscriptionUrl.searchParams.set("message", subscriptionCheck.message);
           }
-          // Allow access in all other cases:
-          // - Trial active (hasAccess = true)
-          // - Subscription active (hasAccess = true)
-          // - System not configured (hasAccess = true, status = "trial")
-          // - Any errors or uncertainty (allow access)
-        } catch (error) {
-          // If subscription check fails, allow access (don't block navigation)
-          // This prevents blocking users if there's a database error
-          console.error("Subscription check error:", error);
+          return NextResponse.redirect(subscriptionUrl);
         }
+      } catch (error) {
+        // On error, be strict: block access and redirect to subscription
+        // This prevents users from accessing the app if there's a subscription check failure
+        console.error("Subscription check error - blocking access:", error);
+        const subscriptionUrl = new URL("/subscription", request.url);
+        subscriptionUrl.searchParams.set("error", "subscription_check_failed");
+        return NextResponse.redirect(subscriptionUrl);
       }
-      // If user doesn't have a firm_id yet, allow access (they'll be redirected to onboarding by the page itself)
     }
+    // If user doesn't have a firm_id yet, allow access (they'll be redirected to onboarding by the page itself)
   }
 
   return response;

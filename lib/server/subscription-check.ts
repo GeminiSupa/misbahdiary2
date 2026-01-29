@@ -145,8 +145,8 @@ export async function checkSubscriptionAccess(
     } else if (subscriptionStatus === "canceled") {
       actualStatus = "expired"; // Canceled subscriptions are treated as expired
     } else if (subscriptionStatus === "past_due") {
-      // Past due subscriptions still have access but should prompt payment
-      // Don't set to expired, but hasAccess is already false
+      // Past due subscriptions = no access, block everything
+      actualStatus = "expired";
     } else {
       // Any other status without access = expired
       actualStatus = "expired";
@@ -178,9 +178,21 @@ export async function checkSubscriptionAccess(
 
 /**
  * Check if user has access to the application
- * Redirects to subscription page if access is denied
+ * Returns true if access is granted, false if blocked
  */
 export async function requireSubscriptionAccess(firmId: string): Promise<boolean> {
   const check = await checkSubscriptionAccess(firmId);
   return check.hasAccess;
+}
+
+/**
+ * Check subscription and redirect to subscription page if expired
+ * Use this in page components as a backup to middleware
+ */
+export async function enforceSubscriptionAccess(firmId: string): Promise<void> {
+  const check = await checkSubscriptionAccess(firmId);
+  if (!check.hasAccess) {
+    const { redirect } = await import("next/navigation");
+    redirect("/subscription?expired=true");
+  }
 }

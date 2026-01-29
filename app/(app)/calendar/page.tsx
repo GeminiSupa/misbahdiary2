@@ -31,6 +31,10 @@ export default async function CalendarPage() {
     redirect("/onboarding");
   }
 
+  // STRICT BLOCKING: Enforce subscription access (backup to middleware)
+  const { enforceSubscriptionAccess } = await import("@/lib/server/subscription-check");
+  await enforceSubscriptionAccess(profile.firm_id);
+
   const { data: hearings } = await supabase
     .from("hearings")
     .select(

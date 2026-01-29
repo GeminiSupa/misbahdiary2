@@ -35,6 +35,10 @@ export default async function CasesPage() {
     redirect("/onboarding");
   }
 
+  // STRICT BLOCKING: Enforce subscription access (backup to middleware)
+  const { enforceSubscriptionAccess } = await import("@/lib/server/subscription-check");
+  await enforceSubscriptionAccess(firmId);
+
   // Check if user can see all cases (firm owner or principal partner)
   const canSeeAll = await canUserSeeAllCases(user.id, firmId);
 

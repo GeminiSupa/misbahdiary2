@@ -29,6 +29,10 @@ export default async function SettingsPage() {
     redirect("/onboarding");
   }
 
+  // STRICT BLOCKING: Enforce subscription access (backup to middleware)
+  const { enforceSubscriptionAccess } = await import("@/lib/server/subscription-check");
+  await enforceSubscriptionAccess(profile.firm_id);
+
   const { data: firm } = await supabase
     .from("firms")
     .select("id, name, contact_email, contact_phone, address, owner_id")

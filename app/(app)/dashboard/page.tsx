@@ -45,6 +45,10 @@ export default async function DashboardPage() {
 
   const displayName = profile.full_name || user.email?.split("@")[0] || "User";
 
+  // STRICT BLOCKING: Enforce subscription access (backup to middleware)
+  const { enforceSubscriptionAccess } = await import("@/lib/server/subscription-check");
+  await enforceSubscriptionAccess(profile.firm_id);
+
   // Get subscription status
   const subscriptionResult = await getSubscriptionStatus(profile.firm_id);
   // Type guard: FirmSubscription has 'status' property, ActionState has 'message' property
