@@ -23,7 +23,7 @@ export async function checkSubscriptionAccess(
   const { data: firm, error } = await supabase
     .from("firms")
     .select(
-      "subscription_status, trial_ends_at, subscription_ends_at",
+      "subscription_status, trial_started_at, trial_ends_at, subscription_ends_at",
     )
     .eq("id", firmId)
     .single();
@@ -58,6 +58,7 @@ export async function checkSubscriptionAccess(
   // Type assertion: firm should have the subscription fields
   type FirmWithSubscription = {
     subscription_status?: string | null;
+    trial_started_at?: string | null;
     trial_ends_at?: string | null;
     subscription_ends_at?: string | null;
   };
@@ -65,7 +66,18 @@ export async function checkSubscriptionAccess(
   const firmData = firm as FirmWithSubscription;
 
   const now = new Date();
-  const trialEndsAt = firmData.trial_ends_at ? new Date(firmData.trial_ends_at) : null;
+  
+  // Calculate trial_ends_at if missing but trial_started_at exists
+  let trialEndsAt: Date | null = null;
+  if (firmData.trial_ends_at) {
+    trialEndsAt = new Date(firmData.trial_ends_at);
+  } else if (firmData.trial_started_at && firmData.subscription_status === "trial") {
+    // Calculate trial end from start date (15 days)
+    const trialStartedAt = new Date(firmData.trial_started_at);
+    trialEndsAt = new Date(trialStartedAt);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 15);
+  }
+  
   const subscriptionEndsAt = firmData.subscription_ends_at
     ? new Date(firmData.subscription_ends_at)
     : null;
@@ -86,11 +98,18 @@ export async function checkSubscriptionAccess(
   }
 
   // Check trial status
-  const isTrialActive = Boolean(
-    subscriptionStatus === "trial" &&
-    trialEndsAt &&
-    trialEndsAt > now
-  );
+  // Trial is active only if: status is "trial" AND trial hasn't expired
+  let isTrialActive = false;
+  if (subscriptionStatus === "trial") {
+    if (trialEndsAt) {
+      isTrialActive = trialEndsAt > now;
+    } else {
+      // If trial_ends_at is missing but status is "trial", check if we can calculate it
+      // For now, if trial_ends_at is null, we'll treat it as potentially expired
+      // This is a safety measure - firms should have trial_ends_at set
+      isTrialActive = false; // No trial end date = assume expired for safety
+    }
+  }
 
   // Check subscription status
   const isSubscriptionActive = Boolean(
@@ -113,12 +132,24 @@ export async function checkSubscriptionAccess(
   // Determine actual status (update to "expired" if trial/subscription expired)
   let actualStatus = subscriptionStatus;
   if (!hasAccess) {
-    if (subscriptionStatus === "trial" && trialEndsAt && trialEndsAt <= now) {
-      actualStatus = "expired"; // Trial expired
+    if (subscriptionStatus === "trial") {
+      if (trialEndsAt && trialEndsAt <= now) {
+        actualStatus = "expired"; // Trial expired (has end date and it passed)
+      } else if (!trialEndsAt) {
+        actualStatus = "expired"; // Trial expired (no end date = assume expired for safety)
+      } else {
+        actualStatus = "expired"; // Trial not active = expired
+      }
     } else if (subscriptionStatus === "active" && subscriptionEndsAt && subscriptionEndsAt <= now) {
       actualStatus = "expired"; // Subscription expired (one-time payment period ended)
     } else if (subscriptionStatus === "canceled") {
       actualStatus = "expired"; // Canceled subscriptions are treated as expired
+    } else if (subscriptionStatus === "past_due") {
+      // Past due subscriptions still have access but should prompt payment
+      // Don't set to expired, but hasAccess is already false
+    } else {
+      // Any other status without access = expired
+      actualStatus = "expired";
     }
   }
 
@@ -139,7 +170,7 @@ export async function checkSubscriptionAccess(
     isTrialActive,
     isSubscriptionActive,
     daysRemainingInTrial,
-    trialEndsAt: firmData.trial_ends_at || null,
+    trialEndsAt: trialEndsAt ? trialEndsAt.toISOString() : null,
     subscriptionEndsAt: firmData.subscription_ends_at || null,
     message,
   };
