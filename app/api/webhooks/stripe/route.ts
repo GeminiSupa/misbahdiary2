@@ -19,6 +19,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (!stripe) {
+    console.error("Stripe is not configured");
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 500 },
+    );
+  }
+
   if (!STRIPE_WEBHOOK_SECRET) {
     console.error("STRIPE_WEBHOOK_SECRET is not set");
     return NextResponse.json(
@@ -90,7 +98,10 @@ export async function POST(req: NextRequest) {
 
             const now = new Date();
             // current_period_end is a timestamp in seconds
-            const periodEnd = (subscription as any).current_period_end || Math.floor(now.getTime() / 1000) + 2592000; // Default to 30 days if not set
+            // Access current_period_end from the subscription object
+            const periodEnd = "current_period_end" in subscription && typeof subscription.current_period_end === "number"
+              ? subscription.current_period_end
+              : Math.floor(now.getTime() / 1000) + 2592000; // Default to 30 days if not set
             const subscriptionEndsAt = new Date(periodEnd * 1000);
 
             // Update firm subscription
@@ -205,7 +216,10 @@ export async function POST(req: NextRequest) {
         }
 
         // current_period_end is a timestamp in seconds
-        const periodEnd = (subscription as any).current_period_end || Math.floor(new Date().getTime() / 1000) + 2592000; // Default to 30 days if not set
+        // Access current_period_end from the subscription object
+        const periodEnd = "current_period_end" in subscription && typeof subscription.current_period_end === "number"
+          ? subscription.current_period_end
+          : Math.floor(new Date().getTime() / 1000) + 2592000; // Default to 30 days if not set
         const subscriptionEndsAt = new Date(periodEnd * 1000);
 
         let status = "active";
@@ -296,12 +310,17 @@ export async function POST(req: NextRequest) {
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId =
-          typeof (invoice as any).subscription === "string"
-            ? (invoice as any).subscription
-            : (invoice as any).subscription?.id;
+        // Access subscription from invoice - it can be a string ID or a Subscription object
+        const invoiceSubscription = "subscription" in invoice ? invoice.subscription : null;
+        let subscriptionId: string | null = null;
+        
+        if (typeof invoiceSubscription === "string") {
+          subscriptionId = invoiceSubscription;
+        } else if (invoiceSubscription && typeof invoiceSubscription === "object" && invoiceSubscription !== null && "id" in invoiceSubscription && typeof invoiceSubscription.id === "string") {
+          subscriptionId = invoiceSubscription.id;
+        }
 
-        if (subscriptionId) {
+        if (subscriptionId && typeof subscriptionId === "string") {
           const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const firmId = subscription.metadata?.firm_id;
 
@@ -327,12 +346,17 @@ export async function POST(req: NextRequest) {
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId =
-          typeof (invoice as any).subscription === "string"
-            ? (invoice as any).subscription
-            : (invoice as any).subscription?.id;
+        // Access subscription from invoice - it can be a string ID or a Subscription object
+        const invoiceSubscription = "subscription" in invoice ? invoice.subscription : null;
+        let subscriptionId: string | null = null;
+        
+        if (typeof invoiceSubscription === "string") {
+          subscriptionId = invoiceSubscription;
+        } else if (invoiceSubscription && typeof invoiceSubscription === "object" && invoiceSubscription !== null && "id" in invoiceSubscription && typeof invoiceSubscription.id === "string") {
+          subscriptionId = invoiceSubscription.id;
+        }
 
-        if (subscriptionId) {
+        if (subscriptionId && typeof subscriptionId === "string") {
           const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const firmId = subscription.metadata?.firm_id;
 

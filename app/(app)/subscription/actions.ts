@@ -213,6 +213,13 @@ export async function createCheckoutSession(
     };
   }
 
+  // Check if Stripe is configured
+  if (!stripe) {
+    return {
+      message: "Stripe is not configured. Please set STRIPE_SECRET_KEY in your environment variables.",
+    };
+  }
+
   try {
     // Create or retrieve Stripe customer
     let customerId = firm.stripe_customer_id;
@@ -248,8 +255,8 @@ export async function createCheckoutSession(
         },
       ],
       mode: "subscription", // Recurring subscription mode
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription?success=true`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription?canceled=true`,
       metadata: {
         firm_id: firmId,
         user_id: user.id,
@@ -324,10 +331,17 @@ export async function createPortalSession(
     };
   }
 
+  // Check if Stripe is configured
+  if (!stripe) {
+    return {
+      message: "Stripe is not configured. Please set STRIPE_SECRET_KEY in your environment variables.",
+    };
+  }
+
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: firm.stripe_customer_id,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription`,
+      return_url: `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription`,
     });
 
     return { url: session.url || undefined };

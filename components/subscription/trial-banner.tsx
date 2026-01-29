@@ -33,11 +33,8 @@ export function TrialBanner({
       <Alert variant="destructive" className="mb-4">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Trial Expired</AlertTitle>
-        <AlertDescription className="flex items-center justify-between gap-4">
-          <span>Your free trial has ended. Subscribe to continue using the platform.</span>
-          <Button asChild size="sm">
-            <Link href="/subscription">Subscribe Now</Link>
-          </Button>
+        <AlertDescription>
+          Your free trial has ended. Subscribe to continue using the platform.
         </AlertDescription>
       </Alert>
     );
@@ -55,14 +52,9 @@ export function TrialBanner({
         <AlertTitle className="text-amber-800 dark:text-amber-400">
           Trial Ending Soon
         </AlertTitle>
-        <AlertDescription className="flex items-center justify-between gap-4 text-amber-700 dark:text-amber-300">
-          <span>
-            Your free trial ends in {days} {days === 1 ? "day" : "days"}. Subscribe to
-            continue uninterrupted access.
-          </span>
-          <Button asChild size="sm" variant="default">
-            <Link href="/subscription">Subscribe Now</Link>
-          </Button>
+        <AlertDescription className="text-amber-700 dark:text-amber-300">
+          Your free trial ends in {days} {days === 1 ? "day" : "days"}. Subscribe to
+          continue uninterrupted access.
         </AlertDescription>
       </Alert>
     );

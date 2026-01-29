@@ -73,23 +73,18 @@ export function SubscriptionStatus({ subscription }: SubscriptionStatusProps) {
       <CardContent className="space-y-4">
         {subscription.is_trial_active && (
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:bg-blue-950/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-blue-900 dark:text-blue-100">
-                  Free Trial Active
+            <div>
+              <p className="font-medium text-blue-900 dark:text-blue-100">
+                Free Trial Active
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                {subscription.days_remaining_in_trial ?? 0} days remaining
+              </p>
+              {subscription.trial_ends_at && (
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  Trial ends: {format(new Date(subscription.trial_ends_at), "PPP")}
                 </p>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  {subscription.days_remaining_in_trial ?? 0} days remaining
-                </p>
-                {subscription.trial_ends_at && (
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    Trial ends: {format(new Date(subscription.trial_ends_at), "PPP")}
-                  </p>
-                )}
-              </div>
-              <Button asChild size="sm">
-                <Link href="/subscription">Subscribe Now</Link>
-              </Button>
+              )}
             </div>
           </div>
         )}
@@ -158,14 +153,11 @@ export function SubscriptionStatus({ subscription }: SubscriptionStatusProps) {
             <p className="font-medium text-destructive mb-2">
               {subscription.status === "expired" ? "Subscription Expired" : "Subscription Canceled"}
             </p>
-            <p className="text-sm text-muted-foreground mb-3">
+            <p className="text-sm text-muted-foreground">
               {subscription.status === "expired"
                 ? "Your subscription has expired. Subscribe to continue using the platform."
                 : "Your subscription has been canceled. Subscribe to reactivate."}
             </p>
-            <Button asChild size="sm">
-              <Link href="/subscription">Subscribe Now</Link>
-            </Button>
           </div>
         )}
       </CardContent>

@@ -32,19 +32,34 @@ export function SubscriptionManagement({
 
   const handleSubscribe = () => {
     startTransition(async () => {
-      const result = await createCheckoutSession(firmId);
-      if ("url" in result && result.url) {
-        window.location.href = result.url;
-      } else if ("message" in result) {
+      try {
+        const result = await createCheckoutSession(firmId);
+        if ("url" in result && result.url) {
+          window.location.href = result.url;
+        } else if ("message" in result) {
+          toast({
+            title: "Error",
+            description: result.message || "Failed to create checkout session. Please check your Stripe configuration.",
+            variant: "destructive",
+          });
+        } else if ("error" in result) {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to create checkout session. Please check your Stripe configuration.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to create checkout session. Please check your Stripe configuration and try again.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Subscribe error:", error);
         toast({
           title: "Error",
-          description: result.message,
-          variant: "destructive",
-        });
-      } else if ("error" in result) {
-        toast({
-          title: "Error",
-          description: result.error,
+          description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
           variant: "destructive",
         });
       }

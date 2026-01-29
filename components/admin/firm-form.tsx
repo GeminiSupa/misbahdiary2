@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Building2, User, Mail, Phone, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Building2, User, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function FirmForm() {
   const router = useRouter();
@@ -99,7 +99,7 @@ export function FirmForm() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">Firm Information</h3>
-              <p className="text-sm text-muted-foreground">Enter the firm's basic details</p>
+              <p className="text-sm text-muted-foreground">Enter the firm&apos;s basic details</p>
             </div>
           </div>
 
@@ -170,7 +170,7 @@ export function FirmForm() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">Firm Owner Account</h3>
-              <p className="text-sm text-muted-foreground">Create the firm owner's user account</p>
+              <p className="text-sm text-muted-foreground">Create the firm owner&apos;s user account</p>
             </div>
           </div>
 
@@ -198,7 +198,7 @@ export function FirmForm() {
                   <Input type="email" placeholder="owner@firm.com" {...field} />
                 </FormControl>
                 <FormDescription>
-                  This will be the firm owner's login email. Must be unique.
+                  This will be the firm owner&apos;s login email. Must be unique.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
