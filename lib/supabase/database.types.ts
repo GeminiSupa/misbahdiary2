@@ -1217,7 +1217,9 @@ export type Database = {
           id: string
           name: string
           price_monthly: number
+          price_yearly: number | null
           price_id_stripe: string | null
+          price_id_stripe_yearly: string | null
           product_id_stripe: string | null
           features: unknown
           is_active: boolean
@@ -1228,7 +1230,9 @@ export type Database = {
           id?: string
           name: string
           price_monthly: number
+          price_yearly?: number | null
           price_id_stripe?: string | null
+          price_id_stripe_yearly?: string | null
           product_id_stripe?: string | null
           features?: unknown
           is_active?: boolean
@@ -1239,7 +1243,9 @@ export type Database = {
           id?: string
           name?: string
           price_monthly?: number
+          price_yearly?: number | null
           price_id_stripe?: string | null
+          price_id_stripe_yearly?: string | null
           product_id_stripe?: string | null
           features?: unknown
           is_active?: boolean
