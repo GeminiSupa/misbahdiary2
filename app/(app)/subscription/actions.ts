@@ -199,24 +199,27 @@ export async function createCheckoutSession(
     return { message: "Subscription plan not found. Please contact support." };
   }
 
+  // Check if Stripe is configured
+  if (!stripe) {
+    console.error("Stripe client is not initialized. Check STRIPE_SECRET_KEY environment variable.");
+    return {
+      message: "Stripe is not configured. Please set STRIPE_SECRET_KEY in your environment variables.",
+    };
+  }
+
   if (!plan.price_id_stripe) {
+    console.error("Plan missing price_id_stripe:", { planId: plan.id, planName: plan.name });
     return {
       message:
-        "Subscription plan is not configured with Stripe. Please contact support.",
+        "Subscription plan is not configured with Stripe Price ID. Please run the migration to update the plan with Stripe IDs, or contact support.",
     };
   }
 
   if (!plan.product_id_stripe) {
+    console.error("Plan missing product_id_stripe:", { planId: plan.id, planName: plan.name });
     return {
       message:
-        "Subscription plan product ID is missing. Please contact support.",
-    };
-  }
-
-  // Check if Stripe is configured
-  if (!stripe) {
-    return {
-      message: "Stripe is not configured. Please set STRIPE_SECRET_KEY in your environment variables.",
+        "Subscription plan product ID is missing. Please run the migration to update the plan with Stripe IDs, or contact support.",
     };
   }
 

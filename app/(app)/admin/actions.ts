@@ -85,7 +85,20 @@ export async function createFirmWithOwner(
       };
     }
 
-    // Create the firm
+    // Calculate trial dates (15 days from now)
+    const trialStartedAt = new Date();
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 15);
+
+    // Get the default subscription plan (Professional Plan)
+    const { data: defaultPlan } = await supabase
+      .from("subscription_plans")
+      .select("id")
+      .eq("name", "Professional Plan")
+      .eq("is_active", true)
+      .maybeSingle();
+
+    // Create the firm with trial setup
     const { data: firm, error: firmError } = await supabase
       .from("firms")
       .insert({
@@ -96,6 +109,10 @@ export async function createFirmWithOwner(
         owner_id: newUser.user.id,
         locale: "en-PK",
         timezone: "Asia/Karachi",
+        subscription_status: "trial",
+        subscription_plan_id: defaultPlan?.id || null,
+        trial_started_at: trialStartedAt.toISOString(),
+        trial_ends_at: trialEndsAt.toISOString(),
       })
       .select("id")
       .single();
@@ -133,6 +150,24 @@ export async function createFirmWithOwner(
           message: "Firm and user were created but profile setup failed. Please contact support.",
         };
       }
+    }
+
+    // Log trial start in subscription history
+    const { error: historyError } = await supabase
+      .from("subscription_history")
+      .insert({
+        firm_id: firm.id,
+        subscription_plan_id: defaultPlan?.id || null,
+        status: "trial_started",
+        event_data: {
+          trial_started_at: trialStartedAt.toISOString(),
+          trial_ends_at: trialEndsAt.toISOString(),
+        },
+      });
+    
+    if (historyError) {
+      console.error("Failed to log trial start in subscription history:", historyError);
+      // Don't fail the firm creation if history logging fails
     }
 
     return { success: true };
