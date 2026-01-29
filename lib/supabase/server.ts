@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
-import { createServerClient, parseCookieHeader } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
 import type { Database } from "@/lib/supabase/database.types";
-import type { NextResponse } from "next/server";
 
 const getSupabaseConfig = () => {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -21,60 +21,61 @@ const getSupabaseConfig = () => {
   return { url: SUPABASE_URL, key: SUPABASE_ANON_KEY };
 };
 
-export const createSupabaseServerClient = async () => {
+/**
+ * Create Supabase client for Server Components
+ * Uses getAll() and setAll() pattern as recommended by @supabase/ssr
+ */
+export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   const config = getSupabaseConfig();
 
   return createServerClient<Database>(config.url, config.key, {
     cookies: {
-      get(name) {
-        return cookieStore.get(name)?.value;
+      getAll() {
+        return cookieStore.getAll();
       },
-      set() {
-        // Server Components have a read-only cookie store.
-        // Mutations happen in Route Handlers / Server Actions instead.
-      },
-      remove() {
-        // See comment above.
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        } catch {
+          // The `set` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
       },
     },
   });
-};
+}
 
-export const createSupabaseRouteHandlerClient = (
+/**
+ * Create Supabase client for Route Handlers
+ * Uses getAll() and setAll() pattern as recommended by @supabase/ssr
+ */
+export async function createSupabaseRouteHandlerClient(
   request: Request,
   response: NextResponse,
-) => {
-  const requestCookies = parseCookieHeader(request.headers.get("cookie") ?? "");
+) {
   const config = getSupabaseConfig();
 
   return createServerClient<Database>(config.url, config.key, {
     cookies: {
-      get(name) {
-        // parseCookieHeader can return either a Map-like object with get()
-        // or a plain record. Support both to avoid runtime type errors.
-        const anyCookies = requestCookies as any;
-        if (typeof anyCookies?.get === "function") {
-          return anyCookies.get(name);
-        }
-        return anyCookies?.[name];
+      getAll() {
+        return request.headers
+          .get("cookie")
+          ?.split(";")
+          .map((cookie) => {
+            const [name, ...rest] = cookie.trim().split("=");
+            return { name, value: rest.join("=") };
+          }) || [];
       },
-      set(name, value, options) {
-        response.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-      },
-      remove(name, options) {
-        response.cookies.set({
-          name,
-          value: "",
-          ...options,
-          expires: new Date(0),
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
         });
       },
     },
   });
-};
+}
 
