@@ -191,16 +191,15 @@ export function SignInForm() {
       console.log("🔄 Initiating client-side OAuth (required for PKCE cookie storage):", redirectUrl);
 
       // Use client-side OAuth - createBrowserClient from @supabase/ssr automatically
-      // stores the PKCE code verifier in cookies, which the callback route can read
-      // CRITICAL: Use skipBrowserRedirect: true and handle redirect manually
-      // This ensures the cookie is set before redirecting
-      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+      // stores the PKCE code verifier in cookies with the correct attributes (SameSite, Secure)
+      // Let Supabase handle the redirect automatically - this ensures cookies are set correctly
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
-          // skipBrowserRedirect: true means we handle the redirect manually
-          // This gives us control to ensure the cookie is set before redirecting
-          skipBrowserRedirect: true,
+          // Let Supabase handle the redirect automatically
+          // This ensures the PKCE code verifier cookie is set with correct attributes
+          // (SameSite=None, Secure=true) for cross-origin redirects
         },
       });
 
@@ -213,55 +212,13 @@ export function SignInForm() {
         return;
       }
       
-      console.log("📦 OAuth response data:", { hasUrl: !!data?.url, hasError: false });
+      // If we get here, Supabase will automatically redirect the browser
+      // The PKCE code verifier cookie will be set with correct attributes
+      console.log("✅ OAuth initiated, Supabase will redirect to Google automatically...");
+      console.log("🔐 PKCE code verifier cookie will be set automatically by @supabase/ssr");
       
-      if (data?.url) {
-        console.log("✅ OAuth URL generated");
-        console.log("🔐 PKCE code verifier should be stored in cookies by @supabase/ssr");
-        
-        // Wait a moment for cookie to be set by createBrowserClient
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // Check if code verifier cookie was set (for debugging)
-        const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
-        const codeVerifierCookieName = projectRef ? `sb-${projectRef}-auth-token-code-verifier` : "auth-token-code-verifier";
-        const allCookies = document.cookie.split(";").map(c => c.trim());
-        const codeVerifierCookie = allCookies.find(c => c.startsWith(codeVerifierCookieName));
-        const hasCodeVerifier = !!codeVerifierCookie;
-        
-        console.log("🍪 Code verifier cookie check:", {
-          cookieName: codeVerifierCookieName,
-          hasCookie: hasCodeVerifier,
-          cookieValue: codeVerifierCookie ? codeVerifierCookie.substring(0, 50) + "..." : "NOT FOUND",
-          allCookieNames: allCookies.map(c => c.split("=")[0]),
-        });
-        
-        if (!hasCodeVerifier) {
-          console.error("❌ ERROR: PKCE code verifier cookie not found!");
-          console.error("   This will cause 'PKCE code verifier not found' error in callback");
-          console.error("   The cookie should be set automatically by @supabase/ssr");
-          restoreConsole();
-          setError("Failed to initialize authentication. Please try again.");
-          setIsOAuthLoading(false);
-          return;
-        }
-        
-        console.log("✅ Cookie verified, redirecting to Google...");
-        // Note: Console warnings will be suppressed during Google OAuth flow
-        // This is intentional to filter out Google's account chooser accessibility warnings
-        // Now redirect manually after confirming cookie is set
-        window.location.href = data.url;
-      } else {
-        restoreConsole(); // Restore console before showing error
-        console.error("❌ No URL returned from OAuth");
-        console.error("❌ Response data:", data);
-        console.error("❌ This usually means:");
-        console.error("   1. Google OAuth is not enabled in Supabase");
-        console.error("   2. Google Client ID/Secret are missing or incorrect");
-        console.error("   3. Supabase configuration issue");
-        setError("Failed to initiate Google sign-in. Please check your browser console for details. Make sure Google OAuth is enabled in Supabase.");
-        setIsOAuthLoading(false);
-      }
+      // Supabase will handle the redirect automatically
+      // No need to manually redirect - this ensures cookies are set correctly
     } catch (err) {
       restoreConsole(); // Restore console before showing error
       console.error("❌ Exception in Google OAuth:", err);
@@ -435,7 +392,7 @@ export function SignInForm() {
 
           <Button
             type="submit"
-            className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
+            className="w-full h-12 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
