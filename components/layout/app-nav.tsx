@@ -10,10 +10,11 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/clients", label: "Clients" },
   { href: "/cases", label: "Cases" },
   { href: "/calendar", label: "Calendar" },
   { href: "/billing", label: "Billing" },
-  { href: "/clients", label: "Clients" },
+  { href: "/user-manual", label: "User Manual" },
   { href: "/settings", label: "Settings" },
 ];
 

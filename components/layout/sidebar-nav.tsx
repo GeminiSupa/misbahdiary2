@@ -13,17 +13,19 @@ import {
   Settings as SettingsIcon,
   MessageCircle,
   MessageSquare,
+  BookOpen,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "primary" },
+  { href: "/clients", label: "Clients", icon: Users, color: "info" },
   { href: "/cases", label: "Cases", icon: Briefcase, color: "primary" },
   { href: "/calendar", label: "Calendar", icon: CalendarDays, color: "warning" },
   { href: "/billing", label: "Billing", icon: Banknote, color: "success" },
-  { href: "/clients", label: "Clients", icon: Users, color: "info" },
   { href: "/messages", label: "Messages", icon: MessageSquare, color: "info" },
   { href: "/subscription", label: "Subscription", icon: Banknote, color: "success" },
   { href: "/contact", label: "Contact", icon: MessageCircle, color: "info" },
+  { href: "/user-manual", label: "User Manual", icon: BookOpen, color: "info" },
   { href: "/settings", label: "Settings", icon: SettingsIcon, color: "muted" },
 ];
 

@@ -86,10 +86,11 @@ export async function middleware(request: NextRequest) {
   // If authenticated, check subscription for ALL app routes
   // Block access to everything except subscription, onboarding, and public routes when expired
   if (user && !isPublicRoute && !request.nextUrl.pathname.startsWith("/api")) {
-    // Always allow access to subscription and onboarding pages
+    // Always allow access to subscription, onboarding, and user manual pages
     if (
       request.nextUrl.pathname.startsWith("/subscription") ||
-      request.nextUrl.pathname.startsWith("/onboarding")
+      request.nextUrl.pathname.startsWith("/onboarding") ||
+      request.nextUrl.pathname.startsWith("/user-manual")
     ) {
       return response;
     }
