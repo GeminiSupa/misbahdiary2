@@ -85,11 +85,40 @@ function ClientDocumentUploader({ clientId }: ClientDocumentUploaderProps) {
   const router = useRouter();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setError(null);
+    const input = event.target;
+    const file = input.files?.[0];
+    
+    // Check if file was actually captured/selected
+    if (!file) {
+      // Only show error if input had a value (user tried to select)
+      if (input.value) {
+        setError("No file captured. Please try taking the photo again.");
+        input.value = ""; // Reset input
+      }
+      setSelectedFile(null);
+      return;
     }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setError(`File size exceeds 10MB limit. Selected file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`);
+      input.value = ""; // Reset input
+      setSelectedFile(null);
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp|pdf)$/i)) {
+      setError("Invalid file type. Please select an image (JPG, PNG, WebP) or PDF file.");
+      input.value = ""; // Reset input
+      setSelectedFile(null);
+      return;
+    }
+    
+    setSelectedFile(file);
+    setError(null);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -108,8 +137,15 @@ function ClientDocumentUploader({ clientId }: ClientDocumentUploaderProps) {
     startTransition(async () => {
       const result = await uploadClientDocument(formData);
       if (!result.success) {
-        setError(result.message ?? "Unable to upload document.");
+        setError(result.message ?? "Unable to upload document. Please try again or contact support at /contact if the issue persists.");
         return;
+      }
+      // Reset both file inputs
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      if (cameraInputRef.current) {
+        cameraInputRef.current.value = "";
       }
       formRef.current?.reset();
       setSelectedFile(null);
@@ -119,10 +155,18 @@ function ClientDocumentUploader({ clientId }: ClientDocumentUploaderProps) {
   };
 
   const triggerFileInput = () => {
+    // Reset input to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     fileInputRef.current?.click();
   };
 
   const triggerCameraInput = () => {
+    // Reset input to allow capturing again
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = "";
+    }
     cameraInputRef.current?.click();
   };
 
@@ -147,6 +191,11 @@ function ClientDocumentUploader({ clientId }: ClientDocumentUploaderProps) {
         capture="environment"
         className="hidden"
         onChange={handleFileChange}
+        onClick={(e) => {
+          // Reset value on click to ensure onChange fires even if same file is selected
+          const target = e.target as HTMLInputElement;
+          target.value = "";
+        }}
       />
 
       {/* Upload options */}
@@ -228,7 +277,7 @@ function ClientDocumentDownloadButton({ documentId }: ClientDocumentDownloadButt
           startTransition(async () => {
             const result = await getSignedClientDocumentUrl(documentId);
             if (!result.success || !result.url) {
-              setError(result.message ?? "Unable to generate download link.");
+              setError(result.message ?? "Unable to generate download link. Please try again or contact support at /contact if the issue persists.");
               return;
             }
             window.open(result.url, "_blank", "noopener,noreferrer");

@@ -4,6 +4,7 @@ import { getSubscriptionStatus } from "@/app/(app)/subscription/actions";
 import { SubscriptionStatus } from "@/components/subscription/subscription-status";
 import { TrialBanner } from "@/components/subscription/trial-banner";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { SubscriptionManagement } from "@/components/subscription/subscription-management";
 import { SubscriptionHistory } from "@/components/subscription/subscription-history";
 import { SubscriptionGuide } from "@/components/subscription/subscription-guide";
@@ -53,10 +54,30 @@ export default async function SubscriptionPage() {
   if ("message" in subscriptionResult) {
     return (
       <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold">Subscription</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Subscription</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your subscription and billing
+          </p>
+        </div>
         <Card>
-          <CardContent className="p-6">
-            <p className="text-destructive">{subscriptionResult.message}</p>
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-2">
+              <p className="text-destructive font-medium">{subscriptionResult.message}</p>
+              <p className="text-sm text-muted-foreground">
+                If you continue to experience issues, please contact our support team.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+              <Button asChild variant="default" className="flex-1 sm:flex-none">
+                <a href="/contact">Contact Support</a>
+              </Button>
+              <Button asChild variant="outline" className="flex-1 sm:flex-none">
+                <a href="mailto:info@ux4u.online" target="_blank" rel="noopener noreferrer">
+                  Email: info@ux4u.online
+                </a>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -69,23 +90,97 @@ export default async function SubscriptionPage() {
   // If plan_id is null, get the default Professional Plan
   let plan = null;
   if (subscription.plan_id) {
-    const { data: planData } = await supabase
+    const { data: planData, error: planError } = await supabase
       .from("subscription_plans")
-      .select("id, name, price_monthly, price_yearly, features")
+      .select("id, name, price_monthly, price_yearly, features, price_id_stripe, price_id_stripe_yearly, product_id_stripe")
       .eq("id", subscription.plan_id)
+      .eq("is_active", true)
       .single();
-    plan = planData;
+    
+    if (planError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error fetching plan by ID:", {
+          code: planError.code,
+          message: planError.message,
+          details: planError.details,
+          hint: planError.hint,
+        });
+      }
+    } else if (planData) {
+      plan = planData;
+    }
   }
 
   // If no plan found, get the default Professional Plan
+  // Note: There might be multiple "Professional Plan" entries, so we get the first one
   if (!plan) {
-    const { data: defaultPlan } = await supabase
+    const { data: defaultPlans, error: defaultPlanError } = await supabase
       .from("subscription_plans")
-      .select("id, name, price_monthly, price_yearly, features")
+      .select("id, name, price_monthly, price_yearly, features, price_id_stripe, price_id_stripe_yearly, product_id_stripe")
       .eq("name", "Professional Plan")
       .eq("is_active", true)
-      .maybeSingle();
-    plan = defaultPlan;
+      .order("created_at", { ascending: false })
+      .limit(1);
+    
+    const defaultPlan = defaultPlans && defaultPlans.length > 0 ? defaultPlans[0] : null;
+    
+    // Check for error (including empty error object {} which indicates RLS blocking)
+    // Empty error object {} usually means RLS is blocking access
+    const hasProperError = defaultPlanError && Object.keys(defaultPlanError).length > 0;
+    const hasEmptyError = defaultPlanError && Object.keys(defaultPlanError).length === 0;
+    const isBlockedByRLS = !defaultPlan && (hasEmptyError || (!hasProperError && !defaultPlanError));
+    
+    if (hasProperError || isBlockedByRLS) {
+      if (process.env.NODE_ENV === "development") {
+        // Get user info for diagnostics
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        
+        console.error("Error fetching default plan:", {
+          userId: currentUser?.id,
+          userEmail: currentUser?.email,
+          hasError: !!defaultPlanError,
+          isEmptyError: hasEmptyError,
+          errorType: typeof defaultPlanError,
+          errorKeys: defaultPlanError ? Object.keys(defaultPlanError) : [],
+          errorStringified: JSON.stringify(defaultPlanError),
+          code: defaultPlanError?.code,
+          message: defaultPlanError?.message,
+          details: defaultPlanError?.details,
+          hint: defaultPlanError?.hint,
+          fullError: defaultPlanError,
+          hasData: !!defaultPlan,
+          dataValue: defaultPlan,
+          likelyRLSBlock: isBlockedByRLS,
+        });
+        
+        // Try a diagnostic query to see if RLS is blocking
+        const { data: testPlans, error: testError } = await supabase
+          .from("subscription_plans")
+          .select("id, name, is_active")
+          .limit(1);
+        
+        console.error("RLS Diagnostic - Can access subscription_plans?", {
+          userId: currentUser?.id,
+          hasData: !!testPlans,
+          dataCount: testPlans?.length || 0,
+          dataValue: testPlans,
+          hasError: !!testError,
+          errorType: typeof testError,
+          errorKeys: testError ? Object.keys(testError) : [],
+          errorStringified: JSON.stringify(testError),
+          error: testError,
+        });
+      }
+    }
+    
+    if (defaultPlan) {
+      plan = defaultPlan;
+    } else if (!hasProperError && !isBlockedByRLS) {
+      // No error but also no data - might be RLS or plan doesn't exist
+      if (process.env.NODE_ENV === "development") {
+        console.warn("No default plan found and no error returned. This might indicate an RLS policy issue or the plan doesn't exist.");
+      }
+    }
   }
 
   // Fallback plan if no plan is found in database
@@ -96,6 +191,9 @@ export default async function SubscriptionPage() {
       name: "Professional Plan",
       price_monthly: 500.00,
       price_yearly: 4999.00,
+      price_id_stripe: null,
+      price_id_stripe_yearly: null,
+      product_id_stripe: null,
       features: {
         features: [
           "Unlimited cases",

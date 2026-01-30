@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { renderToStream } from "@react-pdf/renderer";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { ClientPdfDocument } from "@/lib/pdf/client-pdf";
 import { createElement } from "react";
@@ -106,28 +106,31 @@ export async function GET(
       generatedAt,
     });
 
-    const stream = await renderToStream(pdfElement as any);
+    const pdfBuffer = await renderToBuffer(pdfElement as any);
 
     const clientNameSlug = (clientData.full_name ?? clientData.name ?? "client")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-    return new NextResponse(stream as unknown as ReadableStream, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=client-${clientNameSlug}-${clientId.slice(0, 8)}.pdf`,
+        "Content-Disposition": `attachment; filename="client-${clientNameSlug}-${clientId.slice(0, 8)}.pdf"`,
         "Cache-Control": "private, max-age=0, must-revalidate",
+        "Content-Length": pdfBuffer.length.toString(),
       },
     });
   } catch (error) {
-    console.error("Error generating PDF:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error generating PDF:", error);
+    }
     return NextResponse.json(
       {
         message: "Error generating PDF",
         error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

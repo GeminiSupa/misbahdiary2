@@ -268,9 +268,15 @@ export function SubscriptionManagement({
                   )}
                 </Button>
               )}
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Your subscription automatically renews each month. Use "Manage Billing" to cancel or update.
-              </p>
+              <div className="space-y-2 mt-2">
+                <p className="text-xs text-muted-foreground text-center">
+                  Your subscription automatically renews each month.
+                </p>
+                <p className="text-xs text-muted-foreground text-center">
+                  To <strong>cancel your subscription</strong>, click "Manage Billing & Subscription" above. 
+                  You'll be redirected to Stripe's secure portal where you can cancel anytime.
+                </p>
+              </div>
             </div>
           </div>
         )}

@@ -41,13 +41,20 @@ export function MatterDocumentUploader({ matterId, hearingId }: MatterDocumentUp
         }
         const file = formData.get("file");
         if (!(file instanceof File) || file.size === 0) {
-          setError("Select a file before uploading.");
+          setError("Please select a file to upload. The file must not be empty.");
+          return;
+        }
+
+        // Validate file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          setError(`File size exceeds 10MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please compress or use a smaller file.`);
           return;
         }
         startTransition(async () => {
           const result = await uploadMatterDocument(formData);
           if (!result.success) {
-            setError(result.message ?? "Unable to upload document.");
+            setError(result.message ?? "Unable to upload document. Please try again or contact support at /contact if the issue persists.");
             return;
           }
           formRef.current?.reset();
@@ -83,7 +90,7 @@ export function DocumentDownloadButton({ documentId }: DocumentDownloadButtonPro
           startTransition(async () => {
             const result = await getSignedMatterDocumentUrl(documentId);
             if (!result.success || !result.url) {
-              setError(result.message ?? "Unable to generate download link.");
+              setError(result.message ?? "Unable to generate download link. Please try again or contact support at /contact if the issue persists.");
               return;
             }
             window.open(result.url, "_blank", "noopener,noreferrer");

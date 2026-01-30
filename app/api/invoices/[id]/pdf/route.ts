@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { renderToStream } from "@react-pdf/renderer";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { InvoicePdfDocument } from "@/lib/pdf/invoice-pdf";
 import { createElement } from "react";
@@ -83,20 +83,23 @@ export async function GET(
     lineItems,
   });
 
-    const stream = await renderToStream(pdfElement as any);
+    const pdfBuffer = await renderToBuffer(pdfElement as any);
 
-    return new NextResponse(stream as unknown as ReadableStream, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=invoice-${invoice.invoice_number}.pdf`,
+        "Content-Disposition": `attachment; filename="invoice-${invoice.invoice_number}.pdf"`,
         "Cache-Control": "private, max-age=0, must-revalidate",
+        "Content-Length": pdfBuffer.length.toString(),
       },
     });
   } catch (error) {
-    console.error("Error generating invoice PDF:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error generating invoice PDF:", error);
+    }
     return NextResponse.json(
       { message: "Failed to generate PDF", error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

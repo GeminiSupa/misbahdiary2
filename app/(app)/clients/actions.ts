@@ -250,7 +250,16 @@ export async function uploadClientDocument(formData: FormData) {
   }
 
   if (!(file instanceof File) || file.size === 0) {
-    return { success: false, message: "Select a file to upload." };
+    return { success: false, message: "Please select a file to upload. The file must not be empty." };
+  }
+
+  // Validate file size (max 10MB)
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxSize) {
+    return { 
+      success: false, 
+      message: `File size exceeds 10MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please compress or use a smaller file.` 
+    };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -292,7 +301,17 @@ export async function uploadClientDocument(formData: FormData) {
         message: `Storage bucket "${DOCUMENT_BUCKET}" not found. Please run: npm run supabase:setup-storage`,
       };
     }
-    return { success: false, message: `Unable to upload file: ${uploadError.message}` };
+    // Provide user-friendly error message
+    if (uploadError.message?.includes("duplicate") || uploadError.message?.includes("already exists")) {
+      return {
+        success: false,
+        message: "A file with this name already exists. Please rename the file and try again.",
+      };
+    }
+    return { 
+      success: false, 
+      message: `Unable to upload file. ${uploadError.message}. Please try again or contact support at /contact if the issue persists.` 
+    };
   }
 
   const { error: insertError } = await supabase.from("documents").insert({
@@ -477,7 +496,9 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
 
   // Log audit event
   await logClientDeleted(clientId, clientName).catch((error) => {
-    console.error("Failed to log audit event:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Failed to log audit event:", error);
+    }
   });
 
   revalidatePath("/clients");

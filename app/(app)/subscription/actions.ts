@@ -55,7 +55,9 @@ export async function getSubscriptionStatus(
   if (firmError || !firm) {
     // If columns don't exist yet (migration not run), return default trial status
     if (firmError?.code === "42703" || firmError?.message?.includes("column") || firmError?.message?.includes("does not exist")) {
-      console.warn("Subscription columns may not exist yet. Returning default trial status.");
+      if (process.env.NODE_ENV === "development") {
+        console.warn("Subscription columns may not exist yet. Returning default trial status.");
+      }
       return {
         status: "trial" as const,
         plan_id: null,
@@ -207,33 +209,87 @@ export async function createCheckoutSession(
   // Get subscription plan - try firm's plan first, then default
   let plan = null;
   if (firm.subscription_plan_id) {
-    const { data: planData } = await supabase
+    const { data: planData, error: planError } = await supabase
       .from("subscription_plans")
       .select("id, name, price_id_stripe, price_id_stripe_yearly, product_id_stripe, price_monthly, price_yearly")
       .eq("id", firm.subscription_plan_id)
+      .eq("is_active", true)
       .single();
-    plan = planData;
+    
+    if (planError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error fetching plan by ID:", {
+          code: planError.code,
+          message: planError.message,
+          details: planError.details,
+          hint: planError.hint,
+        });
+      }
+    } else if (planData) {
+      plan = planData;
+    }
   }
 
   // If no plan found, get the default Professional Plan
+  // Note: There might be multiple "Professional Plan" entries, so we get the first one
   if (!plan) {
-    const { data: defaultPlan } = await supabase
+    const { data: defaultPlans, error: defaultPlanError } = await supabase
       .from("subscription_plans")
       .select("id, name, price_id_stripe, price_id_stripe_yearly, product_id_stripe, price_monthly, price_yearly")
       .eq("name", "Professional Plan")
       .eq("is_active", true)
-      .maybeSingle();
-    plan = defaultPlan;
+      .order("created_at", { ascending: false })
+      .limit(1);
+    
+    const defaultPlan = defaultPlans && defaultPlans.length > 0 ? defaultPlans[0] : null;
+    
+    if (defaultPlanError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error fetching default plan:", {
+          code: defaultPlanError.code,
+          message: defaultPlanError.message,
+          details: defaultPlanError.details,
+          hint: defaultPlanError.hint,
+          fullError: defaultPlanError,
+        });
+      }
+    } else if (defaultPlan) {
+      plan = defaultPlan;
+    } else {
+      // No error but also no data - likely RLS policy blocking access
+      if (process.env.NODE_ENV === "development") {
+        console.warn("No default plan found and no error returned. This might indicate an RLS policy issue.");
+      }
+    }
   }
 
   if (!plan) {
-    console.error("No subscription plan found");
-    return { message: "Subscription plan not found. Please contact support." };
+    if (process.env.NODE_ENV === "development") {
+      console.error("No subscription plan found. This might be an RLS policy issue or the plan doesn't exist.");
+      // Try to check if we can access the table at all
+      const { data: allPlans, error: allPlansError } = await supabase
+        .from("subscription_plans")
+        .select("id, name, is_active")
+        .limit(5);
+      if (allPlansError) {
+        console.error("Cannot access subscription_plans table:", {
+          code: allPlansError.code,
+          message: allPlansError.message,
+          details: allPlansError.details,
+          hint: allPlansError.hint,
+        });
+      } else {
+        console.error("Available plans:", allPlans);
+      }
+    }
+    return { message: "Subscription plan not found. Please contact support at /contact or email info@ux4u.online for assistance." };
   }
 
   // Check if Stripe is configured
   if (!stripe) {
-    console.error("Stripe client is not initialized. Check STRIPE_SECRET_KEY environment variable.");
+    if (process.env.NODE_ENV === "development") {
+      console.error("Stripe client is not initialized. Check STRIPE_SECRET_KEY environment variable.");
+    }
     return {
       message: "Stripe is not configured. Please set STRIPE_SECRET_KEY in your environment variables.",
     };
@@ -246,18 +302,22 @@ export async function createCheckoutSession(
 
   if (!stripePriceId) {
     const missingField = billingInterval === "yearly" ? "price_id_stripe_yearly" : "price_id_stripe";
-    console.error(`Plan missing ${missingField}:`, { planId: plan.id, planName: plan.name, billingInterval });
+    if (process.env.NODE_ENV === "development") {
+      console.error(`Plan missing ${missingField}:`, { planId: plan.id, planName: plan.name, billingInterval });
+    }
     return {
       message:
-        `Subscription plan is not configured with Stripe ${billingInterval === "yearly" ? "Yearly" : "Monthly"} Price ID. Please run the migration to update the plan with Stripe IDs, or contact support.`,
+        `Subscription plan is not configured with Stripe ${billingInterval === "yearly" ? "Yearly" : "Monthly"} Price ID. Please contact support at /contact or email info@ux4u.online for assistance.`,
     };
   }
 
   if (!plan.product_id_stripe) {
-    console.error("Plan missing product_id_stripe:", { planId: plan.id, planName: plan.name });
+    if (process.env.NODE_ENV === "development") {
+      console.error("Plan missing product_id_stripe:", { planId: plan.id, planName: plan.name });
+    }
     return {
       message:
-        "Subscription plan product ID is missing. Please run the migration to update the plan with Stripe IDs, or contact support.",
+        "Subscription plan product ID is missing. Please contact support at /contact or email info@ux4u.online for assistance.",
     };
   }
 
@@ -314,20 +374,21 @@ export async function createCheckoutSession(
 
     return { url: session.url || undefined };
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error creating checkout session:", error);
+      // Log detailed error for debugging
+      if (error instanceof Error && "type" in error) {
+        console.error("Stripe error details:", {
+          type: (error as { type?: string }).type,
+          message: error.message,
+          code: (error as { code?: string }).code,
+        });
+      }
+    }
     const errorMessage =
       error instanceof Error
         ? error.message
         : "Failed to create checkout session";
-    
-    // Log detailed error for debugging
-    if (error instanceof Error && "type" in error) {
-      console.error("Stripe error details:", {
-        type: (error as { type?: string }).type,
-        message: error.message,
-        code: (error as { code?: string }).code,
-      });
-    }
     
     return {
       error: errorMessage,
@@ -387,7 +448,9 @@ export async function createPortalSession(
 
     return { url: session.url || undefined };
   } catch (error) {
-    console.error("Error creating portal session:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error creating portal session:", error);
+    }
     return {
       error:
         error instanceof Error ? error.message : "Failed to create portal session",

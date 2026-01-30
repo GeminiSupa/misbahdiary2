@@ -36,26 +36,35 @@ export function ContactForm() {
   const onSubmit = (values: ContactFormValues) => {
     startTransition(async () => {
       try {
-        // Create mailto link with pre-filled email
-        const mailtoLink = `mailto:info@ux4u.online?subject=${encodeURIComponent(values.subject)}&body=${encodeURIComponent(
-          `Name: ${values.name}\nEmail: ${values.email}\n\nMessage:\n${values.message}`
-        )}`;
-        
-        // Open email client
-        window.location.href = mailtoLink;
-        
-        // Show success message
-        toast({
-          title: "Email Client Opened",
-          description: "Your email client should open with a pre-filled message. If not, please email us at info@ux4u.online",
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
         });
 
-        // Reset form
-        form.reset();
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Message Sent",
+            description: data.message || "Your message has been sent successfully. We'll get back to you soon!",
+            variant: "success",
+          });
+          form.reset();
+        } else {
+          toast({
+            title: "Error",
+            description: data.message || "Failed to send message. Please try again or email us directly at info@ux4u.online",
+            variant: "destructive",
+          });
+        }
       } catch (error) {
+        console.error("Contact form submission error:", error);
         toast({
           title: "Error",
-          description: "Failed to open email client. Please email us directly at info@ux4u.online",
+          description: "Failed to send message. Please try again later or email us directly at info@ux4u.online",
           variant: "destructive",
         });
       }
@@ -145,7 +154,7 @@ export function ContactForm() {
           type="button"
           variant="outline"
           onClick={() => {
-            window.open("https://wa.me/923255116929", "_blank");
+            window.open("https://wa.me/923255116929", "_blank", "noopener,noreferrer");
           }}
           className="flex-1"
         >

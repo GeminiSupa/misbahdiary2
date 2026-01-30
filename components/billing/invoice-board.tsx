@@ -261,7 +261,7 @@ function InvoiceCard({
           </span>
         ) : null}
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         {invoice.status === "sent" || invoice.status === "overdue" ? (
           <>
             <Button
@@ -273,9 +273,11 @@ function InvoiceCard({
                   await recordInvoicePayment(invoice.id);
                 })
               }
+              className="flex-shrink-0"
             >
               {isPaying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Mark paid
+              <span className="hidden sm:inline">Mark paid</span>
+              <span className="sm:hidden">Paid</span>
             </Button>
             <VoidInvoiceButton
               invoiceId={invoice.id}
@@ -291,15 +293,15 @@ function InvoiceCard({
           status={invoice.status}
           size="sm"
         />
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="flex-shrink-0">
           <a
             href={`/api/invoices/${invoice.id}/pdf`}
             download={`invoice-${invoice.invoiceNumber}.pdf`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Download className="mr-2 h-4 w-4" />
-            Export
+            <Download className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Export</span>
           </a>
         </Button>
       </div>

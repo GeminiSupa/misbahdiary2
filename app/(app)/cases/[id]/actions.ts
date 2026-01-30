@@ -162,7 +162,9 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
     .eq("id", payload.id);
 
   if (updateError) {
-    console.error("Error updating matter:", updateError);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error updating matter:", updateError);
+    }
     return {
       success: false,
       message: `Unable to update matter: ${updateError.message}`,
@@ -215,7 +217,9 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
       },
       newlyAssigned,
     ).catch((error) => {
-      console.error("Failed to send assignment notifications:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Failed to send assignment notifications:", error);
+      }
       // Don't fail the operation if notifications fail
     });
   }
@@ -236,7 +240,16 @@ export async function uploadMatterDocument(formData: FormData) {
   }
 
   if (!(file instanceof File) || file.size === 0) {
-    return { success: false, message: "Select a file to upload." };
+    return { success: false, message: "Please select a file to upload. The file must not be empty." };
+  }
+
+  // Validate file size (max 10MB)
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxSize) {
+    return { 
+      success: false, 
+      message: `File size exceeds 10MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please compress or use a smaller file.` 
+    };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -272,7 +285,24 @@ export async function uploadMatterDocument(formData: FormData) {
     });
 
   if (uploadError) {
-    return { success: false, message: `Unable to upload file: ${uploadError.message}` };
+    // Provide helpful error message for missing bucket
+    if (uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("not found")) {
+      return {
+        success: false,
+        message: `Storage bucket "${DOCUMENT_BUCKET}" not found. Please contact support at /contact or email info@ux4u.online for assistance.`,
+      };
+    }
+    // Provide user-friendly error message
+    if (uploadError.message?.includes("duplicate") || uploadError.message?.includes("already exists")) {
+      return {
+        success: false,
+        message: "A file with this name already exists. Please rename the file and try again.",
+      };
+    }
+    return { 
+      success: false, 
+      message: `Unable to upload file. ${uploadError.message}. Please try again or contact support at /contact if the issue persists.` 
+    };
   }
 
   const isHearingDocument = typeof hearingId === "string" && hearingId.length > 0;
@@ -552,7 +582,9 @@ export async function recordPayment(formData: FormData): Promise<ActionState> {
       .eq("id", existingFinance.id);
 
     if (updateError) {
-      console.error("Error updating finance:", updateError);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error updating finance:", updateError);
+      }
       return { success: false, message: `Unable to record payment: ${updateError.message}` };
     }
   } else {
@@ -566,7 +598,9 @@ export async function recordPayment(formData: FormData): Promise<ActionState> {
     });
 
     if (insertError) {
-      console.error("Error creating finance:", insertError);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error creating finance:", insertError);
+      }
       return { success: false, message: `Unable to record payment: ${insertError.message}` };
     }
   }
@@ -643,7 +677,9 @@ export async function updateFeeTotal(formData: FormData): Promise<ActionState> {
       .eq("id", existingFinance.id);
 
     if (updateError) {
-      console.error("Error updating fee total:", updateError);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error updating fee total:", updateError);
+      }
       return { success: false, message: `Unable to update fee total: ${updateError.message}` };
     }
   } else {
@@ -657,7 +693,9 @@ export async function updateFeeTotal(formData: FormData): Promise<ActionState> {
     });
 
     if (insertError) {
-      console.error("Error creating finance:", insertError);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error creating finance:", insertError);
+      }
       return { success: false, message: `Unable to set fee total: ${insertError.message}` };
     }
   }
@@ -736,7 +774,9 @@ export async function addCaseHistoryEntry(formData: FormData): Promise<ActionSta
   });
 
   if (insertError) {
-    console.error("Error inserting case history:", insertError);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error inserting case history:", insertError);
+    }
     return { success: false, message: `Unable to add timeline entry: ${insertError.message}` };
   }
 

@@ -20,7 +20,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (!stripe) {
-    console.error("Stripe is not configured");
+    if (process.env.NODE_ENV === "development") {
+      console.error("Stripe is not configured");
+    }
     return NextResponse.json(
       { error: "Stripe is not configured" },
       { status: 500 },
@@ -28,7 +30,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (!STRIPE_WEBHOOK_SECRET) {
-    console.error("STRIPE_WEBHOOK_SECRET is not set");
+    if (process.env.NODE_ENV === "development") {
+      console.error("STRIPE_WEBHOOK_SECRET is not set");
+    }
     return NextResponse.json(
       { error: "Webhook secret not configured" },
       { status: 500 },
@@ -44,7 +48,9 @@ export async function POST(req: NextRequest) {
       STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Webhook signature verification failed:", err);
+    }
     return NextResponse.json(
       { error: "Webhook signature verification failed" },
       { status: 400 },
@@ -60,7 +66,9 @@ export async function POST(req: NextRequest) {
         const firmId = session.metadata?.firm_id;
 
         if (!firmId) {
-          console.error("No firm_id in checkout session metadata");
+          if (process.env.NODE_ENV === "development") {
+            console.error("No firm_id in checkout session metadata");
+          }
           break;
         }
 
@@ -72,7 +80,9 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
 
         if (firmCheckError || !firm) {
-          console.error("Firm not found:", firmCheckError);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Firm not found:", firmCheckError);
+          }
           break;
         }
 
@@ -117,7 +127,9 @@ export async function POST(req: NextRequest) {
               .eq("id", firmId);
 
             if (updateError) {
-              console.error("Error updating firm subscription:", updateError);
+              if (process.env.NODE_ENV === "development") {
+                console.error("Error updating firm subscription:", updateError);
+              }
               throw updateError;
             }
 
@@ -199,7 +211,9 @@ export async function POST(req: NextRequest) {
         const firmId = subscription.metadata?.firm_id;
 
         if (!firmId) {
-          console.error("No firm_id in subscription metadata");
+          if (process.env.NODE_ENV === "development") {
+            console.error("No firm_id in subscription metadata");
+          }
           break;
         }
 
@@ -211,7 +225,9 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
 
         if (!firm) {
-          console.error("Firm not found for subscription update:", firmId);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Firm not found for subscription update:", firmId);
+          }
           break;
         }
 
@@ -241,7 +257,9 @@ export async function POST(req: NextRequest) {
           .eq("id", firmId);
 
         if (updateError) {
-          console.error("Error updating firm subscription:", updateError);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Error updating firm subscription:", updateError);
+          }
           throw updateError;
         }
 
@@ -264,7 +282,9 @@ export async function POST(req: NextRequest) {
         const firmId = subscription.metadata?.firm_id;
 
         if (!firmId) {
-          console.error("No firm_id in subscription metadata");
+          if (process.env.NODE_ENV === "development") {
+            console.error("No firm_id in subscription metadata");
+          }
           break;
         }
 
@@ -276,7 +296,9 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
 
         if (!firm) {
-          console.error("Firm not found for subscription deletion:", firmId);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Firm not found for subscription deletion:", firmId);
+          }
           break;
         }
 
@@ -290,7 +312,9 @@ export async function POST(req: NextRequest) {
           .eq("id", firmId);
 
         if (updateError) {
-          console.error("Error updating firm subscription:", updateError);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Error updating firm subscription:", updateError);
+          }
           throw updateError;
         }
 
@@ -390,19 +414,23 @@ export async function POST(req: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`Unhandled event type: ${event.type}`);
+        }
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Error processing webhook:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Webhook processing failed";
-    console.error("Webhook error details:", {
-      message: errorMessage,
-      event_type: event?.type,
-      stack: error instanceof Error ? error.stack : undefined,
-    });
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error processing webhook:", error);
+      console.error("Webhook error details:", {
+        message: errorMessage,
+        event_type: event?.type,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    }
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 },

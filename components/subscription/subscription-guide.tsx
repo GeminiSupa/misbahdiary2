@@ -87,12 +87,17 @@ export function SubscriptionGuide({ subscriptionStatus, isOwner }: SubscriptionG
               </h4>
               <div className="text-sm text-muted-foreground">
                 <p className="mb-1"><strong>Recurring subscription:</strong> Your subscription automatically renews each month.</p>
-                <p className="mb-1">To cancel or manage your subscription:</p>
-                <ul className="list-disc list-inside mt-1 space-y-1 text-xs">
-                  <li>Click "Manage Billing" button above</li>
-                  <li>Access Stripe's customer portal</li>
-                  <li>Cancel or update your subscription anytime</li>
-                </ul>
+                <p className="mb-1"><strong>To cancel your subscription:</strong></p>
+                <ol className="list-decimal list-inside mt-1 space-y-1 text-xs">
+                  <li>Click the <strong>"Manage Billing & Subscription"</strong> button in the "Current Plan" card above</li>
+                  <li>You'll be redirected to Stripe's secure customer portal</li>
+                  <li>In the portal, click <strong>"Cancel subscription"</strong></li>
+                  <li>Your subscription will remain active until the end of the current billing period</li>
+                  <li>You can reactivate anytime before the period ends</li>
+                </ol>
+                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                  <strong>Note:</strong> After cancellation, you'll lose access when the current period ends. No refunds for unused time.
+                </p>
               </div>
             </div>
           </div>

@@ -8,16 +8,7 @@ export default async function Home() {
     error,
   } = await supabase.auth.getUser();
 
-  // Log for debugging
-  console.log("🏠 Home page - Auth check:", {
-    hasUser: !!user,
-    userId: user?.id,
-    email: user?.email,
-    error: error?.message,
-  });
-
   if (error || !user) {
-    console.log("🏠 Home page - Redirecting to sign-in (no user)");
     redirect("/sign-in");
   }
 
@@ -27,16 +18,9 @@ export default async function Home() {
     .eq("id", user.id)
     .maybeSingle();
 
-  console.log("🏠 Home page - Profile check:", {
-    hasProfile: !!profile,
-    firmId: profile?.firm_id,
-  });
-
   if (!profile?.firm_id) {
-    console.log("🏠 Home page - Redirecting to onboarding (no firm_id)");
     redirect("/onboarding");
   }
 
-  console.log("🏠 Home page - Redirecting to dashboard");
   redirect("/dashboard");
 }

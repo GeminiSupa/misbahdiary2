@@ -44,12 +44,25 @@ export async function completeOnboarding(
   trialEndsAt.setDate(trialEndsAt.getDate() + 15);
 
   // Get the default subscription plan (Professional Plan)
-  const { data: defaultPlan } = await supabase
+  // Note: There might be multiple "Professional Plan" entries, so we get the first one
+  const { data: defaultPlans, error: planError } = await supabase
     .from("subscription_plans")
     .select("id")
     .eq("name", "Professional Plan")
     .eq("is_active", true)
-    .maybeSingle();
+    .order("created_at", { ascending: false })
+    .limit(1);
+  
+  const defaultPlan = defaultPlans && defaultPlans.length > 0 ? defaultPlans[0] : null;
+
+  if (planError) {
+    console.error("Error fetching default subscription plan during onboarding:", planError);
+    // Continue with null plan_id - it will be set by migration or can be fetched later
+  }
+
+  if (!defaultPlan) {
+    console.warn("No default subscription plan found during onboarding. This might be an RLS policy issue.");
+  }
 
   const { data: firm, error: firmError } = await supabase
     .from("firms")
