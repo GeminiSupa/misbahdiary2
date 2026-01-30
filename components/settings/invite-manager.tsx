@@ -203,7 +203,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
                       <TableCell>{invite.email}</TableCell>
                       <TableCell className="capitalize">{invite.role.replace("_", " ")}</TableCell>
                       <TableCell className="capitalize">{invite.status}</TableCell>
-                      <TableCell>{new Date(invite.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(invite.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })}</TableCell>
                       <TableCell>
                         {invite.status === "pending" ? (
                           <Button
@@ -249,7 +249,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border/40">
                     <span className="text-xs text-muted-foreground">
-                      Sent: {new Date(invite.createdAt).toLocaleDateString()}
+                      Sent: {new Date(invite.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })}
                     </span>
                     {invite.status === "pending" ? (
                       <Button

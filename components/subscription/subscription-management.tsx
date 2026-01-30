@@ -47,29 +47,36 @@ export function SubscriptionManagement({
         if ("url" in result && result.url) {
           window.location.href = result.url;
         } else if ("message" in result) {
+          const message = result.message || "Failed to create checkout session. Please check your Stripe configuration.";
           toast({
             title: "Error",
-            description: result.message || "Failed to create checkout session. Please check your Stripe configuration.",
+            description: message.includes("contact support") || message.includes("support")
+              ? `${message} Visit /contact or email info@ux4u.online for help.`
+              : message,
             variant: "destructive",
           });
         } else if ("error" in result) {
           toast({
             title: "Error",
-            description: result.error || "Failed to create checkout session. Please check your Stripe configuration.",
+            description: result.error || "Failed to create checkout session. Please contact support at /contact or email info@ux4u.online.",
             variant: "destructive",
           });
         } else {
           toast({
             title: "Error",
-            description: "Failed to create checkout session. Please check your Stripe configuration and try again.",
+            description: "Failed to create checkout session. Please contact support at /contact or email info@ux4u.online for assistance.",
             variant: "destructive",
           });
         }
       } catch (error) {
-        console.error("Subscribe error:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Subscribe error:", error);
+        }
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
+          description: error instanceof Error 
+            ? `${error.message} Please contact support at /contact or email info@ux4u.online if the issue persists.`
+            : "An unexpected error occurred. Please try again or contact support at /contact.",
           variant: "destructive",
         });
       }
@@ -78,19 +85,35 @@ export function SubscriptionManagement({
 
   const handleManageBilling = () => {
     startTransition(async () => {
-      const result = await createPortalSession(firmId);
-      if ("url" in result && result.url) {
-        window.location.href = result.url;
-      } else if ("message" in result) {
+      try {
+        const result = await createPortalSession(firmId);
+        if ("url" in result && result.url) {
+          window.location.href = result.url;
+        } else if ("message" in result) {
+          const message = result.message || "Failed to access billing portal.";
+          toast({
+            title: "Error",
+            description: message.includes("contact support") || message.includes("support")
+              ? `${message} Visit /contact or email info@ux4u.online for help.`
+              : message,
+            variant: "destructive",
+          });
+        } else if ("error" in result) {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to access billing portal. Please contact support at /contact or email info@ux4u.online.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("Manage billing error:", error);
+        }
         toast({
           title: "Error",
-          description: result.message,
-          variant: "destructive",
-        });
-      } else if ("error" in result) {
-        toast({
-          title: "Error",
-          description: result.error,
+          description: error instanceof Error 
+            ? `${error.message} Please contact support at /contact or email info@ux4u.online if the issue persists.`
+            : "An unexpected error occurred. Please try again or contact support at /contact.",
           variant: "destructive",
         });
       }
@@ -191,7 +214,7 @@ export function SubscriptionManagement({
                 </p>
               </div>
               <p className="text-sm text-green-700 dark:text-green-300">
-                Your subscription is active until {subscription.subscription_ends_at && new Date(subscription.subscription_ends_at).toLocaleDateString()}.
+                Your subscription is active until {subscription.subscription_ends_at && new Date(subscription.subscription_ends_at).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })}.
               </p>
               {subscription.subscription_ends_at && (
                 <p className="text-xs text-green-600 dark:text-green-400 mt-2">

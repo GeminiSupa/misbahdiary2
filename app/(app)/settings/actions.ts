@@ -184,7 +184,7 @@ export async function changePassword(
     .maybeSingle();
 
   const userName = profile?.full_name || user.email || "User";
-  const timestamp = new Date().toLocaleString();
+  const timestamp = new Date().toLocaleString("en-US", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
   
   await sendPasswordChangeNotification(user.email!, userName, timestamp).catch((error) => {
     console.error("Failed to send password change notification email:", error);

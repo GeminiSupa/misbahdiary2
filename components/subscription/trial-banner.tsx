@@ -71,7 +71,7 @@ export function TrialBanner({
           {days} {days === 1 ? "day" : "days"} remaining in your free trial.
           {trialEndsAt && (
             <span className="ml-2 text-xs opacity-75">
-              (Ends {new Date(trialEndsAt).toLocaleDateString()})
+              (Ends {new Date(trialEndsAt).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })})
             </span>
           )}
         </span>
