@@ -105,9 +105,9 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                   setQuery("");
                   setStatusFilter("all");
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto min-w-0"
               >
-                Clear filters
+                <span className="truncate">Clear filters</span>
               </Button>
             )}
           </div>
@@ -178,7 +178,9 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial min-w-0" onClick={(e) => e.stopPropagation()}>
-                    <Link href={`/cases/${matter.id}`} className="truncate">Open detail</Link>
+                    <Link href={`/cases/${matter.id}`} className="truncate block min-w-0">
+                      <span className="truncate">Open detail</span>
+                    </Link>
                   </Button>
                   <div onClick={(e) => e.stopPropagation()}>
                     <DeleteMatterButton

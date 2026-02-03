@@ -1,12 +1,11 @@
-// @ts-nocheck
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { saveClient, type ClientFormValues } from "@/app/(app)/clients/actions";
+import { saveClient } from "@/app/(app)/clients/actions";
+import type { ClientFormValues } from "@/app/(app)/clients/actions";
 import {
   clientTypeOptions,
   clientRepresentationOptions,
@@ -40,7 +39,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { clientSchemaForForm } from "@/lib/validation/clients";
+import { clientSchemaForForm, type ClientSchemaForForm } from "@/lib/validation/clients";
 
 type ClientFormProps = {
   initialClient?: ClientFormValues | null;
@@ -53,7 +52,7 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const form = useForm<ClientFormValues>({
+  const form = useForm<ClientSchemaForForm>({
     resolver: zodResolver(clientSchemaForForm),
     defaultValues: {
       id: initialClient?.id,
@@ -96,11 +95,19 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
     });
   }, [initialClient, form]);
 
-  const handleSubmit = async (values: ClientFormValues) => {
+  const handleSubmit = async (values: ClientSchemaForForm) => {
     setFormError(null);
     setIsSubmitting(true);
 
-    const result = await saveClient(values);
+    // Convert form values to match ClientFormValues type expected by saveClient
+    const clientValues: ClientFormValues = {
+      ...values,
+      type: values.type ?? "individual",
+      representation: values.representation ?? "self",
+      organizationName: values.organizationName || undefined,
+    };
+
+    const result = await saveClient(clientValues);
 
     if (result.success) {
       router.refresh();
@@ -133,7 +140,7 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
       Object.entries(result.fieldErrors).forEach(([key, messages]) => {
         const message = messages?.[0];
         if (message) {
-          form.setError(key as keyof ClientFormValues, {
+          form.setError(key as keyof ClientSchemaForForm, {
             type: "server",
             message,
           });
@@ -549,21 +556,22 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
                   setFormError(null);
                 }}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto min-w-0"
               >
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                Add New Instead
+                <RefreshCcw className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">Add New Instead</span>
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isEditing ? "Updating..." : "Creating..."}
+                  <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                  <span className="truncate">{isEditing ? "Updating..." : "Creating..."}</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  {isEditing ? "Update Client" : "Create Client"}
+                  <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate">{isEditing ? "Update Client" : "Create Client"}</span>
                 </>
               )}
             </Button>

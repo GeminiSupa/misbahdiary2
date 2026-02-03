@@ -232,16 +232,16 @@ export function FirmForm() {
           >
             Reset
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                <span className="truncate">Creating...</span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Create Firm
+                <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">Create Firm</span>
               </>
             )}
           </Button>

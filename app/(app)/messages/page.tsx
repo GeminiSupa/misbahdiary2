@@ -38,7 +38,7 @@ export default async function MessagesPage() {
     .neq("id", user.id)
     .order("full_name");
 
-  // Get recent messages
+  // Get recent messages - messages where user is sender, recipient, or group messages
   const { data: messages } = await supabase
     .from("messages")
     .select(`
@@ -54,7 +54,7 @@ export default async function MessagesPage() {
     .eq("firm_id", profile.firm_id)
     .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id},recipient_id.is.null`)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(100);
 
   return (
     <div className="flex flex-col gap-6 h-[calc(100vh-8rem)]">
@@ -76,6 +76,7 @@ export default async function MessagesPage() {
               <MessagesList
                 messages={messages || []}
                 currentUserId={user.id}
+                firmId={profile.firm_id}
               />
             </CardContent>
           </Card>

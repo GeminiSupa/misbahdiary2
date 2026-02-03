@@ -158,16 +158,16 @@ export function MessageComposer({
         </div>
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" disabled={isPending} className="w-full sm:w-auto min-w-0">
         {isPending ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Sending...
+            <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+            <span className="truncate">Sending...</span>
           </>
         ) : (
           <>
-            <Send className="mr-2 h-4 w-4" />
-            Send Message
+            <Send className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">Send Message</span>
           </>
         )}
       </Button>

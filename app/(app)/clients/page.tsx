@@ -70,7 +70,12 @@ export default async function ClientsPage() {
         </div>
       </div>
 
-      <ClientManager clients={(clients as any) ?? []} />
+      {/* Clients List - In Card Container (Like Billing Page) */}
+      <div className="sap-card-success">
+        <div className="sap-card-body space-y-4">
+          <ClientManager clients={(clients as any) ?? []} />
+        </div>
+      </div>
     </div>
   );
 }

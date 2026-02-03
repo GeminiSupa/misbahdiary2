@@ -160,10 +160,10 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                 {clientData.type as string}
               </Badge>
               <EditClientSheet client={clientFormValues} />
-              <Button asChild size="sm" variant="outline">
-                <a href={`/api/clients/${clientData.id}/pdf`} download target="_blank" rel="noopener noreferrer">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download PDF
+              <Button asChild size="sm" variant="outline" className="min-w-0">
+                <a href={`/api/clients/${clientData.id}/pdf`} download target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 min-w-0">
+                  <Download className="h-4 w-4 shrink-0" />
+                  <span className="truncate block min-w-0">Download PDF</span>
                 </a>
               </Button>
               <DeleteClientButton
@@ -222,8 +222,8 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
         <div className="sap-card-body space-y-4">
           <div className="sap-card-header">
             <h2 className="text-lg font-semibold text-foreground">Related matters</h2>
-            <Button asChild size="sm" variant="secondary">
-              <Link href="/cases">Go to matters</Link>
+            <Button asChild size="sm" variant="secondary" className="min-w-0">
+              <Link href="/cases" className="truncate block min-w-0">Go to matters</Link>
             </Button>
           </div>
           <Separator />

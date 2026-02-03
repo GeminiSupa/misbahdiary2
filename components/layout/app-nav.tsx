@@ -15,6 +15,7 @@ const navItems = [
   { href: "/calendar", label: "Calendar" },
   { href: "/billing", label: "Billing" },
   { href: "/messages", label: "Messages" },
+  { href: "/activity", label: "Activity" },
   { href: "/subscription", label: "Subscription" },
   { href: "/contact", label: "Contact" },
   { href: "/user-manual", label: "User Manual" },

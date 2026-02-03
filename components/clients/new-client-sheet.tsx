@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { ClientForm } from "@/components/clients/client-form";
 
 export function NewClientSheet() {
@@ -11,10 +12,10 @@ export function NewClientSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 sm:w-auto">
-          <Plus className="mr-2 h-4 w-4" />
-          New client
-        </button>
+        <Button variant="default" className="w-full sm:w-auto min-w-0" size="sm">
+          <Plus className="mr-2 h-4 w-4 shrink-0" />
+          <span className="truncate">New client</span>
+        </Button>
       </SheetTrigger>
       <SheetContent side="right">
         <SheetHeader>

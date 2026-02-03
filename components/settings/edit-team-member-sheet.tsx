@@ -217,16 +217,16 @@ export function EditTeamMemberSheet({
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isPending || isOwner} className="flex-1 gap-2">
+                <Button type="submit" disabled={isPending || isOwner} className="w-full sm:w-auto min-w-0">
                   {isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Updating...
+                      <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                      <span className="truncate">Updating...</span>
                     </>
                   ) : (
                     <>
-                      <Pencil className="h-4 w-4" />
-                      Update
+                      <Pencil className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate">Update</span>
                     </>
                   )}
                 </Button>

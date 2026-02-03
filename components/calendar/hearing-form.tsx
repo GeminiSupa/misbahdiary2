@@ -274,22 +274,20 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
               variant="outline"
               onClick={() => form.reset()}
               disabled={isSubmitting}
-              className="w-full sm:w-auto h-11 sm:h-10"
+              className="w-full sm:w-auto min-w-0 h-11 sm:h-10"
             >
-              Reset
+              <span className="truncate">Reset</span>
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-[140px] h-11 sm:h-10 text-base sm:text-sm">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0 h-11 sm:h-10 text-base sm:text-sm">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  <span className="hidden sm:inline">Scheduling...</span>
-                  <span className="sm:hidden">Scheduling</span>
+                  <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                  <span className="truncate">Scheduling...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  <span className="hidden sm:inline">Schedule Hearing</span>
-                  <span className="sm:hidden">Schedule</span>
+                  <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate">Schedule Hearing</span>
                 </>
               )}
             </Button>

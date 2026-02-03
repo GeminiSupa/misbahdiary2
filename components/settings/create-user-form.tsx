@@ -328,8 +328,8 @@ export function CreateUserForm() {
                 </>
               ) : (
                 <>
-                  <UserPlus className="h-4 w-4" />
-                  Create User
+                  <UserPlus className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate">Create User</span>
                 </>
               )}
             </Button>

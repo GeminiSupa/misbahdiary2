@@ -60,9 +60,9 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <PencilLine className="mr-2 h-4 w-4" />
-          Reschedule
+        <Button variant="ghost" size="sm" className="w-full sm:w-auto min-w-0">
+          <PencilLine className="mr-2 h-4 w-4 shrink-0" />
+          <span className="truncate">Reschedule</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -186,12 +186,13 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
 
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
               <DialogClose asChild>
-                <Button variant="ghost" className="w-full sm:w-auto h-11 sm:h-10">Cancel</Button>
+                <Button variant="ghost" className="w-full sm:w-auto min-w-0 h-11 sm:h-10">
+                  <span className="truncate">Cancel</span>
+                </Button>
               </DialogClose>
-              <Button type="submit" disabled={isPending} className="w-full sm:w-auto h-11 sm:h-10 text-base sm:text-sm">
-                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                <span className="hidden sm:inline">Save changes</span>
-                <span className="sm:hidden">Save</span>
+              <Button type="submit" disabled={isPending} className="w-full sm:w-auto min-w-0 h-11 sm:h-10 text-base sm:text-sm">
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
+                <span className="truncate">{isPending ? "Saving..." : "Save changes"}</span>
               </Button>
             </div>
           </form>

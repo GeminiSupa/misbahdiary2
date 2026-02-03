@@ -38,7 +38,8 @@ export function ClientManager({ clients }: ClientManagerProps) {
           phone: client.phone,
           city: client.city,
         }))
-        .filter((client) => client.id)}
+        .filter((client) => client.id)
+      }
     />
   );
 }

@@ -70,8 +70,8 @@ export function DeleteTeamMemberButton({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-          <Trash2 className="h-4 w-4" />
+        <Button variant="outline" size="sm" className="w-full sm:w-auto min-w-0 text-destructive hover:text-destructive">
+          <Trash2 className="h-4 w-4 shrink-0" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -91,13 +91,13 @@ export function DeleteTeamMemberButton({
           >
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Removing...
+                <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                <span className="truncate">Removing...</span>
               </>
             ) : (
               <>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Remove
+                <Trash2 className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">Remove</span>
               </>
             )}
           </AlertDialogAction>

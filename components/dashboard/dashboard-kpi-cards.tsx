@@ -40,15 +40,17 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
         const isClickable = !!kpi.href;
         
         const CardContent = () => (
-          <>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs truncate">
+          <div className="min-w-0 h-full flex flex-col space-y-1.5 sm:space-y-2">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs line-clamp-1 break-words">
               {kpi.label}
             </p>
-            <p className="mt-1.5 text-lg font-semibold text-foreground sm:text-xl md:text-2xl truncate">
+            <p className="text-lg font-bold text-foreground sm:text-xl md:text-2xl break-words leading-tight">
               {kpi.value}
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground sm:text-xs line-clamp-2">{kpi.hint}</p>
-          </>
+            <p className="text-[10px] text-muted-foreground sm:text-xs line-clamp-2 break-words leading-relaxed">
+              {kpi.hint}
+            </p>
+          </div>
         );
 
         if (isClickable) {
@@ -58,8 +60,12 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
               href={kpi.href!}
               className={cn(
                 colorClass,
-                "cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+                "block cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden min-w-0 h-full"
               )}
+              onClick={(e) => {
+                // Ensure link works
+                e.stopPropagation();
+              }}
             >
               <CardContent />
             </Link>
@@ -67,7 +73,7 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
         }
 
         return (
-          <div key={kpi.label} className={cn(colorClass, "overflow-hidden")}>
+          <div key={kpi.label} className={cn(colorClass, "overflow-hidden min-w-0 h-full")}>
             <CardContent />
           </div>
         );

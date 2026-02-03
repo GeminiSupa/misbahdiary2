@@ -75,8 +75,10 @@ export function TrialBanner({
             </span>
           )}
         </span>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/subscription">View Plans</Link>
+        <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-w-0 shrink-0">
+          <Link href="/subscription" className="truncate block min-w-0">
+            <span className="truncate">View Plans</span>
+          </Link>
         </Button>
       </AlertDescription>
     </Alert>

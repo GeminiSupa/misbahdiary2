@@ -122,12 +122,14 @@ export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
         </div>
 
       <Tabs value={defaultTab} onValueChange={setDefaultTab} className="mt-2">
-        <TabsList className="grid w-full grid-cols-4 rounded-full bg-muted/60">
-          <TabsTrigger value="outstanding">Outstanding</TabsTrigger>
-          <TabsTrigger value="paid">Paid</TabsTrigger>
-          <TabsTrigger value="drafts">Drafts</TabsTrigger>
-          <TabsTrigger value="voided">Void</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <TabsList className="grid w-full min-w-[400px] grid-cols-4 rounded-full bg-muted/60 sm:min-w-0">
+            <TabsTrigger value="outstanding" className="text-xs sm:text-sm">Outstanding</TabsTrigger>
+            <TabsTrigger value="paid" className="text-xs sm:text-sm">Paid</TabsTrigger>
+            <TabsTrigger value="drafts" className="text-xs sm:text-sm">Drafts</TabsTrigger>
+            <TabsTrigger value="voided" className="text-xs sm:text-sm">Void</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="outstanding" className="mt-4 space-y-3">
           {grouped.outstanding.length > 0 ? (

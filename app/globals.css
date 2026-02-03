@@ -55,7 +55,8 @@
   --popover: #FFFFFF;
   --popover-foreground: #32363A;
   /* Primary - SAP Blue */
-  --primary: #0070F2; /* SAP Horizon primary blue */
+  --primary: #0070F2; /* SAP Horizon primary blue (desktop) */
+  --primary-mobile: #1A91FF; /* Mobile-optimized (higher contrast, less glare) */
   --primary-foreground: #FFFFFF;
   --secondary: #E8F4F8; /* SAP light blue background */
   --secondary-foreground: #0070F2;
@@ -72,6 +73,7 @@
   --destructive-foreground: #FFFFFF;
   --destructive-soft: #FFEBEE;
   --muted-soft: #D9D9D9;
+  --neutral-accent: #E0E0E0; /* Subtle dividers for mobile */
   --border: #D9D9D9; /* SAP border color */
   --input: #D9D9D9;
   --ring: #0070F2;
@@ -147,25 +149,32 @@
     @apply text-foreground font-semibold;
     font-family: var(--font-sans);
   }
+  /* Mobile-First Typography */
   h1 {
-    @apply text-2xl leading-tight;
+    @apply text-3xl leading-[1.3] sm:text-2xl sm:leading-tight;
     font-weight: 600;
   }
   h2 {
-    @apply text-xl leading-tight;
+    @apply text-2xl leading-[1.3] sm:text-xl sm:leading-tight;
     font-weight: 600;
   }
   h3 {
-    @apply text-lg leading-snug;
+    @apply text-xl leading-[1.4] sm:text-lg sm:leading-snug;
     font-weight: 600;
   }
   h4 {
-    @apply text-base leading-snug;
+    @apply text-lg leading-[1.4] sm:text-base sm:leading-snug;
     font-weight: 600;
   }
   body {
-    font-size: 0.875rem; /* 14px - SAP Fiori standard */
-    line-height: 1.5;
+    font-size: 1rem; /* 16px - Mobile-first (prevents iOS zoom) */
+    line-height: 1.6; /* Increased for thumb-scrolling readability */
+  }
+  @media (min-width: 640px) {
+    body {
+      font-size: 0.875rem; /* 14px - Desktop density */
+      line-height: 1.5;
+    }
   }
   ::selection {
     background-color: rgba(0, 112, 242, 0.2);
@@ -178,20 +187,38 @@
   }
 
   .sap-shell-bar {
-    @apply sticky top-0 z-40 border-b border-border/60 bg-card/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)];
+    @apply sticky top-0 z-40 border-b border-border/60 bg-card/95 shadow-[0_1px_3px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)];
+  }
+  @media (min-width: 1024px) {
+    .sap-shell-bar {
+      @apply bg-card/80 backdrop-blur-xl;
+    }
   }
 
   .sap-container {
-    @apply mx-auto w-full max-w-7xl px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8;
+    @apply w-full px-4 sm:px-4 md:px-5 lg:mx-auto lg:max-w-7xl lg:px-6 xl:px-8;
   }
 
+  /* Mobile-First Cards: Solid background, single shadow */
   .sap-card {
-    @apply rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 overflow-hidden;
+    @apply rounded-xl border border-border/60 bg-card/95 shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-all duration-100 overflow-hidden;
   }
-
-  .sap-card:hover {
-    @apply border-primary/30 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_8px_rgba(0,112,242,0.1),0_8px_24px_rgba(0,112,242,0.08)];
-    transform: translateY(-1px);
+  /* Desktop: Backdrop blur and multi-layer shadows */
+  @media (min-width: 1024px) {
+    .sap-card {
+      @apply bg-card/80 backdrop-blur-xl shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] duration-300;
+    }
+  }
+  /* Mobile tap feedback */
+  .sap-card:active {
+    @apply scale-[1.02] bg-card;
+  }
+  /* Desktop hover */
+  @media (min-width: 1024px) {
+    .sap-card:hover {
+      @apply border-primary/30 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_8px_rgba(0,112,242,0.1),0_8px_24px_rgba(0,112,242,0.08)];
+      transform: translateY(-1px);
+    }
   }
 
   /* Colored card variants - SAP Fiori Horizon style */
@@ -219,12 +246,18 @@
     background: linear-gradient(to bottom right, rgba(92, 103, 229, 0.05), rgba(92, 103, 229, 0.03), transparent);
   }
 
+  /* Mobile: Solid tint (faster load) */
   .sap-card-hero {
-    @apply rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-[0_0_0_1px_rgba(0,112,242,0.15),0_2px_4px_rgba(0,112,242,0.12)];
+    @apply rounded-xl border border-primary/30 bg-primary/8 shadow-[0_0_0_1px_rgba(0,112,242,0.15),0_2px_4px_rgba(0,112,242,0.12)];
   }
-
-  .sap-card-hero:hover {
-    @apply shadow-[0_0_0_1px_rgba(0,112,242,0.2),0_4px_8px_rgba(0,112,242,0.15)];
+  /* Desktop: Gradient */
+  @media (min-width: 1024px) {
+    .sap-card-hero {
+      @apply bg-gradient-to-br from-primary/10 via-primary/5 to-transparent;
+    }
+    .sap-card-hero:hover {
+      @apply shadow-[0_0_0_1px_rgba(0,112,242,0.2),0_4px_8px_rgba(0,112,242,0.15)];
+    }
   }
 
 
@@ -324,36 +357,98 @@
   }
 
   .sap-kpi-tile {
-    @apply rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 text-foreground sm:p-5 hover:border-primary/30 hover:shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_2px_8px_rgba(0,112,242,0.1),0_8px_24px_rgba(0,112,242,0.08)] overflow-hidden;
+    @apply rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 text-foreground sm:p-5 md:p-6 overflow-hidden min-w-0;
+    min-height: 120px;
+  }
+  @media (min-width: 640px) {
+    .sap-kpi-tile {
+      min-height: 140px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .sap-kpi-tile {
+      min-height: 160px;
+    }
   }
 
   .sap-kpi-tile:hover {
     transform: translateY(-2px);
   }
 
+  /* Ensure KPI tiles with links are fully clickable */
+  .sap-kpi-tile a {
+    @apply block w-full h-full;
+    text-decoration: none;
+    color: inherit;
+  }
+
   /* Colored KPI tiles */
   .sap-kpi-tile-primary {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_1px_2px_rgba(0,112,242,0.08)] transition text-foreground sm:p-5 overflow-hidden;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(0,112,242,0.1),0_1px_2px_rgba(0,112,242,0.08)] transition text-foreground sm:p-5 md:p-6 overflow-hidden min-w-0;
     border-color: rgba(0, 112, 242, 0.2);
     background: linear-gradient(to bottom right, rgba(0, 112, 242, 0.05), transparent);
+    min-height: 120px;
+  }
+  @media (min-width: 640px) {
+    .sap-kpi-tile-primary {
+      min-height: 140px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .sap-kpi-tile-primary {
+      min-height: 160px;
+    }
   }
 
   .sap-kpi-tile-success {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(16,126,62,0.1),0_1px_2px_rgba(16,126,62,0.08)] transition text-foreground sm:p-5 overflow-hidden;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(16,126,62,0.1),0_1px_2px_rgba(16,126,62,0.08)] transition text-foreground sm:p-5 md:p-6 overflow-hidden min-w-0;
     border-color: rgba(16, 126, 62, 0.2);
     background: linear-gradient(to bottom right, rgba(16, 126, 62, 0.05), transparent);
+    min-height: 120px;
+  }
+  @media (min-width: 640px) {
+    .sap-kpi-tile-success {
+      min-height: 140px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .sap-kpi-tile-success {
+      min-height: 160px;
+    }
   }
 
   .sap-kpi-tile-warning {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(233,115,12,0.1),0_1px_2px_rgba(233,115,12,0.08)] transition text-foreground sm:p-5 overflow-hidden;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(233,115,12,0.1),0_1px_2px_rgba(233,115,12,0.08)] transition text-foreground sm:p-5 md:p-6 overflow-hidden min-w-0;
     border-color: rgba(233, 115, 12, 0.2);
     background: linear-gradient(to bottom right, rgba(233, 115, 12, 0.05), transparent);
+    min-height: 120px;
+  }
+  @media (min-width: 640px) {
+    .sap-kpi-tile-warning {
+      min-height: 140px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .sap-kpi-tile-warning {
+      min-height: 160px;
+    }
   }
 
   .sap-kpi-tile-info {
-    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(92,103,229,0.1),0_1px_2px_rgba(92,103,229,0.08)] transition text-foreground sm:p-5 overflow-hidden;
+    @apply rounded-xl border p-4 shadow-[0_0_0_1px_rgba(92,103,229,0.1),0_1px_2px_rgba(92,103,229,0.08)] transition text-foreground sm:p-5 md:p-6 overflow-hidden min-w-0;
     border-color: rgba(92, 103, 229, 0.2);
     background: linear-gradient(to bottom right, rgba(92, 103, 229, 0.05), transparent);
+    min-height: 120px;
+  }
+  @media (min-width: 640px) {
+    .sap-kpi-tile-info {
+      min-height: 140px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .sap-kpi-tile-info {
+      min-height: 160px;
+    }
   }
 
 
@@ -388,10 +483,10 @@
     @apply rounded-xl border border-dashed border-border bg-muted/50 p-5 text-center sm:p-6;
   }
   
-  /* Mobile-first touch targets */
+  /* Mobile-First Touch Targets: 48px minimum */
   button, a[role="button"], [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
   }
   
   @media (min-width: 640px) {
@@ -476,11 +571,31 @@
     transition: box-shadow 0.3s ease;
   }
 
-  /* Smooth transitions for all interactive elements */
+  /* Mobile-First Transitions: Faster, no transforms */
   * {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+    transition-duration: 100ms;
+  }
+  /* Desktop: Slower with transforms */
+  @media (min-width: 1024px) {
+    * {
+      transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+      transition-duration: 150ms;
+    }
+  }
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition-duration: 50ms !important;
+      animation-duration: 50ms !important;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-delay: -1ms !important;
+      transition-delay: -1ms !important;
+    }
   }
 
   /* Enhanced input focus states with gradient glow */
@@ -507,15 +622,24 @@
     color: var(--muted-foreground);
   }
 
-  /* Enhanced card hover effects with smooth animations */
-  .sap-card:hover,
-  .sap-tile:hover,
-  .sap-module-card:hover,
-  .sap-kpi-tile:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
-                0 0 0 1px rgba(0, 112, 242, 0.15),
-                0 4px 12px rgba(0, 112, 242, 0.1);
+  /* Mobile: Tap feedback only (no hover) */
+  .sap-card:active,
+  .sap-tile:active,
+  .sap-module-card:active,
+  .sap-kpi-tile:active {
+    @apply scale-[1.02];
+  }
+  /* Desktop: Hover effects */
+  @media (min-width: 1024px) {
+    .sap-card:hover,
+    .sap-tile:hover,
+    .sap-module-card:hover,
+    .sap-kpi-tile:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+                  0 0 0 1px rgba(0, 112, 242, 0.15),
+                  0 4px 12px rgba(0, 112, 242, 0.1);
+    }
   }
 
   /* Ensure cards and tiles prevent overflow */
@@ -526,40 +650,46 @@
     overflow: hidden;
   }
 
-  /* Modern button styles with enhanced hover effects */
+  /* Mobile-First Button Styles */
   button:not(:disabled) {
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.1s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
   }
-
-  button:not(:disabled)::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-  }
-
-  button:not(:disabled):hover::before {
-    width: 300px;
-    height: 300px;
-  }
-
-  button:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15),
-                0 0 20px rgba(59, 130, 246, 0.2);
-  }
-
+  /* Mobile: Tap feedback (ripple effect) */
   button:not(:disabled):active {
-    transform: translateY(0) scale(0.98);
+    transform: scale(0.95);
     transition: all 0.1s ease;
+  }
+  /* Desktop: Hover effects with ripple */
+  @media (min-width: 1024px) {
+    button:not(:disabled) {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    button:not(:disabled)::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    button:not(:disabled):hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    button:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15),
+                  0 0 20px rgba(59, 130, 246, 0.2);
+    }
+    button:not(:disabled):active {
+      transform: translateY(0) scale(0.98);
+    }
   }
 
   /* Smooth scroll */
@@ -598,17 +728,5 @@
     transition: background-color 0.2s ease;
   }
 
-  /* Mobile-optimized touch interactions */
-  @media (max-width: 640px) {
-    .sap-card:hover,
-    .sap-tile:hover,
-    .sap-module-card:hover,
-    .sap-kpi-tile:hover {
-      transform: none; /* Disable transform on mobile for better performance */
-    }
-
-    button:not(:disabled):hover {
-      transform: none; /* Disable transform on mobile */
-    }
-  }
+  /* Mobile-optimized: No hover transforms (already handled above) */
 }

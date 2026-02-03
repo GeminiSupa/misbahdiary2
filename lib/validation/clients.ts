@@ -12,7 +12,7 @@ export const clientSchemaForForm = z
     id: z.string().uuid().optional(),
     type: z
       .enum(clientTypeOptions.map((option) => option.value) as [string, ...string[]])
-      .default("individual"),
+      .optional(),
     fullName: z.string().min(2, "Full name is required"),
     fatherName: z.string().min(2, "Father/guardian name is required"),
     address: z.string().min(5, "Address is required"),
@@ -27,7 +27,7 @@ export const clientSchemaForForm = z
       .or(z.literal("")),
     representation: z
       .enum(clientRepresentationOptions.map((option) => option.value) as [string, ...string[]])
-      .default("self"),
+      .optional(),
     representativeToWhom: z.string().optional().or(z.literal("")),
     representativeCapacity: z
       .enum(

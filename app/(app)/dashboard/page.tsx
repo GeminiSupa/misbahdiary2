@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { DashboardKpiCards } from "@/components/dashboard/dashboard-kpi-cards";
 import { TrialBanner } from "@/components/subscription/trial-banner";
 import { getSubscriptionStatus } from "@/app/(app)/subscription/actions";
+import { getDashboardPreferences } from "@/app/(app)/dashboard/actions";
+import { CustomizableDashboard } from "@/components/dashboard/customizable-dashboard";
 import type { FirmSubscription } from "@/lib/stripe/types";
+import type { DashboardWidget } from "@/lib/types/dashboard";
+import { LayoutDashboard } from "lucide-react";
 
 // Type guard to check if result is FirmSubscription
 function isFirmSubscription(
@@ -215,7 +219,42 @@ export default async function DashboardPage() {
     },
   ];
 
-  const hearingsToday = hearingsTodayRes.data ?? [];
+  // Transform hearings data to match expected type
+  const hearingsToday = (hearingsTodayRes.data ?? []).map((hearing) => ({
+    id: hearing.id,
+    scheduled_at: hearing.scheduled_at,
+    matter: hearing.matter
+      ? {
+          serial_number: hearing.matter.serial_number,
+          case_number: hearing.matter.case_number ?? undefined,
+          court_name: hearing.matter.court_name ?? undefined,
+        }
+      : null,
+  }));
+
+  // Get dashboard preferences or use defaults
+  const preferences = await getDashboardPreferences();
+  let widgets: DashboardWidget[] = preferences?.widgets || [];
+
+  // Create default widgets if none exist
+  if (widgets.length === 0) {
+    widgets = [
+      {
+        id: "kpi-widget",
+        type: "kpi",
+        position: 0,
+        size: "large",
+        isVisible: true,
+      },
+      {
+        id: "agenda-widget",
+        type: "agenda",
+        position: 1,
+        size: "medium",
+        isVisible: true,
+      },
+    ];
+  }
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
@@ -229,87 +268,49 @@ export default async function DashboardPage() {
         />
       )}
 
-      {/* Welcome Card */}
+      {/* Hero Header - Billing Page Style */}
       <div className="sap-card-hero">
         <div className="sap-card-body">
           <div className="sap-card-header">
-            <div className="space-y-1 min-w-0">
-              <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Welcome back, {displayName}</h1>
-              <p className="text-xs text-muted-foreground sm:text-sm sm:max-w-2xl">
-                Prioritise hearings, unblock billing, and keep your clients informed — everything you
-                need for the day lives here.
-              </p>
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
+                <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Dashboard</h1>
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                  Overview of your practice metrics, today&apos;s agenda, and key performance indicators.
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-              <Button asChild variant="default" className="w-full sm:w-auto" size="sm">
-                <Link href="/cases">New case</Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild variant="default" className="w-full sm:w-auto min-w-0" size="sm">
+                <Link href="/cases" className="truncate block min-w-0">
+                  <span className="truncate">New case</span>
+                </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full sm:w-auto" size="sm">
-                <Link href="/calendar">Schedule hearing</Link>
+              <Button asChild variant="outline" className="w-full sm:w-auto min-w-0" size="sm">
+                <Link href="/calendar" className="truncate block min-w-0">
+                  <span className="truncate">Schedule hearing</span>
+                </Link>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* KPI row */}
+      {/* KPI Stats Cards */}
       <DashboardKpiCards kpis={kpis} />
 
-      {/* Today's Agenda (minimal version) */}
-      <div className="sap-card-primary">
+      {/* Practice Overview - In Card Container (Like Billing Page) */}
+      <div className="sap-card-success">
         <div className="sap-card-body space-y-4">
-          <div className="sap-card-header">
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-foreground sm:text-lg">
-                Today&apos;s agenda
-              </h2>
-              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
-                Hearings and key events scheduled for today.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Button asChild variant="ghost" size="sm" className="w-full sm:w-auto">
-                <Link href="/calendar">Open calendar</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
-                <Link href="/calendar/print/today" target="_blank">
-                  Print today&apos;s docket
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {hearingsToday.length > 0 ? (
-            <div className="space-y-2">
-              {hearingsToday.map((hearing) => (
-                <Link
-                  key={hearing.id}
-                  href="/calendar"
-                  className="flex flex-col gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-2 text-sm transition-colors hover:border-border hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate">
-                      {hearing.matter?.serial_number ||
-                        hearing.matter?.case_number ||
-                        "Matter"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {hearing.matter?.court_name ?? "Court not set"}
-                    </p>
-                  </div>
-                  <div className="text-xs text-muted-foreground sm:flex-shrink-0">
-                    {format(new Date(hearing.scheduled_at), "p")}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="sap-subtle">
-              <p className="text-xs text-muted-foreground sm:text-sm">
-                No hearings scheduled for today.
-              </p>
-            </div>
-          )}
+          <CustomizableDashboard
+            initialWidgets={widgets}
+            kpis={kpis}
+            hearingsToday={hearingsToday}
+            showHeader={true}
+          />
         </div>
       </div>
     </div>

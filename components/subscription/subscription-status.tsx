@@ -156,8 +156,8 @@ export function SubscriptionStatus({ subscription }: SubscriptionStatusProps) {
             <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
               Your last payment attempt failed. Please update your payment method to continue service.
             </p>
-            <Button asChild size="sm">
-              <Link href="/subscription">Update Payment</Link>
+            <Button asChild size="sm" className="min-w-0">
+              <Link href="/subscription" className="truncate block min-w-0">Update Payment</Link>
             </Button>
           </div>
         )}

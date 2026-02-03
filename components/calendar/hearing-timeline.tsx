@@ -249,10 +249,10 @@ function HearingCard({
           {isCompleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
           Mark complete
         </Button>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href={`/api/hearings/${hearing.id}/ics`}>
-            <Download className="mr-2 h-4 w-4" />
-            ICS
+        <Button variant="ghost" size="sm" className="w-full sm:w-auto min-w-0" asChild>
+          <Link href={`/api/hearings/${hearing.id}/ics`} className="truncate block min-w-0">
+            <Download className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">ICS</span>
           </Link>
         </Button>
         <div className="ml-auto flex flex-wrap items-center gap-2">

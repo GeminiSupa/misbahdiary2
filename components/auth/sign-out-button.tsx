@@ -50,11 +50,11 @@ export function SignOutButton({
       title="Sign out"
     >
       {isLoading ? (
-        <Loader2 className={cn("animate-spin", isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
+        <Loader2 className={cn("animate-spin shrink-0", isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
       ) : (
-        <LogOut className={cn(isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
+        <LogOut className={cn("shrink-0", isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
       )}
-      {!isIconOnly && "Sign out"}
+      {!isIconOnly && <span className="truncate">Sign out</span>}
     </Button>
   );
 }

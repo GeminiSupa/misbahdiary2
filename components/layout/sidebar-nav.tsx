@@ -14,6 +14,7 @@ import {
   MessageCircle,
   MessageSquare,
   BookOpen,
+  Activity,
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/calendar", label: "Calendar", icon: CalendarDays, color: "warning" },
   { href: "/billing", label: "Billing", icon: Banknote, color: "success" },
   { href: "/messages", label: "Messages", icon: MessageSquare, color: "info" },
+  { href: "/activity", label: "Activity", icon: Activity, color: "muted" },
   { href: "/subscription", label: "Subscription", icon: Banknote, color: "success" },
   { href: "/contact", label: "Contact", icon: MessageCircle, color: "info" },
   { href: "/user-manual", label: "User Manual", icon: BookOpen, color: "info" },

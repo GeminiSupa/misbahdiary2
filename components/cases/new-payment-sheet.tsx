@@ -25,9 +25,9 @@ export function NewPaymentSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Record Payment
+          <Button variant="outline" size="sm" className="w-full sm:w-auto min-w-0">
+            <Plus className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">Record Payment</span>
           </Button>
         )}
       </SheetTrigger>
