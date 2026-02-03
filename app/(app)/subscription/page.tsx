@@ -3,12 +3,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSubscriptionStatus } from "@/app/(app)/subscription/actions";
 import { SubscriptionStatus } from "@/components/subscription/subscription-status";
 import { TrialBanner } from "@/components/subscription/trial-banner";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SubscriptionManagement } from "@/components/subscription/subscription-management";
 import { SubscriptionHistory } from "@/components/subscription/subscription-history";
 import { SubscriptionGuide } from "@/components/subscription/subscription-guide";
 import type { FirmSubscription } from "@/lib/stripe/types";
+import { CreditCard } from "lucide-react";
 
 export const metadata = {
   title: "Subscription • Lawyer Diary",
@@ -60,8 +60,8 @@ export default async function SubscriptionPage() {
             Manage your subscription and billing
           </p>
         </div>
-        <Card>
-          <CardContent className="p-6 space-y-4">
+        <div className="sap-card-success">
+          <div className="sap-card-body space-y-4">
             <div className="space-y-2">
               <p className="text-destructive font-medium">{subscriptionResult.message}</p>
               <p className="text-sm text-muted-foreground">
@@ -69,17 +69,19 @@ export default async function SubscriptionPage() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-              <Button asChild variant="default" className="flex-1 sm:flex-none">
-                <a href="/contact">Contact Support</a>
+              <Button asChild variant="default" className="w-full sm:w-auto min-w-0">
+                <a href="/contact" className="truncate block min-w-0">
+                  <span className="truncate">Contact Support</span>
+                </a>
               </Button>
-              <Button asChild variant="outline" className="flex-1 sm:flex-none">
-                <a href="mailto:info@ux4u.online" target="_blank" rel="noopener noreferrer">
-                  Email: info@ux4u.online
+              <Button asChild variant="outline" className="w-full sm:w-auto min-w-0">
+                <a href="mailto:info@ux4u.online" target="_blank" rel="noopener noreferrer" className="truncate block min-w-0">
+                  <span className="truncate">Email: info@ux4u.online</span>
                 </a>
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -216,13 +218,23 @@ export default async function SubscriptionPage() {
     .limit(20);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Subscription</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your subscription and billing
-          </p>
+    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
+      {/* Hero Header - SAP Fiori Horizon Style */}
+      <div className="sap-card-hero">
+        <div className="sap-card-body">
+          <div className="sap-card-header">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
+                <CreditCard className="h-6 w-6 sm:h-7 sm:w-7" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Subscription</h1>
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                  Manage your subscription and billing.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -246,14 +258,14 @@ export default async function SubscriptionPage() {
       </div>
 
       {!isOwner && (
-        <Card>
-          <CardContent className="p-6">
+        <div className="sap-card-success">
+          <div className="sap-card-body">
             <p className="text-muted-foreground">
               Only the firm owner can manage subscription settings. Please contact your firm owner
               for subscription management.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       <div className="grid gap-6 md:grid-cols-2">

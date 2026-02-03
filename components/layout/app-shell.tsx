@@ -26,11 +26,11 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
   return (
     <div className="sap-shell flex min-h-screen bg-background text-foreground">
       {/* Sidebar for desktop */}
-      <aside className="group hidden overflow-hidden border-r border-border/60 bg-card/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-[width] duration-200 ease-out md:flex md:w-[4.5rem] md:flex-col md:justify-between md:hover:w-64">
-        <div className="flex flex-col flex-1 overflow-y-auto">
+      <aside className="group hidden overflow-hidden border-r border-border/60 bg-card/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-[width] duration-200 ease-out md:flex md:w-[4.5rem] md:flex-col md:hover:w-64">
+        <div className="flex flex-col flex-1 min-h-0">
           <Link
             href="/dashboard"
-            className="flex items-center justify-center px-3 py-3 sm:px-4 transition-opacity hover:opacity-80 group/logo"
+            className="flex items-center justify-center px-3 py-3 sm:px-4 transition-opacity hover:opacity-80 group/logo shrink-0"
           >
             <div className="relative">
               <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-md opacity-0 group-hover/logo:opacity-100 transition-opacity" />
@@ -41,14 +41,17 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
               </span>
             </div>
           </Link>
-          <SidebarNav />
-        </div>
-        <div className="hidden md:block border-t border-border px-3 py-3 sm:px-4">
-          <SignOutButton
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm"
-          />
+          <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+            <SidebarNav />
+          </div>
+          {/* Sign out button at bottom - outside scrollable area */}
+          <div className="border-t border-border shrink-0">
+            <SignOutButton
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm min-w-0 px-2 py-2 sm:px-3 sm:py-3"
+            />
+          </div>
         </div>
       </aside>
 

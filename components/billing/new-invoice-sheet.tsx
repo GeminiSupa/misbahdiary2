@@ -33,9 +33,9 @@ export function NewInvoiceSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant={variant} size={size} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            New invoice
+          <Button variant={variant} size={size} className="w-full sm:w-auto min-w-0">
+            <Plus className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">New invoice</span>
           </Button>
         )}
       </SheetTrigger>

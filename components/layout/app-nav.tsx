@@ -83,7 +83,7 @@ export function AppNav() {
               <SignOutButton
                 variant="ghost"
                 size="default"
-                className="w-full justify-start px-4 py-3.5 min-h-[44px] text-base sm:text-sm sm:min-h-[40px]"
+                className="w-full justify-start px-4 py-3.5 min-h-[44px] text-base sm:text-sm sm:min-h-[40px] min-w-0"
               />
             </div>
           </nav>
