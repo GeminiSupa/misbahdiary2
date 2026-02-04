@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-5 sm:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive overflow-hidden min-w-0 [&>*:not(svg):not(a)]:truncate [&>a]:truncate [&>a]:block [&>a]:min-w-0",
   {
     variants: {
       variant: {
@@ -30,12 +30,16 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2.5 text-sm font-medium has-[>svg]:px-3",
-        sm: "h-9 gap-1.5 px-3 py-2 text-sm font-medium has-[>svg]:px-2.5",
-        lg: "h-11 px-5 py-3 text-base font-medium has-[>svg]:px-4",
-        icon: "size-10",
-        "icon-sm": "size-9",
-        "icon-lg": "size-11",
+        // Mobile-first: 48px touch targets, desktop slightly denser
+        default:
+          "h-12 px-4 py-3 text-base sm:h-11 sm:px-4 sm:py-2.5 sm:text-sm font-medium has-[>svg]:px-3 min-h-[48px] sm:min-h-[40px]",
+        sm:
+          "h-12 gap-1.5 px-3 py-2.5 text-base sm:h-10 sm:px-3 sm:py-2 sm:text-sm font-medium has-[>svg]:px-2.5 min-h-[48px] sm:min-h-[36px]",
+        lg:
+          "h-14 px-5 py-3.5 text-lg sm:h-12 sm:px-5 sm:py-3 sm:text-base font-medium has-[>svg]:px-4 min-h-[56px] sm:min-h-[48px]",
+        icon: "size-12 sm:size-10 min-h-[48px] sm:min-h-[40px] min-w-[48px] sm:min-w-[40px]",
+        "icon-sm": "size-12 sm:size-9 min-h-[48px] sm:min-h-[36px] min-w-[48px] sm:min-w-[36px]",
+        "icon-lg": "size-14 sm:size-11 min-h-[56px] sm:min-h-[44px] min-w-[56px] sm:min-w-[44px]",
       },
     },
     defaultVariants: {

@@ -66,8 +66,8 @@ export function TrialBanner({
       <AlertTitle className="text-blue-800 dark:text-blue-400">
         Free Trial Active
       </AlertTitle>
-      <AlertDescription className="flex items-center justify-between gap-4 text-blue-700 dark:text-blue-300">
-        <span>
+      <AlertDescription className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 text-blue-700 dark:text-blue-300">
+        <span className="text-sm sm:text-base">
           {days} {days === 1 ? "day" : "days"} remaining in your free trial.
           {trialEndsAt && (
             <span className="ml-2 text-xs opacity-75">
@@ -76,7 +76,7 @@ export function TrialBanner({
           )}
         </span>
         <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-w-0 shrink-0">
-          <Link href="/subscription" className="truncate block">
+          <Link href="/subscription" className="truncate block text-center">
             View Plans
           </Link>
         </Button>
