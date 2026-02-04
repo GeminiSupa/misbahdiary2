@@ -44,12 +44,13 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
           <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
             <SidebarNav />
           </div>
-          {/* Sign out button at bottom - outside scrollable area */}
-          <div className="border-t border-border shrink-0">
+          {/* Sign out button at bottom - label shows when sidebar expanded (group-hover) */}
+          <div className="border-t border-border shrink-0 p-2">
             <SignOutButton
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm min-w-0 px-2 py-2 sm:px-3 sm:py-3"
+              collapseLabelInSidebar
+              className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm min-w-0 px-2 py-2 sm:px-3 sm:py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             />
           </div>
         </div>

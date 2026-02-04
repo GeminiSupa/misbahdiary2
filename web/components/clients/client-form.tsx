@@ -164,10 +164,10 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           {/* Client Type */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <Users className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Client Type</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <Users className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Client type</h3>
             </div>
 
             <FormField
@@ -175,7 +175,7 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Client Type</FormLabel>
+                  <FormLabel>Client type</FormLabel>
                   <FormControl>
                     <div className="flex flex-wrap gap-2">
                       {clientTypeOptions.map((option) => (
@@ -184,11 +184,11 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
                           key={option.value}
                           onClick={() => field.onChange(option.value)}
                           className={cn(
-                            "rounded-lg border-2 px-3 py-2.5 min-h-[44px] text-base font-medium transition-all sm:px-4 sm:text-sm sm:min-h-[40px]",
-                            "hover:scale-[1.02] active:scale-[0.98]",
+                            "rounded-lg border px-3 py-2.5 min-h-[44px] text-base font-medium transition-all sm:px-4 sm:text-sm sm:min-h-[40px]",
+                            "active:scale-[0.98]",
                             field.value === option.value
-                              ? "border-primary bg-primary text-primary-foreground shadow-md"
-                              : "border-border hover:border-primary/50",
+                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                              : "border-border hover:border-primary/50 hover:bg-muted/50",
                           )}
                         >
                           {option.label}
@@ -205,10 +205,10 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
           <Separator />
 
           {/* Basic Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <User className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Basic Information</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <User className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Basic information</h3>
             </div>
 
             <FormField
@@ -267,10 +267,10 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
           <Separator />
 
           {/* Contact Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <Mail className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Contact Information</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <Mail className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Contact information</h3>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -313,10 +313,10 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
           <Separator />
 
           {/* Representation */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <Users className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Representation</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <Users className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Representation</h3>
             </div>
 
             <FormField
@@ -324,7 +324,7 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
               name="representation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Representation Type</FormLabel>
+                  <FormLabel>Representation type</FormLabel>
                   <FormControl>
                     <div className="flex flex-wrap gap-2">
                       {clientRepresentationOptions.map((option) => (
@@ -333,11 +333,11 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
                           type="button"
                           onClick={() => field.onChange(option.value)}
                           className={cn(
-                            "rounded-lg border-2 px-3 py-2.5 min-h-[44px] text-base font-medium transition-all sm:px-4 sm:text-sm sm:min-h-[40px]",
-                            "hover:scale-[1.02] active:scale-[0.98]",
+                            "rounded-lg border px-3 py-2.5 min-h-[44px] text-base font-medium transition-all sm:px-4 sm:text-sm sm:min-h-[40px]",
+                            "active:scale-[0.98]",
                             field.value === option.value
-                              ? "border-primary bg-primary text-primary-foreground shadow-md"
-                              : "border-border hover:border-primary/50",
+                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                              : "border-border hover:border-primary/50 hover:bg-muted/50",
                           )}
                         >
                           {option.label}
@@ -400,10 +400,10 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
           <Separator />
 
           {/* Identification & Location */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <MapPin className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Identification & Location</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <MapPin className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Identification & location</h3>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -490,10 +490,10 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
           <Separator />
 
           {/* Additional Notes */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Additional Information</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Additional information</h3>
             </div>
 
             <FormField

@@ -180,10 +180,10 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Information Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <Briefcase className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Basic Information</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <Briefcase className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Basic information</h3>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -278,11 +278,11 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
                                 type="button"
                                 onClick={() => toggleAttorney(member.id)}
                                 className={cn(
-                                  "flex items-center justify-between gap-2 rounded-lg border-2 px-3 py-2.5 min-h-[44px] text-base transition-all sm:min-h-[40px] sm:text-sm",
-                                  "hover:scale-[1.02] active:scale-[0.98]",
+                                  "flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 min-h-[44px] text-base transition-all sm:min-h-[40px] sm:text-sm",
+                                  "active:scale-[0.98]",
                                   isSelected
                                     ? "border-primary bg-primary/10 text-primary font-medium"
-                                    : "border-border bg-background hover:border-primary/50",
+                                    : "border-border bg-background hover:border-primary/50 hover:bg-muted/30",
                                 )}
                               >
                                 <span>{member.name}</span>
@@ -310,10 +310,10 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
           <Separator />
 
           {/* Court & Case Details Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Court & Case Details</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Court & case details</h3>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -471,10 +471,10 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
           <Separator />
 
           {/* Case Details Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Case Details</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Case details</h3>
             </div>
 
             <FormField
@@ -548,10 +548,10 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
           <Separator />
 
           {/* Documents Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-              <FileText className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Documents & Evidence</h3>
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2 py-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">Documents & evidence</h3>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -623,14 +623,15 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
           <Separator />
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => form.reset()}
               disabled={isSubmitting}
+              className="w-full sm:w-auto min-w-0"
             >
-              Reset
+              <span className="truncate">Reset</span>
             </Button>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
               {isSubmitting ? (

@@ -79,11 +79,11 @@ export function AppNav() {
                 {item.label}
               </Link>
             ))}
-            <div className="mt-4 pt-4 border-t border-border/60">
+            <div className="mt-4 pt-4 border-t border-border">
               <SignOutButton
                 variant="ghost"
                 size="default"
-                className="w-full justify-start px-4 py-3.5 min-h-[44px] text-base sm:text-sm sm:min-h-[40px] min-w-0"
+                className="w-full justify-center sm:justify-start gap-2 min-h-[48px] px-4 py-3.5 text-base sm:text-sm rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
               />
             </div>
           </nav>

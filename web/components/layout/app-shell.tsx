@@ -36,11 +36,12 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
           </Link>
           <SidebarNav />
         </div>
-        <div className="hidden md:block border-t border-border px-3 py-3 sm:px-4">
+        <div className="hidden md:block border-t border-border shrink-0 p-2">
           <SignOutButton
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm"
+            collapseLabelInSidebar
+            className="w-full justify-start gap-2.5 sm:gap-3 min-h-[44px] sm:min-h-[40px] text-sm min-w-0 px-2 py-2 sm:px-3 sm:py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
           />
         </div>
       </aside>

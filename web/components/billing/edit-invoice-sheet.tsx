@@ -38,9 +38,9 @@ export function EditInvoiceSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant={variant} size={size}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
+          <Button variant={variant} size={size} className="w-full sm:w-auto min-w-0">
+            <Pencil className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">Edit</span>
           </Button>
         )}
       </SheetTrigger>

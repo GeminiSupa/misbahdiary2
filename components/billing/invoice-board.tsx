@@ -275,17 +275,18 @@ function InvoiceCard({
                   await recordInvoicePayment(invoice.id);
                 })
               }
-              className="flex-shrink-0"
+              className="w-full sm:w-auto min-w-0"
             >
-              {isPaying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              <span className="hidden sm:inline">Mark paid</span>
-              <span className="sm:hidden">Paid</span>
+              {isPaying ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
+              <span className="truncate hidden sm:inline">Mark paid</span>
+              <span className="truncate sm:hidden">Paid</span>
             </Button>
             <VoidInvoiceButton
               invoiceId={invoice.id}
               invoiceNumber={invoice.invoiceNumber}
               status={invoice.status}
               size="sm"
+              className="w-full sm:w-auto min-w-0"
             />
           </>
         ) : null}
@@ -294,16 +295,18 @@ function InvoiceCard({
           invoiceNumber={invoice.invoiceNumber}
           status={invoice.status}
           size="sm"
+          className="w-full sm:w-auto min-w-0"
         />
-        <Button variant="ghost" size="sm" asChild className="flex-shrink-0">
+        <Button variant="ghost" size="sm" asChild className="w-full sm:w-auto min-w-0">
           <a
             href={`/api/invoices/${invoice.id}/pdf`}
             download={`invoice-${invoice.invoiceNumber}.pdf`}
             target="_blank"
             rel="noopener noreferrer"
+            className="flex items-center gap-2 min-w-0"
           >
-            <Download className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Export</span>
+            <Download className="h-4 w-4 shrink-0" />
+            <span className="truncate hidden sm:inline">Export</span>
           </a>
         </Button>
       </div>

@@ -177,17 +177,17 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                   ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <Button asChild variant="secondary" size="sm" className="flex-1 sm:flex-initial min-w-0" onClick={(e) => e.stopPropagation()}>
-                    <Link href={`/cases/${matter.id}`} className="truncate block min-w-0">
+                  <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto min-w-0" onClick={(e) => e.stopPropagation()}>
+                    <Link href={`/cases/${matter.id}`} className="flex items-center gap-2 min-w-0">
                       <span className="truncate">Open detail</span>
                     </Link>
                   </Button>
-                  <div onClick={(e) => e.stopPropagation()}>
+                  <div onClick={(e) => e.stopPropagation()} className="w-full sm:w-auto">
                     <DeleteMatterButton
                       matterId={matter.id}
                       matterSerial={matter.serialNumber}
                       size="sm"
-                      className="flex-1 sm:flex-initial"
+                      className="w-full sm:w-auto min-w-0"
                     />
                   </div>
                 </div>

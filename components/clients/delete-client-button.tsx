@@ -62,14 +62,14 @@ export function DeleteClientButton({
         size={size}
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className={className}
+        className={`w-full sm:w-auto min-w-0 ${className || ""}`}
       >
         {isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
         ) : (
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 shrink-0" />
         )}
-        <span className="ml-2 hidden sm:inline">Delete</span>
+        <span className="truncate hidden sm:inline">Delete</span>
       </Button>
 
       <ConfirmDialog

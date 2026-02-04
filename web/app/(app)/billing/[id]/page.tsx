@@ -170,10 +170,10 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
         <div className="sap-card-body">
           <div className="sap-card-header">
             <div className="flex items-center gap-3 min-w-0">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/billing">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
+              <Button variant="ghost" size="sm" asChild className="w-full sm:w-auto min-w-0">
+                <Link href="/billing" className="flex items-center gap-2 min-w-0">
+                  <ArrowLeft className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Back</span>
                 </Link>
               </Button>
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0">
@@ -201,15 +201,16 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
                   unbilledTimeEntries={unbilledEntries}
                 />
               )}
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="w-full sm:w-auto min-w-0">
                 <a
                   href={`/api/invoices/${invoice.id}/pdf`}
                   download={`invoice-${invoice.invoice_number}.pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center gap-2 min-w-0"
                 >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export PDF
+                  <Download className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Export PDF</span>
                 </a>
               </Button>
               {canEdit && (

@@ -245,13 +245,14 @@ function HearingCard({
           size="sm"
           disabled={completed || isCompleting}
           onClick={() => onMarkComplete(hearing.id)}
+          className="w-full sm:w-auto min-w-0"
         >
-          {isCompleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-          Mark complete
+          {isCompleting ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />}
+          <span className="truncate">Mark complete</span>
         </Button>
         <Button variant="ghost" size="sm" className="w-full sm:w-auto min-w-0" asChild>
-          <Link href={`/api/hearings/${hearing.id}/ics`} className="truncate block min-w-0">
-            <Download className="mr-2 h-4 w-4 shrink-0" />
+          <Link href={`/api/hearings/${hearing.id}/ics`} className="flex items-center gap-2 min-w-0">
+            <Download className="h-4 w-4 shrink-0" />
             <span className="truncate">ICS</span>
           </Link>
         </Button>

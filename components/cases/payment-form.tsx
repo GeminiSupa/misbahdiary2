@@ -234,16 +234,17 @@ export function PaymentForm({ matterId, currentTotal = 0, currentPaid = 0, onSuc
           <Separator />
 
           {/* Submit Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
             {onCancel && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={onCancel}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto min-w-0"
               >
-                <X className="mr-2 h-4 w-4" />
-                Cancel
+                <X className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">Cancel</span>
               </Button>
             )}
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">

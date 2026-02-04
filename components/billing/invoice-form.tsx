@@ -477,14 +477,15 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
           <Separator />
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => form.reset()}
               disabled={isSubmitting}
+              className="w-full sm:w-auto min-w-0"
             >
-              Reset
+              <span className="truncate">Reset</span>
             </Button>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
               {isSubmitting ? (

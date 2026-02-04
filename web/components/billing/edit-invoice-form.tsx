@@ -466,25 +466,26 @@ export function EditInvoiceForm({ invoiceId, invoice, clients, matters, unbilled
           <Separator />
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => form.reset()}
               disabled={isSubmitting}
+              className="w-full sm:w-auto min-w-0"
             >
-              Reset
+              <span className="truncate">Reset</span>
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
+                  <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                  <span className="truncate">Updating...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Update Invoice
+                  <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate">Update Invoice</span>
                 </>
               )}
             </Button>
