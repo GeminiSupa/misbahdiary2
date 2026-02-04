@@ -11,7 +11,7 @@ type SignOutButtonProps = {
   variant?: ComponentProps<typeof Button>["variant"];
   size?: ComponentProps<typeof Button>["size"];
   className?: string;
-  /** In sidebar: label only visible when sidebar is expanded (group-hover). Use with parent that has class "group". */
+  /** In sidebar: show only icon, no label text. */
   collapseLabelInSidebar?: boolean;
 };
 
@@ -38,12 +38,7 @@ export function SignOutButton({
     router.refresh();
   };
 
-  const isIconOnly = size === "icon" || size === "icon-sm";
-  const labelClasses = cn(
-    "truncate",
-    collapseLabelInSidebar &&
-      "hidden md:inline opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
-  );
+  const isIconOnly = size === "icon" || size === "icon-sm" || collapseLabelInSidebar;
 
   return (
     <Button
@@ -60,7 +55,7 @@ export function SignOutButton({
       ) : (
         <LogOut className={cn("shrink-0", isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
       )}
-      {!isIconOnly && <span className={labelClasses}>Sign out</span>}
+      {!isIconOnly && <span className="truncate">Sign out</span>}
     </Button>
   );
 }
