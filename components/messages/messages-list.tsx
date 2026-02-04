@@ -205,7 +205,8 @@ export function MessagesList({ messages: initialMessages, currentUserId, firmId 
     <div className="flex flex-col h-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="px-4 pt-4 pb-2 border-b">
-          <TabsList className="grid w-full grid-cols-4">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="inline-flex min-w-max gap-1 rounded-full bg-muted/60 px-1 py-1 sm:w-full sm:min-w-0 sm:grid sm:grid-cols-4">
             <TabsTrigger value="all" className="relative">
               All
               {messages.length > 0 && (
@@ -242,6 +243,7 @@ export function MessagesList({ messages: initialMessages, currentUserId, firmId 
               )}
             </TabsTrigger>
           </TabsList>
+          </div>
         </div>
 
         <TabsContent value={activeTab} className="flex-1 mt-0 overflow-hidden">
