@@ -27,9 +27,11 @@ export default async function SubscriptionPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id, role")
+    .select("firm_id, role, is_super_admin")
     .eq("id", user.id)
     .maybeSingle();
+
+  const isSuperAdmin = (profile as { is_super_admin?: boolean } | null)?.is_super_admin === true;
 
   if (!profile?.firm_id) {
     redirect("/onboarding");
@@ -243,6 +245,7 @@ export default async function SubscriptionPage() {
         trialEndsAt={subscription.trial_ends_at}
         isTrialActive={subscription.is_trial_active}
         subscriptionStatus={subscription.status}
+        isSuperAdmin={isSuperAdmin}
       />
 
       <div className="grid gap-6 md:grid-cols-2">

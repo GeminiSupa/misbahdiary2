@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/server/access-control";
 
 export type SubscriptionCheckResult = {
   hasAccess: boolean;
@@ -14,10 +15,25 @@ export type SubscriptionCheckResult = {
 /**
  * Check if a firm has active subscription or valid trial
  * Returns access status and subscription information
+ * Super admins always get hasAccess: true (bypass subscription checks)
  */
 export async function checkSubscriptionAccess(
   firmId: string,
+  userId?: string,
 ): Promise<SubscriptionCheckResult> {
+  // Super admins bypass all subscription checks
+  if (userId && (await isSuperAdmin(userId))) {
+    return {
+      hasAccess: true,
+      status: "active",
+      isTrialActive: false,
+      isSubscriptionActive: true,
+      daysRemainingInTrial: null,
+      trialEndsAt: null,
+      subscriptionEndsAt: null,
+    };
+  }
+
   const supabase = await createSupabaseServerClient();
 
   const { data: firm, error } = await supabase
@@ -188,9 +204,13 @@ export async function requireSubscriptionAccess(firmId: string): Promise<boolean
 /**
  * Check subscription and redirect to subscription page if expired
  * Use this in page components as a backup to middleware
+ * Super admins bypass (no redirect)
  */
-export async function enforceSubscriptionAccess(firmId: string): Promise<void> {
-  const check = await checkSubscriptionAccess(firmId);
+export async function enforceSubscriptionAccess(
+  firmId: string,
+  userId?: string,
+): Promise<void> {
+  const check = await checkSubscriptionAccess(firmId, userId);
   if (!check.hasAccess) {
     const { redirect } = await import("next/navigation");
     redirect("/subscription?expired=true");

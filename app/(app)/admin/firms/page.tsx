@@ -2,11 +2,12 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSuperAdmin } from "@/lib/server/access-control";
 import { listAllFirms } from "@/app/(app)/admin/actions";
-import { Building2, ArrowLeft, Mail, User, Calendar } from "lucide-react";
+import { Building2, ArrowLeft, Mail, User, Calendar, BadgeCheck, Clock, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import { RecordCashPaymentSheet } from "@/components/admin/record-cash-payment-sheet";
 
 export default async function FirmsPage() {
   const supabase = await createSupabaseServerClient();
@@ -54,16 +55,16 @@ export default async function FirmsPage() {
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-2">
-              <Button asChild variant="outline">
-                <Link href="/admin">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild variant="outline" className="min-h-[48px] min-w-fit whitespace-nowrap">
+                <Link href="/admin" className="flex items-center">
+                  <ArrowLeft className="mr-2 h-4 w-4 shrink-0" />
                   Back to Dashboard
                 </Link>
               </Button>
-              <Button asChild>
-                <Link href="/admin/firms/create">
-                  <Building2 className="mr-2 h-4 w-4" />
+              <Button asChild className="min-h-[48px] min-w-fit whitespace-nowrap">
+                <Link href="/admin/firms/create" className="flex items-center">
+                  <Building2 className="mr-2 h-4 w-4 shrink-0" />
                   Create New Firm
                 </Link>
               </Button>
@@ -115,11 +116,42 @@ export default async function FirmsPage() {
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  {firm.subscription_status === "active" ? (
+                    <BadgeCheck className="h-4 w-4 text-green-600" />
+                  ) : firm.subscription_status === "trial" ? (
+                    <Clock className="h-4 w-4 text-amber-600" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-destructive" />
+                  )}
+                  <span className="text-muted-foreground">
+                    {firm.subscription_status === "active"
+                      ? firm.subscription_ends_at
+                        ? `Active until ${format(new Date(firm.subscription_ends_at), "MMM dd, yyyy")}`
+                        : "Active"
+                      : firm.subscription_status === "trial"
+                        ? firm.trial_ends_at
+                          ? `Trial until ${format(new Date(firm.trial_ends_at), "MMM dd, yyyy")}`
+                          : "Trial"
+                        : firm.subscription_status === "expired"
+                          ? "Expired"
+                          : firm.subscription_status ?? "Trial"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
                   <span className="text-muted-foreground">
                     {format(new Date(firm.created_at), "MMM dd, yyyy 'at' hh:mm a")}
                   </span>
                 </div>
+                <RecordCashPaymentSheet
+                  firmId={firm.id}
+                  firmName={firm.name}
+                  trigger={
+                    <Button variant="outline" size="sm" className="w-full mt-2 min-h-[48px] whitespace-nowrap">
+                      Record Cash Payment
+                    </Button>
+                  }
+                />
               </CardContent>
             </Card>
           ))}

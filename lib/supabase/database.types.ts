@@ -980,6 +980,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_active: boolean
+          is_super_admin: boolean
           language_preference: string | null
           phone: string | null
           role: string | null
@@ -992,6 +993,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_active?: boolean
+          is_super_admin?: boolean
           language_preference?: string | null
           phone?: string | null
           role?: string | null
@@ -1004,6 +1006,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean
+          is_super_admin?: boolean
           language_preference?: string | null
           phone?: string | null
           role?: string | null

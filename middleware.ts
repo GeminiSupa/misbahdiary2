@@ -103,10 +103,21 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
+    // Always allow /admin - admin pages do their own super-admin check
+    if (request.nextUrl.pathname.startsWith("/admin")) {
+      return response;
+    }
+
     // If user has a firm, check subscription access
     if (profile?.firm_id) {
       try {
-        const subscriptionCheck = await checkSubscriptionAccess(profile.firm_id);
+        // Super admins bypass subscription check (allow full access)
+        const { isSuperAdmin } = await import("@/lib/server/access-control");
+        if (await isSuperAdmin(user.id)) {
+          return response;
+        }
+
+        const subscriptionCheck = await checkSubscriptionAccess(profile.firm_id, user.id);
 
         // STRICT BLOCKING: Completely block access if no active trial or subscription
         // This blocks ALL app functionality until they subscribe

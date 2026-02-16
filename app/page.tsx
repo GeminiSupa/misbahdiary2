@@ -14,12 +14,18 @@ export default async function Home() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id")
+    .select("firm_id, is_super_admin")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile?.firm_id) {
+  const isSuperAdmin = (profile as { is_super_admin?: boolean } | null)?.is_super_admin === true;
+
+  if (!profile?.firm_id && !isSuperAdmin) {
     redirect("/onboarding");
+  }
+
+  if (isSuperAdmin) {
+    redirect("/admin");
   }
 
   redirect("/dashboard");

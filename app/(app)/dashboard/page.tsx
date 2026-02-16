@@ -39,9 +39,11 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id, full_name, role")
+    .select("firm_id, full_name, role, is_super_admin")
     .eq("id", user.id)
     .maybeSingle();
+
+  const isSuperAdmin = (profile as { is_super_admin?: boolean } | null)?.is_super_admin === true;
 
   if (!profile?.firm_id) {
     return redirect("/onboarding");
@@ -49,9 +51,9 @@ export default async function DashboardPage() {
 
   const displayName = profile.full_name || user.email?.split("@")[0] || "User";
 
-  // STRICT BLOCKING: Enforce subscription access (backup to middleware)
+  // STRICT BLOCKING: Enforce subscription access (backup to middleware). Super admins bypass.
   const { enforceSubscriptionAccess } = await import("@/lib/server/subscription-check");
-  await enforceSubscriptionAccess(profile.firm_id);
+  await enforceSubscriptionAccess(profile.firm_id, user.id);
 
   // Get subscription status
   const subscriptionResult = await getSubscriptionStatus(profile.firm_id);
@@ -258,13 +260,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-      {/* Trial Banner */}
+      {/* Trial Banner (hidden for super admins) */}
       {subscription && (
         <TrialBanner
           daysRemaining={subscription.days_remaining_in_trial}
           trialEndsAt={subscription.trial_ends_at}
           isTrialActive={subscription.is_trial_active}
           subscriptionStatus={subscription.status}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
 

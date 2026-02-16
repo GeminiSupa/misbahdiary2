@@ -11,6 +11,8 @@ type TrialBannerProps = {
   trialEndsAt: string | null;
   isTrialActive: boolean;
   subscriptionStatus: string;
+  /** Super admins never see trial/subscription banners */
+  isSuperAdmin?: boolean;
 };
 
 export function TrialBanner({
@@ -18,7 +20,12 @@ export function TrialBanner({
   trialEndsAt,
   isTrialActive,
   subscriptionStatus,
+  isSuperAdmin = false,
 }: TrialBannerProps) {
+  // Super admins never see the trial banner
+  if (isSuperAdmin) {
+    return null;
+  }
   // Don't show banner if not in trial
   if (!isTrialActive || subscriptionStatus !== "trial") {
     return null;

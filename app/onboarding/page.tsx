@@ -21,9 +21,15 @@ export default async function OnboardingPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("firm_id, full_name, role, phone")
+    .select("firm_id, full_name, role, phone, is_super_admin")
     .eq("id", user.id)
     .maybeSingle();
+
+  const isSuperAdmin = (profile as { is_super_admin?: boolean } | null)?.is_super_admin === true;
+
+  if (isSuperAdmin) {
+    redirect("/admin");
+  }
 
   if (profile?.firm_id) {
     redirect("/dashboard");
