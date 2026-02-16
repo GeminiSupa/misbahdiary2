@@ -26,7 +26,7 @@ export default function TermsOfServicePage() {
 
         <h2>Trial and subscription</h2>
         <ul>
-          <li>New accounts may receive a 15-day free trial (as configured).</li>
+          <li>New accounts may receive a 30-day free trial (as configured).</li>
           <li>
             After the trial ends, access to protected features may be restricted
             until you subscribe.

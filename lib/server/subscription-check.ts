@@ -72,10 +72,10 @@ export async function checkSubscriptionAccess(
   if (firmData.trial_ends_at) {
     trialEndsAt = new Date(firmData.trial_ends_at);
   } else if (firmData.trial_started_at && firmData.subscription_status === "trial") {
-    // Calculate trial end from start date (15 days)
+    // Calculate trial end from start date (30 days)
     const trialStartedAt = new Date(firmData.trial_started_at);
     trialEndsAt = new Date(trialStartedAt);
-    trialEndsAt.setDate(trialEndsAt.getDate() + 15);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
   }
   
   const subscriptionEndsAt = firmData.subscription_ends_at

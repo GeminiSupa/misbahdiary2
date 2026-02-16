@@ -187,16 +187,16 @@ export function SubscriptionManagement({
             <Button
               onClick={handleSubscribe}
               disabled={isPending}
-              className="w-full"
+              className="w-full min-w-fit whitespace-nowrap"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
                   Processing...
                 </>
               ) : (
                 <>
-                  <CreditCard className="mr-2 h-4 w-4" />
+                  <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                   Subscribe Now
                 </>
               )}
@@ -235,16 +235,16 @@ export function SubscriptionManagement({
                 <Button
                   onClick={handleManageBilling}
                   disabled={isPending}
-                  className="w-full"
+                  className="w-full min-w-fit whitespace-nowrap"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
                       Loading...
                     </>
                   ) : (
                     <>
-                      <CreditCard className="mr-2 h-4 w-4" />
+                      <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                       Manage Billing & Subscription
                     </>
                   )}
@@ -253,16 +253,16 @@ export function SubscriptionManagement({
                 <Button
                   onClick={handleSubscribe}
                   disabled={isPending}
-                  className="w-full"
+                  className="w-full min-w-fit whitespace-nowrap"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
                       Processing...
                     </>
                   ) : (
                     <>
-                      <CreditCard className="mr-2 h-4 w-4" />
+                      <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                       Subscribe Now
                     </>
                   )}
@@ -292,16 +292,16 @@ export function SubscriptionManagement({
             <Button
               onClick={handleSubscribe}
               disabled={isPending}
-              className="w-full"
+              className="w-full min-w-fit whitespace-nowrap"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
                   Processing...
                 </>
               ) : (
                 <>
-                  <CreditCard className="mr-2 h-4 w-4" />
+                  <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                   Subscribe Now
                 </>
               )}
@@ -319,16 +319,16 @@ export function SubscriptionManagement({
             <Button
               onClick={handleSubscribe}
               disabled={isPending}
-              className="w-full"
+              className="w-full min-w-fit whitespace-nowrap"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
                   Processing...
                 </>
               ) : (
                 <>
-                  <CreditCard className="mr-2 h-4 w-4" />
+                  <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                   Subscribe Now
                 </>
               )}

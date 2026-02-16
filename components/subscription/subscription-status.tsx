@@ -91,7 +91,7 @@ export function SubscriptionStatus({ subscription }: SubscriptionStatusProps) {
                 </p>
               ) : (
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Trial period active (15 days from signup)
+                  Trial period active (30 days from signup)
                 </p>
               )}
               {subscription.trial_ends_at && (
@@ -156,8 +156,8 @@ export function SubscriptionStatus({ subscription }: SubscriptionStatusProps) {
             <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
               Your last payment attempt failed. Please update your payment method to continue service.
             </p>
-            <Button asChild size="sm" className="min-w-0">
-              <Link href="/subscription" className="truncate block min-w-0">Update Payment</Link>
+            <Button asChild size="sm" className="min-w-fit whitespace-nowrap">
+              <Link href="/subscription" className="block">Update Payment</Link>
             </Button>
           </div>
         )}

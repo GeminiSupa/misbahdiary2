@@ -38,10 +38,10 @@ export async function completeOnboarding(
 
   const { firmName, contactEmail, contactPhone, fullName, role } = parsed.data;
 
-  // Calculate trial dates (15 days from now)
+  // Calculate trial dates (30 days from now)
   const trialStartedAt = new Date();
   const trialEndsAt = new Date();
-  trialEndsAt.setDate(trialEndsAt.getDate() + 15);
+  trialEndsAt.setDate(trialEndsAt.getDate() + 30);
 
   // Get the default subscription plan (Professional Plan)
   // Note: There might be multiple "Professional Plan" entries, so we get the first one
@@ -123,6 +123,14 @@ export async function completeOnboarding(
   if (profileError) {
     return { message: `Profile update failed: ${profileError.message}` };
   }
+
+  // Send welcome email via MailerSend (non-blocking; do not fail onboarding if email fails)
+  const { sendWelcomeEmail } = await import("@/lib/email/mailersend");
+  sendWelcomeEmail(contactEmail, fullName).then((result) => {
+    if (!result.success && process.env.NODE_ENV === "development") {
+      console.warn("Welcome email not sent:", result.error);
+    }
+  });
 
   revalidatePath("/dashboard");
   revalidatePath("/");

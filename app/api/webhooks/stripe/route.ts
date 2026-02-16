@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        // Verify firm exists
+        // Verify firm exists and get contact email for notification
         const { data: firm, error: firmCheckError } = await supabaseAdmin
           .from("firms")
-          .select("id")
+          .select("id, name, contact_email")
           .eq("id", firmId)
           .maybeSingle();
 
@@ -99,10 +99,10 @@ export async function POST(req: NextRequest) {
             );
             const priceId = subscription.items.data[0]?.price.id;
 
-            // Get plan from price ID
+            // Get plan from price ID (id + name for notification email)
             const { data: plan } = await supabaseAdmin
               .from("subscription_plans")
-              .select("id")
+              .select("id, name")
               .eq("price_id_stripe", priceId)
               .maybeSingle();
 
@@ -148,6 +148,15 @@ export async function POST(req: NextRequest) {
                 customer_id: subscription.customer,
               },
             });
+
+            // Send subscription success email via MailerSend (non-blocking)
+            const toEmail = firm.contact_email ?? undefined;
+            if (toEmail) {
+              const { sendSubscriptionSuccessEmail } = await import("@/lib/email/mailersend");
+              sendSubscriptionSuccessEmail(toEmail, firm.name || "User", plan?.name ?? undefined).catch((err) => {
+                if (process.env.NODE_ENV === "development") console.warn("Subscription email error:", err);
+              });
+            }
           }
         } else if (session.mode === "payment") {
           // Handle one-time payment mode (if needed in future)
@@ -166,11 +175,11 @@ export async function POST(req: NextRequest) {
             const subscriptionEndsAt = new Date(now);
             subscriptionEndsAt.setDate(subscriptionEndsAt.getDate() + 30);
 
-            let plan = null;
+            let plan: { id: string; name?: string } | null = null;
             if (planId) {
               const { data: planData } = await supabaseAdmin
                 .from("subscription_plans")
-                .select("id")
+                .select("id, name")
                 .eq("id", planId)
                 .maybeSingle();
               plan = planData;
@@ -201,6 +210,15 @@ export async function POST(req: NextRequest) {
                 customer_id: session.customer,
               },
             });
+
+            // Send subscription success email via MailerSend (non-blocking)
+            const toEmail = firm.contact_email ?? undefined;
+            if (toEmail) {
+              const { sendSubscriptionSuccessEmail } = await import("@/lib/email/mailersend");
+              sendSubscriptionSuccessEmail(toEmail, firm.name || "User", plan?.name).catch((err) => {
+                if (process.env.NODE_ENV === "development") console.warn("Subscription email error:", err);
+              });
+            }
           }
         }
         break;

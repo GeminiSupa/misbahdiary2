@@ -67,7 +67,7 @@ export default async function UserManualPage() {
                   <div>
                     <h3 className="font-semibold mb-1">Sign Up / Sign In</h3>
                     <p className="text-sm text-muted-foreground">
-                      Create your account or sign in to access Lawyer Diary. You'll get a 15-day free trial to explore all features.
+                      Create your account or sign in to access Lawyer Diary. You'll get a 30-day free trial to explore all features.
                     </p>
                   </div>
                 </div>
@@ -364,7 +364,7 @@ export default async function UserManualPage() {
                   <div>
                     <h3 className="font-semibold mb-1">سائن اپ / سائن ان</h3>
                     <p className="text-sm text-muted-foreground">
-                      اپنا اکاؤنٹ بنائیں یا Lawyer Diary تک رسائی کے لیے سائن ان کریں۔ آپ کو تمام خصوصیات کو دریافت کرنے کے لیے 15 دن کی مفت آزمائش ملے گی۔
+                      اپنا اکاؤنٹ بنائیں یا Lawyer Diary تک رسائی کے لیے سائن ان کریں۔ آپ کو تمام خصوصیات کو دریافت کرنے کے لیے 30 دن کی مفت آزمائش ملے گی۔
                     </p>
                   </div>
                 </div>

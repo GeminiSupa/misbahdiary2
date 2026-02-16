@@ -42,6 +42,16 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 SUPABASE_PROJECT_ID=xsdqwbcpvdreawkyvpnk
 ```
 
+## MailerSend (optional – welcome & subscription emails)
+
+To send **welcome emails** after onboarding and **subscription success emails** after payment, add:
+
+- **MAILERSEND_API_KEY** – Your MailerSend API key from [MailerSend](https://www.mailersend.com/) → API Tokens.
+- **MAILERSEND_FROM_EMAIL** – Sender email (must use a [verified domain](https://www.mailersend.com/help/domains) in MailerSend). Default: `noreply@lawerdiary.com`.
+- **MAILERSEND_FROM_NAME** – Sender display name. Default: `Lawyer Diary`.
+
+If these are not set, onboarding and subscription still work; only the notification emails are skipped.
+
 ## Important Notes
 
 - **NEXT_PUBLIC_** prefix is required for variables used in client-side code

@@ -106,7 +106,7 @@ export async function getSubscriptionStatus(
       // If trial_ends_at is missing but trial_started_at exists, calculate from start date
       const trialStartedAt = new Date(firmData.trial_started_at);
       const calculatedTrialEndsAt = new Date(trialStartedAt);
-      calculatedTrialEndsAt.setDate(calculatedTrialEndsAt.getDate() + 15);
+      calculatedTrialEndsAt.setDate(calculatedTrialEndsAt.getDate() + 30);
       const diffTime = calculatedTrialEndsAt.getTime() - now.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       daysRemainingInTrial = diffDays > 0 ? diffDays : 0;
@@ -123,7 +123,7 @@ export async function getSubscriptionStatus(
       // Calculate trial end from start date if end date is missing
       const trialStartedAt = new Date(firmData.trial_started_at);
       const calculatedTrialEndsAt = new Date(trialStartedAt);
-      calculatedTrialEndsAt.setDate(calculatedTrialEndsAt.getDate() + 15);
+      calculatedTrialEndsAt.setDate(calculatedTrialEndsAt.getDate() + 30);
       isTrialActive = calculatedTrialEndsAt > now;
     } else {
       // If no dates at all but status is trial, assume active (will be fixed by migration)
@@ -155,7 +155,7 @@ export async function getSubscriptionStatus(
   if (!calculatedTrialEndsAt && firmData.trial_started_at && firmData.subscription_status === "trial") {
     const trialStartedAt = new Date(firmData.trial_started_at);
     const trialEnds = new Date(trialStartedAt);
-    trialEnds.setDate(trialEnds.getDate() + 15);
+    trialEnds.setDate(trialEnds.getDate() + 30);
     calculatedTrialEndsAt = trialEnds.toISOString();
   }
 

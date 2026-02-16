@@ -85,10 +85,10 @@ export async function createFirmWithOwner(
       };
     }
 
-    // Calculate trial dates (15 days from now)
+    // Calculate trial dates (30 days from now)
     const trialStartedAt = new Date();
     const trialEndsAt = new Date();
-    trialEndsAt.setDate(trialEndsAt.getDate() + 15);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
 
     // Get the default subscription plan (Professional Plan)
     const { data: defaultPlan } = await supabase
