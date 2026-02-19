@@ -17,6 +17,7 @@ export const matterCaseTypeOptions = [
   { value: "civil", label: "Civil" },
   { value: "criminal", label: "Criminal" },
   { value: "corporate", label: "Corporate" },
+  { value: "other", label: "Other" },
 ] as const;
 
 export const matterPartyTypeOptions = [

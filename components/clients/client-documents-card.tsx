@@ -135,22 +135,26 @@ function ClientDocumentUploader({ clientId }: ClientDocumentUploaderProps) {
     formData.append("clientId", clientId);
 
     startTransition(async () => {
-      const result = await uploadClientDocument(formData);
-      if (!result.success) {
-        setError(result.message ?? "Unable to upload document. Please try again or contact support at /contact if the issue persists.");
-        return;
+      try {
+        const result = await uploadClientDocument(formData);
+        if (!result.success) {
+          setError(result.message ?? "Unable to upload document. Please try again or contact support at /contact if the issue persists.");
+          return;
+        }
+        // Reset both file inputs
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        if (cameraInputRef.current) {
+          cameraInputRef.current.value = "";
+        }
+        formRef.current?.reset();
+        setSelectedFile(null);
+        setError(null);
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unable to upload document. Please try again.");
       }
-      // Reset both file inputs
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-      if (cameraInputRef.current) {
-        cameraInputRef.current.value = "";
-      }
-      formRef.current?.reset();
-      setSelectedFile(null);
-      setError(null);
-      router.refresh();
     });
   };
 
@@ -275,12 +279,16 @@ function ClientDocumentDownloadButton({ documentId }: ClientDocumentDownloadButt
         onClick={() => {
           setError(null);
           startTransition(async () => {
-            const result = await getSignedClientDocumentUrl(documentId);
-            if (!result.success || !result.url) {
-              setError(result.message ?? "Unable to generate download link. Please try again or contact support at /contact if the issue persists.");
-              return;
+            try {
+              const result = await getSignedClientDocumentUrl(documentId);
+              if (!result.success || !result.url) {
+                setError(result.message ?? "Unable to generate download link. Please try again or contact support at /contact if the issue persists.");
+                return;
+              }
+              window.open(result.url, "_blank", "noopener,noreferrer");
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "Unable to generate download link. Please try again.");
             }
-            window.open(result.url, "_blank", "noopener,noreferrer");
           });
         }}
         disabled={isPending}

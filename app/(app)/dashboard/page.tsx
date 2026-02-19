@@ -287,14 +287,14 @@ export default async function DashboardPage() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="default" className="w-full sm:w-auto min-w-0" size="sm">
-                <Link href="/cases" className="truncate block min-w-0">
-                  <span className="truncate">New case</span>
+              <Button asChild variant="default" className="w-full sm:w-auto" size="sm">
+                <Link href="/cases" className="whitespace-nowrap flex items-center">
+                  <span className="whitespace-nowrap">New case</span>
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full sm:w-auto min-w-0" size="sm">
-                <Link href="/calendar" className="truncate block min-w-0">
-                  <span className="truncate">Schedule hearing</span>
+              <Button asChild variant="outline" className="w-full sm:w-auto" size="sm">
+                <Link href="/calendar" className="whitespace-nowrap flex items-center">
+                  <span className="whitespace-nowrap">Schedule hearing</span>
                 </Link>
               </Button>
             </div>

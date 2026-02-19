@@ -136,11 +136,11 @@ export function ContactForm() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button type="submit" disabled={isPending} className="w-full sm:w-auto min-w-0 flex-1">
+        <Button type="submit" disabled={isPending} className="w-full sm:w-auto flex-1">
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-              <span className="truncate">Sending...</span>
+              <span className="whitespace-nowrap">Sending...</span>
             </>
           ) : (
             <>

@@ -62,6 +62,20 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
     }, 300);
   };
 
+  // Lock body scroll when panel is open on mobile
+  useEffect(() => {
+    if (open && typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+      return () => {
+        document.body.style.overflow = prev;
+        document.body.style.touchAction = "";
+      };
+    }
+  }, [open]);
+
+  // Swipe to dismiss functionality
   useEffect(() => {
     if (!open || !panelRef.current) return;
     const panel = panelRef.current;
@@ -157,19 +171,24 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
     );
   };
 
+  const badgeCount = unreadCount - localReadIds.size;
+
   return (
-    <div className="relative">
+    <div className="relative overflow-visible">
       <Button
         variant="ghost"
         size="icon"
-        className="relative h-9 w-9 min-h-9 min-w-9 rounded-lg hover:bg-muted"
-        aria-label="View notifications"
+        className="relative h-9 w-9 min-h-[44px] min-w-[44px] sm:min-h-9 sm:min-w-9 rounded-lg hover:bg-muted touch-manipulation overflow-visible"
+        aria-label={`View notifications${badgeCount > 0 ? ` (${badgeCount} unread)` : ""}`}
         onClick={handleToggle}
       >
-        <Bell className="h-4 w-4" />
-        {unreadCount - localReadIds.size > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-destructive-foreground">
-            {unreadCount - localReadIds.size}
+        <Bell className="h-4 w-4 shrink-0" />
+        {badgeCount > 0 ? (
+          <span
+            className="absolute right-0 top-0 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[11px] font-semibold text-destructive-foreground ring-2 ring-background"
+            aria-hidden
+          >
+            {badgeCount > 99 ? "99+" : badgeCount}
           </span>
         ) : null}
       </Button>
@@ -188,41 +207,43 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
             <div
               ref={panelRef}
               className={cn(
-                "absolute inset-x-0 top-0 bottom-0 flex flex-col bg-card border-r border-border shadow-xl transition-transform duration-300 ease-out will-change-transform",
+                "absolute inset-x-0 bottom-0 top-0 flex flex-col bg-card border-t border-x border-border shadow-xl transition-transform duration-300 ease-out will-change-transform rounded-t-2xl overflow-hidden",
+                "pt-[env(safe-area-inset-top)] pb-[max(env(safe-area-inset-bottom),1rem)]",
                 isAnimating ? "translate-y-full" : "translate-y-0"
               )}
             >
-              <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 border-b border-border bg-background/95">
-                <h2 className="text-base font-semibold text-foreground">Notifications</h2>
-                <div className="flex items-center gap-1">
-                  {visibleNotifications.length > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={isPending}
-                      onClick={handleMarkAll}
-                      className="h-9 px-3 text-xs text-primary hover:bg-primary/10"
-                    >
-                      {isPending ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        "Mark all read"
-                      )}
-                    </Button>
-                  )}
+              <div className="shrink-0 flex flex-col gap-1.5 sm:gap-2 px-4 py-2.5 sm:py-3 border-b border-border bg-background/95">
+                <div className="flex items-center justify-between gap-2 min-h-[40px] sm:min-h-[44px]">
+                  <h2 className="text-sm sm:text-base font-semibold text-foreground">Notifications</h2>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
-                    className="shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                    size="icon"
+                    className="shrink-0 h-9 w-9 sm:h-11 sm:w-11 min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] text-muted-foreground hover:text-foreground hover:bg-muted touch-manipulation"
                     onClick={handleClose}
                     aria-label="Close notifications"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </div>
+                {visibleNotifications.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={isPending}
+                    onClick={handleMarkAll}
+                    className="w-full min-h-[36px] sm:min-h-[40px] justify-start px-2.5 py-2 text-xs sm:text-sm text-primary hover:bg-primary/10 touch-manipulation"
+                  >
+                    {isPending ? (
+                      <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 animate-spin" />
+                    ) : (
+                      <CheckCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    )}
+                    <span className="whitespace-nowrap">Mark all read</span>
+                  </Button>
+                )}
               </div>
 
-              <div className="flex-1 overflow-y-auto overscroll-contain">
+              <div className="flex-1 overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch">
                 {visibleNotifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center min-h-[200px] px-6 py-10 text-center">
                     <div className="rounded-full bg-muted/50 p-4 mb-3">
@@ -238,7 +259,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                     {visibleNotifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className="px-4 py-3 active:bg-muted/50 transition-colors"
+                        className="px-4 py-3 active:bg-muted/50 transition-colors min-h-[44px] flex flex-col justify-center"
                       >
                         {notification.link ? (
                           <a
@@ -255,7 +276,7 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="mt-2 h-8 text-xs text-primary hover:bg-primary/10 min-h-[44px] sm:min-h-[36px]"
+                            className="mt-2 h-10 text-xs text-primary hover:bg-primary/10 min-h-[44px] sm:min-h-[36px] touch-manipulation"
                             disabled={isPending}
                             onClick={(e) => {
                               e.preventDefault();
@@ -277,20 +298,20 @@ export function NotificationBell({ notifications }: NotificationBellProps) {
 
           <div className="hidden sm:flex absolute right-0 top-full mt-2 z-50 w-[360px] rounded-xl border border-border bg-card shadow-lg max-h-[min(70vh,420px)] flex-col overflow-hidden">
             <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-muted/30">
-              <span className="text-sm font-semibold text-foreground">Notifications</span>
+              <span className="text-sm font-semibold text-foreground shrink-0">Notifications</span>
               <Button
                 variant="ghost"
                 size="sm"
                 disabled={isPending || visibleNotifications.length === 0}
                 onClick={handleMarkAll}
-                className="h-8 px-2.5 text-xs text-primary hover:bg-primary/10"
+                className="h-8 shrink-0 px-2.5 text-xs text-primary hover:bg-primary/10"
               >
                 {isPending ? (
-                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 shrink-0 animate-spin" />
                 ) : (
                   <>
-                    <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
-                    Mark all read
+                    <CheckCheck className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">Mark all read</span>
                   </>
                 )}
               </Button>

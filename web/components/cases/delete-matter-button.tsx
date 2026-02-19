@@ -77,7 +77,7 @@ export function DeleteMatterButton({
         onOpenChange={setOpen}
         onConfirm={handleDelete}
         title="Delete Matter"
-        description={`Are you sure you want to delete matter "${matterSerial}"? This will permanently delete the matter, all associated hearings, and documents. This action cannot be undone. If this matter has associated invoices, you will need to remove or reassign them first.`}
+        description={`Are you sure you want to delete matter "${matterSerial}"? This will permanently delete the matter and all associated hearings. Invoices linked to this matter will be unlinked (they will remain in Billing). Documents will be removed from storage. This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         variant="destructive"

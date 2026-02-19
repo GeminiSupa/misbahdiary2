@@ -556,22 +556,22 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
                   setFormError(null);
                 }}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-w-0"
+                className="w-full sm:w-auto"
               >
                 <RefreshCcw className="mr-2 h-4 w-4 shrink-0" />
-                <span className="truncate">Add New Instead</span>
+                <span className="whitespace-nowrap">Add New Instead</span>
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">{isEditing ? "Updating..." : "Creating..."}</span>
+                  <span className="whitespace-nowrap">{isEditing ? "Updating..." : "Creating..."}</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">{isEditing ? "Update Client" : "Create Client"}</span>
+                  <span className="whitespace-nowrap">{isEditing ? "Update Client" : "Create Client"}</span>
                 </>
               )}
             </Button>

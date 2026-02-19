@@ -52,14 +52,18 @@ export function MatterDocumentUploader({ matterId, hearingId }: MatterDocumentUp
           return;
         }
         startTransition(async () => {
-          const result = await uploadMatterDocument(formData);
-          if (!result.success) {
-            setError(result.message ?? "Unable to upload document. Please try again or contact support at /contact if the issue persists.");
-            return;
+          try {
+            const result = await uploadMatterDocument(formData);
+            if (!result.success) {
+              setError(result.message ?? "Unable to upload document. Please try again or contact support at /contact if the issue persists.");
+              return;
+            }
+            formRef.current?.reset();
+            setError(null);
+            router.refresh();
+          } catch (err) {
+            setError(err instanceof Error ? err.message : "Unable to upload document. Please try again.");
           }
-          formRef.current?.reset();
-          setError(null);
-          router.refresh();
         });
       }}
     >
@@ -88,12 +92,16 @@ export function DocumentDownloadButton({ documentId }: DocumentDownloadButtonPro
         onClick={() => {
           setError(null);
           startTransition(async () => {
-            const result = await getSignedMatterDocumentUrl(documentId);
-            if (!result.success || !result.url) {
-              setError(result.message ?? "Unable to generate download link. Please try again or contact support at /contact if the issue persists.");
-              return;
+            try {
+              const result = await getSignedMatterDocumentUrl(documentId);
+              if (!result.success || !result.url) {
+                setError(result.message ?? "Unable to generate download link. Please try again or contact support at /contact if the issue persists.");
+                return;
+              }
+              window.open(result.url, "_blank", "noopener,noreferrer");
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "Unable to generate download link. Please try again.");
             }
-            window.open(result.url, "_blank", "noopener,noreferrer");
           });
         }}
         disabled={isPending}

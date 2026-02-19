@@ -33,18 +33,28 @@ export function DeleteMatterButton({
   const handleDelete = () => {
     setError(null);
     startTransition(async () => {
-      const result = await deleteMatter(matterId);
-      if (result.success) {
-        setOpen(false);
-        toast({
-          title: "Matter deleted",
-          description: `Matter ${matterSerial} has been successfully deleted.`,
-          variant: "success",
-        });
-        router.refresh();
-        router.push("/cases");
-      } else {
-        const errorMsg = result.message || "Failed to delete matter";
+      try {
+        const result = await deleteMatter(matterId);
+        if (result.success) {
+          setOpen(false);
+          toast({
+            title: "Matter deleted",
+            description: `Matter ${matterSerial} has been successfully deleted.`,
+            variant: "success",
+          });
+          router.refresh();
+          router.push("/cases");
+        } else {
+          const errorMsg = result.message || "Failed to delete matter";
+          setError(errorMsg);
+          toast({
+            title: "Error",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to delete matter";
         setError(errorMsg);
         toast({
           title: "Error",
@@ -62,14 +72,14 @@ export function DeleteMatterButton({
         size={size}
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className={`w-full sm:w-auto min-w-0 ${className || ""}`}
+        className={`w-full sm:w-auto ${className || ""}`}
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
         ) : (
           <Trash2 className="h-4 w-4 shrink-0" />
         )}
-        <span className="truncate hidden sm:inline">Delete</span>
+        <span className="whitespace-nowrap hidden sm:inline">Delete</span>
       </Button>
 
       <ConfirmDialog
@@ -77,7 +87,7 @@ export function DeleteMatterButton({
         onOpenChange={setOpen}
         onConfirm={handleDelete}
         title="Delete Matter"
-        description={`Are you sure you want to delete matter "${matterSerial}"? This will permanently delete the matter, all associated hearings, and documents. This action cannot be undone. If this matter has associated invoices, you will need to remove or reassign them first.`}
+        description={`Are you sure you want to delete matter "${matterSerial}"? This will permanently delete the matter and all associated hearings. Invoices linked to this matter will be unlinked (they will remain in Billing). Documents will be removed from storage. This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         variant="destructive"

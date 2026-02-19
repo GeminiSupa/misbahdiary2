@@ -214,6 +214,144 @@ export async function recordInvoicePayment(
   return { success: true };
 }
 
+export async function updateInvoice(
+  invoiceId: string,
+  values: InvoiceFormValues,
+): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    redirect("/sign-in");
+  }
+
+  const parsed = invoiceSchema.safeParse(values);
+
+  if (!parsed.success) {
+    return {
+      message: "Please review the highlighted fields.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const payload = parsed.data;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "You must belong to a firm before updating invoices." };
+  }
+
+  const { data: firm } = await supabase
+    .from("firms")
+    .select("owner_id")
+    .eq("id", profile.firm_id)
+    .maybeSingle();
+
+  const isOwner = firm?.owner_id === user.id;
+  const canEdit = isOwner || profile.role === "principal_partner";
+
+  if (!canEdit) {
+    return { message: "Only Firm Owners and Principal Partners can edit invoices." };
+  }
+
+  const { data: existingInvoice } = await supabase
+    .from("invoices")
+    .select("id, firm_id, invoice_number")
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!existingInvoice) {
+    return { message: "Invoice not found or you do not have access." };
+  }
+
+  if (payload.invoiceNumber !== existingInvoice.invoice_number) {
+    const { data: duplicateCheck } = await supabase
+      .from("invoices")
+      .select("id")
+      .eq("firm_id", profile.firm_id)
+      .eq("invoice_number", payload.invoiceNumber)
+      .neq("id", invoiceId)
+      .maybeSingle();
+
+    if (duplicateCheck) {
+      return { message: "Invoice number already exists for this firm." };
+    }
+  }
+
+  let timeEntriesTotal = 0;
+
+  if (payload.timeEntryIds && payload.timeEntryIds.length > 0) {
+    const { data: entries } = await supabase
+      .from("time_entries")
+      .select("amount")
+      .in("id", payload.timeEntryIds);
+
+    timeEntriesTotal =
+      entries?.reduce((sum, entry) => sum + Number(entry.amount ?? 0), 0) ?? 0;
+  }
+
+  const subtotal = payload.subtotal + timeEntriesTotal;
+  const total =
+    subtotal + (payload.taxAmount ?? 0) - (payload.discountAmount ?? 0);
+
+  const { error: updateError } = await supabase
+    .from("invoices")
+    .update({
+      client_id: payload.clientId,
+      matter_id: payload.matterId ? payload.matterId : null,
+      invoice_number: payload.invoiceNumber,
+      status: payload.status as any,
+      issue_date: payload.issueDate,
+      due_date: payload.dueDate || null,
+      subtotal,
+      tax_amount: payload.taxAmount ?? 0,
+      discount_amount: payload.discountAmount ?? 0,
+      total_amount: total,
+      notes: payload.notes || null,
+    } as any)
+    .eq("id", invoiceId)
+    .eq("firm_id", profile.firm_id);
+
+  if (updateError) {
+    return { message: `Could not update invoice: ${updateError.message}` };
+  }
+
+  const newTimeEntryIds = new Set(payload.timeEntryIds ?? []);
+  const { data: previouslyLinked } = await supabase
+    .from("time_entries")
+    .select("id")
+    .eq("invoice_id", invoiceId)
+    .eq("firm_id", profile.firm_id);
+
+  const toUnlink = previouslyLinked?.filter((e) => !newTimeEntryIds.has(e.id)).map((e) => e.id) ?? [];
+  if (toUnlink.length > 0) {
+    await supabase
+      .from("time_entries")
+      .update({ invoice_id: null } as any)
+      .in("id", toUnlink);
+  }
+
+  if (newTimeEntryIds.size > 0) {
+    await supabase
+      .from("time_entries")
+      .update({ invoice_id: invoiceId } as any)
+      .in("id", Array.from(newTimeEntryIds));
+  }
+
+  revalidatePath("/billing");
+
+  return { success: true };
+}
+
 export async function deleteInvoice(invoiceId: string): Promise<ActionState> {
   const supabase = await createSupabaseServerClient();
   const {

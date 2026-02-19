@@ -35,17 +35,27 @@ export function DeleteInvoiceButton({
   const handleDelete = () => {
     setError(null);
     startTransition(async () => {
-      const result = await deleteInvoice(invoiceId);
-      if (result.success) {
-        setOpen(false);
-        toast({
-          title: "Invoice deleted",
-          description: `Invoice ${invoiceNumber} has been successfully deleted.`,
-          variant: "success",
-        });
-        router.refresh();
-      } else {
-        const errorMsg = result.message || "Failed to delete invoice";
+      try {
+        const result = await deleteInvoice(invoiceId);
+        if (result.success) {
+          setOpen(false);
+          toast({
+            title: "Invoice deleted",
+            description: `Invoice ${invoiceNumber} has been successfully deleted.`,
+            variant: "success",
+          });
+          router.refresh();
+        } else {
+          const errorMsg = result.message || "Failed to delete invoice";
+          setError(errorMsg);
+          toast({
+            title: "Error",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to delete invoice";
         setError(errorMsg);
         toast({
           title: "Error",
@@ -68,14 +78,14 @@ export function DeleteInvoiceButton({
         size={size}
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className={`w-full sm:w-auto min-w-0 ${className || ""}`}
+        className={`w-full sm:w-auto ${className || ""}`}
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
         ) : (
           <Trash2 className="h-4 w-4 shrink-0" />
         )}
-        <span className="truncate hidden sm:inline">Delete</span>
+        <span className="whitespace-nowrap hidden sm:inline">Delete</span>
       </Button>
 
       <ConfirmDialog
@@ -115,17 +125,27 @@ export function VoidInvoiceButton({
   const handleVoid = () => {
     setError(null);
     startTransition(async () => {
-      const result = await voidInvoice(invoiceId);
-      if (result.success) {
-        setOpen(false);
-        toast({
-          title: "Invoice voided",
-          description: `Invoice ${invoiceNumber} has been voided.`,
-          variant: "success",
-        });
-        router.refresh();
-      } else {
-        const errorMsg = result.message || "Failed to void invoice";
+      try {
+        const result = await voidInvoice(invoiceId);
+        if (result.success) {
+          setOpen(false);
+          toast({
+            title: "Invoice voided",
+            description: `Invoice ${invoiceNumber} has been voided.`,
+            variant: "success",
+          });
+          router.refresh();
+        } else {
+          const errorMsg = result.message || "Failed to void invoice";
+          setError(errorMsg);
+          toast({
+            title: "Error",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to void invoice";
         setError(errorMsg);
         toast({
           title: "Error",
@@ -148,14 +168,14 @@ export function VoidInvoiceButton({
         size={size}
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className={`w-full sm:w-auto min-w-0 ${className || ""}`}
+        className={`w-full sm:w-auto ${className || ""}`}
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
         ) : (
           <XCircle className="h-4 w-4 shrink-0" />
         )}
-        <span className="truncate hidden sm:inline">Void</span>
+        <span className="whitespace-nowrap hidden sm:inline">Void</span>
       </Button>
 
       <ConfirmDialog

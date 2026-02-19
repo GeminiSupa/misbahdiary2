@@ -123,7 +123,7 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                       </div>
                     </div>
                     <FormControl>
-                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0 touch-manipulation py-2 -my-2 px-1 -mx-1">
                         <input
                           type="checkbox"
                           className="sr-only peer"
@@ -156,7 +156,7 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                       </div>
                     </div>
                     <FormControl>
-                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0 touch-manipulation py-2 -my-2 px-1 -mx-1">
                         <input
                           type="checkbox"
                           className="sr-only peer"
@@ -189,7 +189,7 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                       </div>
                     </div>
                     <FormControl>
-                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0 touch-manipulation py-2 -my-2 px-1 -mx-1">
                         <input
                           type="checkbox"
                           className="sr-only peer"
@@ -212,14 +212,14 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                 variant="outline"
                 onClick={() => form.reset()}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] touch-manipulation"
               >
-                Reset
+                <span className="whitespace-nowrap">Reset</span>
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-w-0 min-h-[44px] sm:min-h-[40px]"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] touch-manipulation"
               >
                 {isSubmitting ? (
                   <>

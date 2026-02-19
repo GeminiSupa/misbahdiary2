@@ -270,16 +270,16 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
 
             {/* SAP Fiori-style action bar - Mobile optimized */}
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border/60">
-              <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0 min-h-[44px] sm:min-h-[40px]">
+              <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                    <span className="truncate">Saving...</span>
+                    <span className="whitespace-nowrap">Saving...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                    <span className="truncate">Save Changes</span>
+                    <span className="whitespace-nowrap">Save Changes</span>
                   </>
                 )}
               </Button>
@@ -436,17 +436,17 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
                       type="submit"
                       disabled={isChangingPassword}
                       variant="outline"
-                      className="w-full sm:w-auto min-w-0 min-h-[44px] sm:min-h-[40px]"
+                      className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
                     >
                       {isChangingPassword ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                          <span className="truncate">Changing...</span>
+                          <span className="whitespace-nowrap">Changing...</span>
                         </>
                       ) : (
                         <>
                           <Lock className="mr-2 h-4 w-4 shrink-0" />
-                          <span className="truncate">Change Password</span>
+                          <span className="whitespace-nowrap">Change Password</span>
                         </>
                       )}
                     </Button>

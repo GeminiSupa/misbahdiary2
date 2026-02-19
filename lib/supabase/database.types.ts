@@ -783,6 +783,7 @@ export type Database = {
           case_file_date: string | null
           case_number: string | null
           case_type: Database["public"]["Enums"]["matter_case_type"] | null
+          case_type_other: string | null
           client_brief: string | null
           client_id: string
           court_name: string | null
@@ -807,6 +808,7 @@ export type Database = {
           case_file_date?: string | null
           case_number?: string | null
           case_type?: Database["public"]["Enums"]["matter_case_type"] | null
+          case_type_other?: string | null
           client_brief?: string | null
           client_id: string
           court_name?: string | null
@@ -831,6 +833,7 @@ export type Database = {
           case_file_date?: string | null
           case_number?: string | null
           case_type?: Database["public"]["Enums"]["matter_case_type"] | null
+          case_type_other?: string | null
           client_brief?: string | null
           client_id?: string
           court_name?: string | null
@@ -1343,7 +1346,7 @@ export type Database = {
       client_type: "individual" | "organization"
       hearing_status: "scheduled" | "adjourned" | "completed" | "cancelled"
       invoice_status: "draft" | "sent" | "paid" | "overdue" | "void"
-      matter_case_type: "civil" | "criminal" | "corporate"
+      matter_case_type: "civil" | "criminal" | "corporate" | "other"
       matter_party_type: "individual" | "organization" | "state"
       matter_status:
         | "fresh diary"
@@ -1493,7 +1496,7 @@ export const Constants = {
       client_type: ["individual", "organization"],
       hearing_status: ["scheduled", "adjourned", "completed", "cancelled"],
       invoice_status: ["draft", "sent", "paid", "overdue", "void"],
-      matter_case_type: ["civil", "criminal", "corporate"],
+      matter_case_type: ["civil", "criminal", "corporate", "other"],
       matter_party_type: ["individual", "organization", "state"],
       matter_status: [
         "fresh diary",

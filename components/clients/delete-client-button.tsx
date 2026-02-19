@@ -33,18 +33,28 @@ export function DeleteClientButton({
   const handleDelete = () => {
     setError(null);
     startTransition(async () => {
-      const result = await deleteClient(clientId);
-      if (result.success) {
-        setOpen(false);
-        toast({
-          title: "Client deleted",
-          description: `${clientName} has been successfully deleted.`,
-          variant: "success",
-        });
-        router.refresh();
-        router.push("/clients");
-      } else {
-        const errorMsg = result.message || "Failed to delete client";
+      try {
+        const result = await deleteClient(clientId);
+        if (result.success) {
+          setOpen(false);
+          toast({
+            title: "Client deleted",
+            description: `${clientName} has been successfully deleted.`,
+            variant: "success",
+          });
+          router.refresh();
+          router.push("/clients");
+        } else {
+          const errorMsg = result.message || "Failed to delete client";
+          setError(errorMsg);
+          toast({
+            title: "Error",
+            description: errorMsg,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to delete client";
         setError(errorMsg);
         toast({
           title: "Error",
@@ -62,14 +72,14 @@ export function DeleteClientButton({
         size={size}
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className={`w-full sm:w-auto min-w-0 ${className || ""}`}
+        className={`w-full sm:w-auto ${className || ""}`}
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
         ) : (
           <Trash2 className="h-4 w-4 shrink-0" />
         )}
-        <span className="truncate hidden sm:inline">Delete</span>
+        <span className="whitespace-nowrap hidden sm:inline">Delete</span>
       </Button>
 
       <ConfirmDialog

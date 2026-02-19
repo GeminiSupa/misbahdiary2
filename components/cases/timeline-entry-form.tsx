@@ -284,16 +284,16 @@ export function TimelineEntryForm({ matterId, onSuccess, onCancel }: TimelineEnt
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Adding...</span>
+                  <span className="whitespace-nowrap">Adding...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">Add Entry</span>
+                  <span className="whitespace-nowrap">Add Entry</span>
                 </>
               )}
             </Button>

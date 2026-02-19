@@ -44,7 +44,7 @@ export function SignOutButton({
     <Button
       variant={variant}
       size={size}
-      className={cn("min-h-[44px] sm:min-h-[40px] min-w-0", className)}
+      className={cn("min-h-[44px] sm:min-h-[40px]", className)}
       onClick={handleSignOut}
       disabled={isLoading}
       aria-label="Sign out"
@@ -55,7 +55,7 @@ export function SignOutButton({
       ) : (
         <LogOut className={cn("shrink-0", isIconOnly ? "h-4 w-4" : "mr-2 h-4 w-4")} />
       )}
-      {!isIconOnly && <span className="truncate">Sign out</span>}
+      {!isIconOnly && <span className="whitespace-nowrap">Sign out</span>}
     </Button>
   );
 }

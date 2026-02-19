@@ -370,23 +370,8 @@ export async function deleteMatter(matterId: string): Promise<ActionState> {
     return { success: false, message: "Matter not found or you do not have access." };
   }
 
-  // Check for associated invoices
-  const { data: invoices, error: invoicesError } = await supabase
-    .from("invoices")
-    .select("id, invoice_number")
-    .eq("matter_id", matterId)
-    .limit(1);
-
-  if (invoicesError) {
-    return { success: false, message: `Error checking associated invoices: ${invoicesError.message}` };
-  }
-
-  if (invoices && invoices.length > 0) {
-    return {
-      success: false,
-      message: `Cannot delete matter. This matter has ${invoices.length} associated invoice(s). Please remove or reassign the invoices first.`,
-    };
-  }
+  // Invoices, time_entries, documents use ON DELETE SET NULL for matter_id - they will be auto-unlinked.
+  // No need to block; the database handles this.
 
   // Check for associated hearings
   const { data: hearings, error: hearingsError } = await supabase
@@ -426,6 +411,7 @@ export async function deleteMatter(matterId: string): Promise<ActionState> {
 
   revalidatePath("/cases");
   revalidatePath(`/cases/${matterId}`);
+  revalidatePath("/billing");
 
   return { success: true };
 }

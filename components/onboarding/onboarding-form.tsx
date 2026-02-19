@@ -253,16 +253,16 @@ export function OnboardingForm({ defaultValues }: OnboardingFormProps) {
           <Separator />
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Setting up...</span>
+                  <span className="whitespace-nowrap">Setting up...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">Finish Setup</span>
+                  <span className="whitespace-nowrap">Finish Setup</span>
                 </>
               )}
             </Button>

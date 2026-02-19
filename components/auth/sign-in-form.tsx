@@ -305,12 +305,12 @@ export function SignInForm() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isOAuthLoading || isSubmitting}
-          className="w-full sm:w-auto h-12 bg-white hover:bg-gray-100 text-gray-900 font-semibold shadow-md hover:shadow-lg transition-all duration-200 border border-gray-300 min-h-[44px] sm:min-h-[48px] flex items-center justify-center gap-3 min-w-0"
+          className="w-full sm:w-auto h-12 bg-white hover:bg-gray-100 text-gray-900 font-semibold shadow-md hover:shadow-lg transition-all duration-200 border border-gray-300 min-h-[44px] sm:min-h-[48px] flex items-center justify-center gap-3"
         >
         {isOAuthLoading ? (
           <>
             <Loader2 className="h-5 w-5 shrink-0 animate-spin" />
-            <span className="truncate">Connecting to Google...</span>
+            <span className="whitespace-nowrap">Connecting to Google...</span>
           </>
         ) : (
           <>
@@ -332,7 +332,7 @@ export function SignInForm() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            <span className="truncate">Sign in with Google</span>
+            <span className="whitespace-nowrap">Sign in with Google</span>
           </>
         )}
         </Button>
@@ -395,16 +395,16 @@ export function SignInForm() {
           <div className="flex justify-center w-full">
             <Button
               type="submit"
-              className="w-full sm:w-auto h-12 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px] min-w-0"
+              className="w-full sm:w-auto h-12 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Signing in...</span>
+                  <span className="whitespace-nowrap">Signing in...</span>
                 </>
               ) : (
-                <span className="truncate">Sign In</span>
+                <span className="whitespace-nowrap">Sign In</span>
               )}
             </Button>
           </div>
@@ -459,16 +459,16 @@ export function SignInForm() {
               <Button
                 type="submit"
                 variant="outline"
-                className="w-full sm:w-auto h-12 border-slate-600/50 bg-slate-700/30 text-white hover:bg-slate-700/50 hover:border-slate-500/50 backdrop-blur-sm transition-all duration-200 min-h-[44px] sm:min-h-[48px] min-w-0"
+                className="w-full sm:w-auto h-12 border-slate-600/50 bg-slate-700/30 text-white hover:bg-slate-700/50 hover:border-slate-500/50 backdrop-blur-sm transition-all duration-200 min-h-[44px] sm:min-h-[48px]"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                    <span className="truncate">Sending...</span>
+                    <span className="whitespace-nowrap">Sending...</span>
                   </>
                 ) : (
-                  <span className="truncate">Email magic link</span>
+                  <span className="whitespace-nowrap">Email magic link</span>
                 )}
               </Button>
             </div>

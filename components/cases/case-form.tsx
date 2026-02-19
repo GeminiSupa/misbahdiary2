@@ -47,6 +47,7 @@ const formSchema = z
       .enum(matterCaseTypeOptions.map((option) => option.value) as [string, ...string[]])
       .optional()
       .or(z.literal("")),
+    caseTypeOther: z.string().optional().or(z.literal("")),
     courtName: z.string().min(2, "Court is required"),
     district: z.string().min(2, "District is required"),
     clientBrief: z.string().optional().or(z.literal("")),
@@ -67,6 +68,15 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           message: "Select a case type for litigation matters.",
         });
+      }
+      if (data.caseType === "other") {
+        if (!data.caseTypeOther || data.caseTypeOther.trim().length === 0) {
+          ctx.addIssue({
+            path: ["caseTypeOther"],
+            code: z.ZodIssueCode.custom,
+            message: "Please specify the case type when selecting Other.",
+          });
+        }
       }
       if (!data.caseFileDate) {
         ctx.addIssue({
@@ -98,6 +108,7 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
       caseNumber: "",
       caseFileDate: "",
       caseType: "",
+      caseTypeOther: "",
       courtName: pakistanCourtOptions[0] ?? "",
       district: pakistanDistrictOptions[0] ?? "",
       clientBrief: "",
@@ -111,6 +122,7 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
   });
 
   const selectedMatterType = useWatch({ control: form.control, name: "matterType" });
+  const selectedCaseType = useWatch({ control: form.control, name: "caseType" });
   const selectedAttorneys = useWatch({ control: form.control, name: "assignedAttorneys" }) || [];
 
   const toggleAttorney = (attorneyId: string) => {
@@ -130,6 +142,7 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
       caseNumber: values.caseNumber || undefined,
       caseFileDate: values.caseFileDate || undefined,
       caseType: values.caseType || undefined,
+      caseTypeOther: values.caseType === "other" ? values.caseTypeOther?.trim() || undefined : undefined,
       clientBrief: values.clientBrief || undefined,
       againstParties: values.againstParties || undefined,
       evidenceProvided: values.evidenceProvided || undefined,
@@ -466,6 +479,26 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
                 )}
               />
             )}
+
+            {selectedMatterType === "litigation" && selectedCaseType === "other" && (
+              <FormField
+                control={form.control}
+                name="caseTypeOther"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Specify case type</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter the case type (e.g. Family, Labour, etc.)"
+                        className="h-10"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <Separator />
@@ -629,20 +662,20 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
               variant="outline"
               onClick={() => form.reset()}
               disabled={isSubmitting}
-              className="w-full sm:w-auto min-w-0"
+              className="w-full sm:w-auto"
             >
-              <span className="truncate">Reset</span>
+              <span className="whitespace-nowrap">Reset</span>
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Saving...</span>
+                  <span className="whitespace-nowrap">Saving...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">Save Matter</span>
+                  <span className="whitespace-nowrap">Save Matter</span>
                 </>
               )}
             </Button>

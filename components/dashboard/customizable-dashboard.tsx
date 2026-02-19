@@ -22,6 +22,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Settings2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { DashboardWidget, WidgetType, WidgetSize } from "@/lib/types/dashboard";
 import { DashboardKpiCards } from "./dashboard-kpi-cards";
@@ -158,7 +159,7 @@ export function CustomizableDashboard({
           <Button
             variant={isCustomizing ? "default" : "outline"}
             size="sm"
-            className="w-full sm:w-auto min-w-0 shrink-0"
+            className="w-full sm:w-auto shrink-0"
             onClick={() => {
               setIsCustomizing(!isCustomizing);
               if (isCustomizing) {
@@ -167,7 +168,7 @@ export function CustomizableDashboard({
             }}
           >
             <Settings2 className="mr-2 h-4 w-4 shrink-0" />
-            <span className="truncate">{isCustomizing ? "Done" : "Customize"}</span>
+            <span className="whitespace-nowrap">{isCustomizing ? "Done" : "Customize"}</span>
           </Button>
         </div>
       )}
@@ -334,10 +335,7 @@ function AgendaWidget({ hearings }: { hearings: CustomizableDashboardProps["hear
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-sm sm:text-base font-semibold text-foreground">
-                      {new Date(hearing.scheduled_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {format(new Date(hearing.scheduled_at), "h:mm a")}
                     </p>
                   </div>
                 </div>

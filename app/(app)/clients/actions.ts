@@ -404,7 +404,7 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
     .maybeSingle();
 
   if (!profile?.firm_id) {
-    return { message: "Join or create a firm before managing clients." };
+    return { success: false, message: "Join or create a firm before managing clients." };
   }
 
   // Check permissions - only Firm Owners and Principal Partners can delete clients
@@ -418,7 +418,7 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
   const canDelete = isOwner || profile.role === "principal_partner";
 
   if (!canDelete) {
-    return { message: "Only Firm Owners and Principal Partners can delete clients." };
+    return { success: false, message: "Only Firm Owners and Principal Partners can delete clients." };
   }
 
   // Check if client exists and belongs to the firm
@@ -430,7 +430,7 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
     .maybeSingle();
 
   if (!client) {
-    return { message: "Client not found or you do not have access." };
+    return { success: false, message: "Client not found or you do not have access." };
   }
 
   const clientName = client.full_name || "Unknown Client";
@@ -443,11 +443,12 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
     .limit(1);
 
   if (mattersError) {
-    return { message: `Error checking associated matters: ${mattersError.message}` };
+    return { success: false, message: `Error checking associated matters: ${mattersError.message}` };
   }
 
   if (matters && matters.length > 0) {
     return {
+      success: false,
       message: `Cannot delete client. This client has ${matters.length} associated matter(s). Please remove or reassign the matters first.`,
     };
   }
@@ -460,11 +461,12 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
     .limit(1);
 
   if (invoicesError) {
-    return { message: `Error checking associated invoices: ${invoicesError.message}` };
+    return { success: false, message: `Error checking associated invoices: ${invoicesError.message}` };
   }
 
   if (invoices && invoices.length > 0) {
     return {
+      success: false,
       message: `Cannot delete client. This client has ${invoices.length} associated invoice(s). Please remove or reassign the invoices first.`,
     };
   }
@@ -491,7 +493,7 @@ export async function deleteClient(clientId: string): Promise<ActionState> {
     .eq("firm_id", profile.firm_id);
 
   if (deleteError) {
-    return { message: `Could not delete client: ${deleteError.message}` };
+    return { success: false, message: `Could not delete client: ${deleteError.message}` };
   }
 
   // Log audit event

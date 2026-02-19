@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { recordInvoicePayment } from "@/app/(app)/billing/actions";
 import { Loader2, Download } from "lucide-react";
 import { DeleteInvoiceButton, VoidInvoiceButton } from "@/components/billing/delete-invoice-button";
+import { EditInvoiceSheet } from "@/components/billing/edit-invoice-sheet";
 import { useRouter } from "next/navigation";
 
 type InvoiceRecord = {
@@ -23,13 +24,24 @@ type InvoiceRecord = {
   dueDate: string | null;
   totalAmount: number;
   amountPaid: number;
+  clientId?: string;
+  matterId?: string;
+  subtotal?: number;
+  taxAmount?: number;
+  discountAmount?: number;
+  notes?: string;
+  timeEntryIds?: string[];
+  linkedTimeEntries?: Array<{ id: string; label: string; amount: number }>;
 };
 
 type InvoiceBoardProps = {
   invoices: InvoiceRecord[];
+  clients?: Array<{ id: string; label: string }>;
+  matters?: Array<{ id: string; label: string }>;
+  unbilledTimeEntries?: Array<{ id: string; label: string; amount: number }>;
 };
 
-export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
+export function InvoiceBoard({ invoices, clients = [], matters = [], unbilledTimeEntries = [] }: InvoiceBoardProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -134,7 +146,7 @@ export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
         <TabsContent value="outstanding" className="mt-4 space-y-3">
           {grouped.outstanding.length > 0 ? (
             grouped.outstanding.map((invoice) => (
-              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} />
+              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} clients={clients} matters={matters} unbilledTimeEntries={unbilledTimeEntries} />
             ))
           ) : (
             <Empty message="No outstanding invoices." />
@@ -144,7 +156,7 @@ export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
         <TabsContent value="paid" className="mt-4 space-y-3">
           {grouped.paid.length > 0 ? (
             grouped.paid.map((invoice) => (
-              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} />
+              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} clients={clients} matters={matters} unbilledTimeEntries={unbilledTimeEntries} />
             ))
           ) : (
             <Empty message="No paid invoices yet." />
@@ -154,7 +166,7 @@ export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
         <TabsContent value="drafts" className="mt-4 space-y-3">
           {grouped.drafts.length > 0 ? (
             grouped.drafts.map((invoice) => (
-              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} />
+              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} clients={clients} matters={matters} unbilledTimeEntries={unbilledTimeEntries} />
             ))
           ) : (
             <Empty message="No draft invoices." />
@@ -164,7 +176,7 @@ export function InvoiceBoard({ invoices }: InvoiceBoardProps) {
         <TabsContent value="voided" className="mt-4 space-y-3">
           {grouped.voided.length > 0 ? (
             grouped.voided.map((invoice) => (
-              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} />
+              <InvoiceCard key={invoice.id} invoice={invoice} statusLabel={statusLabel} clients={clients} matters={matters} unbilledTimeEntries={unbilledTimeEntries} />
             ))
           ) : (
             <Empty message="No void invoices." />
@@ -195,9 +207,15 @@ function getStatusClasses(status: string) {
 function InvoiceCard({
   invoice,
   statusLabel,
+  clients,
+  matters,
+  unbilledTimeEntries,
 }: {
   invoice: InvoiceRecord;
   statusLabel: Map<InvoiceStatusOption, string>;
+  clients: Array<{ id: string; label: string }>;
+  matters: Array<{ id: string; label: string }>;
+  unbilledTimeEntries: Array<{ id: string; label: string; amount: number }>;
 }) {
   const router = useRouter();
   const [isPaying, startTransition] = useTransition();
@@ -264,6 +282,29 @@ function InvoiceCard({
         ) : null}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
+        <EditInvoiceSheet
+          invoiceId={invoice.id}
+          invoice={{
+            id: invoice.id,
+            invoiceNumber: invoice.invoiceNumber,
+            clientId: invoice.clientId ?? "",
+            matterId: invoice.matterId ?? "",
+            status: invoice.status as "draft" | "sent" | "paid" | "overdue" | "void",
+            issueDate: invoice.issueDate,
+            dueDate: invoice.dueDate ?? "",
+            subtotal: invoice.subtotal ?? 0,
+            taxAmount: invoice.taxAmount ?? 0,
+            discountAmount: invoice.discountAmount ?? 0,
+            notes: invoice.notes ?? "",
+            timeEntryIds: invoice.timeEntryIds ?? [],
+          }}
+          clients={clients}
+          matters={matters}
+          unbilledTimeEntries={unbilledTimeEntries}
+          linkedTimeEntries={invoice.linkedTimeEntries ?? []}
+          variant="outline"
+          size="sm"
+        />
         {invoice.status === "sent" || invoice.status === "overdue" ? (
           <>
             <Button
@@ -275,18 +316,18 @@ function InvoiceCard({
                   await recordInvoicePayment(invoice.id);
                 })
               }
-              className="w-full sm:w-auto min-w-0"
+              className="w-full sm:w-auto"
             >
               {isPaying ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
-              <span className="truncate hidden sm:inline">Mark paid</span>
-              <span className="truncate sm:hidden">Paid</span>
+              <span className="whitespace-nowrap hidden sm:inline">Mark paid</span>
+              <span className="whitespace-nowrap sm:hidden">Paid</span>
             </Button>
             <VoidInvoiceButton
               invoiceId={invoice.id}
               invoiceNumber={invoice.invoiceNumber}
               status={invoice.status}
               size="sm"
-              className="w-full sm:w-auto min-w-0"
+              className="w-full sm:w-auto"
             />
           </>
         ) : null}
@@ -295,18 +336,18 @@ function InvoiceCard({
           invoiceNumber={invoice.invoiceNumber}
           status={invoice.status}
           size="sm"
-          className="w-full sm:w-auto min-w-0"
+          className="w-full sm:w-auto"
         />
-        <Button variant="ghost" size="sm" asChild className="w-full sm:w-auto min-w-0">
+        <Button variant="ghost" size="sm" asChild className="w-full sm:w-auto">
           <a
             href={`/api/invoices/${invoice.id}/pdf`}
             download={`invoice-${invoice.invoiceNumber}.pdf`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 min-w-0"
+            className="flex items-center gap-2"
           >
             <Download className="h-4 w-4 shrink-0" />
-            <span className="truncate hidden sm:inline">Export</span>
+            <span className="whitespace-nowrap hidden sm:inline">Export</span>
           </a>
         </Button>
       </div>

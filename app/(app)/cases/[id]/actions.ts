@@ -31,6 +31,7 @@ const updateMatterSchema = z
       .enum(matterCaseTypeOptions.map((option) => option.value) as [string, ...string[]])
       .optional()
       .or(z.literal("")),
+    caseTypeOther: z.string().optional().or(z.literal("")),
     courtName: z.string().min(2, "Court is required"),
     district: z.string().min(2, "District is required"),
     clientBrief: z.string().optional().or(z.literal("")),
@@ -51,6 +52,15 @@ const updateMatterSchema = z
           code: z.ZodIssueCode.custom,
           message: "Select a case type for litigation matters.",
         });
+      }
+      if (data.caseType === "other") {
+        if (!data.caseTypeOther || data.caseTypeOther.trim().length === 0) {
+          ctx.addIssue({
+            path: ["caseTypeOther"],
+            code: z.ZodIssueCode.custom,
+            message: "Please specify the case type when selecting Other.",
+          });
+        }
       }
       if (!data.caseFileDate) {
         ctx.addIssue({
@@ -146,6 +156,7 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
       district: payload.district,
       case_file_date: filingDate,
       case_type: payload.caseType ?? null,
+      case_type_other: payload.caseType === "other" && payload.caseTypeOther ? payload.caseTypeOther.trim() : null,
       client_brief: payload.clientBrief ?? null,
       against_parties: payload.againstParties
         ? {
@@ -381,23 +392,8 @@ export async function deleteMatter(matterId: string): Promise<ActionState> {
     return { success: false, message: "Matter not found or you do not have access." };
   }
 
-  // Check for associated invoices
-  const { data: invoices, error: invoicesError } = await supabase
-    .from("invoices")
-    .select("id, invoice_number")
-    .eq("matter_id", matterId)
-    .limit(1);
-
-  if (invoicesError) {
-    return { success: false, message: `Error checking associated invoices: ${invoicesError.message}` };
-  }
-
-  if (invoices && invoices.length > 0) {
-    return {
-      success: false,
-      message: `Cannot delete matter. This matter has ${invoices.length} associated invoice(s). Please remove or reassign the invoices first.`,
-    };
-  }
+  // Invoices, time_entries, documents use ON DELETE SET NULL for matter_id - they will be auto-unlinked.
+  // No need to block; the database handles this.
 
   // Check for associated hearings
   const { data: hearings, error: hearingsError } = await supabase
@@ -437,6 +433,7 @@ export async function deleteMatter(matterId: string): Promise<ActionState> {
 
   revalidatePath("/cases");
   revalidatePath(`/cases/${matterId}`);
+  revalidatePath("/billing");
 
   return { success: true };
 }

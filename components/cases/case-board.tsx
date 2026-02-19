@@ -105,9 +105,9 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                   setQuery("");
                   setStatusFilter("all");
                 }}
-                className="w-full sm:w-auto min-w-0"
+                className="w-full sm:w-auto"
               >
-                <span className="truncate">Clear filters</span>
+                <span className="whitespace-nowrap">Clear filters</span>
               </Button>
             )}
           </div>
@@ -177,9 +177,9 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                   ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto min-w-0" onClick={(e) => e.stopPropagation()}>
-                    <Link href={`/cases/${matter.id}`} className="flex items-center gap-2 min-w-0">
-                      <span className="truncate">Open detail</span>
+                  <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
+                    <Link href={`/cases/${matter.id}`} className="flex items-center gap-2">
+                      <span className="whitespace-nowrap">Open detail</span>
                     </Link>
                   </Button>
                   <div onClick={(e) => e.stopPropagation()} className="w-full sm:w-auto">
@@ -187,7 +187,7 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                       matterId={matter.id}
                       matterSerial={matter.serialNumber}
                       size="sm"
-                      className="w-full sm:w-auto min-w-0"
+                      className="w-full sm:w-auto"
                     />
                   </div>
                 </div>

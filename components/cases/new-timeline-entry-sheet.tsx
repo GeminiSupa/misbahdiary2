@@ -18,9 +18,9 @@ export function NewTimelineEntrySheet({ matterId, trigger }: NewTimelineEntryShe
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="w-full sm:w-auto min-w-0">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4 shrink-0" />
-            <span className="truncate">Add Entry</span>
+            <span className="whitespace-nowrap">Add Entry</span>
           </Button>
         )}
       </SheetTrigger>

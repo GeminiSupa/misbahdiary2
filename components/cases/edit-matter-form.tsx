@@ -44,6 +44,7 @@ const formSchema = z
       .enum(matterCaseTypeOptions.map((option) => option.value) as [string, ...string[]])
       .optional()
       .or(z.literal("")),
+    caseTypeOther: z.string().optional().or(z.literal("")),
     courtName: z.string().min(2, "Court is required"),
     district: z.string().min(2, "District is required"),
     clientBrief: z.string().optional().or(z.literal("")),
@@ -63,6 +64,15 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           message: "Select a case type for litigation matters.",
         });
+      }
+      if (data.caseType === "other") {
+        if (!data.caseTypeOther || data.caseTypeOther.trim().length === 0) {
+          ctx.addIssue({
+            path: ["caseTypeOther"],
+            code: z.ZodIssueCode.custom,
+            message: "Please specify the case type when selecting Other.",
+          });
+        }
       }
       if (!data.caseFileDate) {
         ctx.addIssue({
@@ -96,6 +106,7 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
     caseNumber: matter.caseNumber ?? "",
     caseFileDate: matter.caseFileDate ?? "",
     caseType: matter.caseType ?? "",
+    caseTypeOther: (matter as any).caseTypeOther ?? "",
     courtName: (matter.courtName && matter.courtName.length >= 2) ? matter.courtName : "Court Name",
     district: (matter.district && matter.district.length >= 2) ? matter.district : "District",
     clientBrief: matter.clientBrief ?? "",
@@ -113,6 +124,7 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
   });
 
   const matterType = useWatch({ control: form.control, name: "matterType" });
+  const caseType = useWatch({ control: form.control, name: "caseType" });
   const isLitigation = matterType === "litigation";
 
   const onSubmit = async (values: UpdateMatterFormValues) => {
@@ -386,6 +398,26 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
                     </FormItem>
                   )}
                 />
+
+                {caseType === "other" && (
+                  <FormField
+                    control={form.control}
+                    name="caseTypeOther"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specify case type</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter the case type (e.g. Family, Labour, etc.)"
+                            className="h-10"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -490,22 +522,22 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
                 variant="outline"
                 onClick={onCancel}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-w-0"
+                className="w-full sm:w-auto"
               >
                 <X className="mr-2 h-4 w-4 shrink-0" />
-                <span className="truncate">Cancel</span>
+                <span className="whitespace-nowrap">Cancel</span>
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Updating...</span>
+                  <span className="whitespace-nowrap">Updating...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">Update Matter</span>
+                  <span className="whitespace-nowrap">Update Matter</span>
                 </>
               )}
             </Button>

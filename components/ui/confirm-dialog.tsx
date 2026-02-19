@@ -42,6 +42,7 @@ export function ConfirmDialog({
         <AlertDialogFooter className="flex-col sm:flex-row gap-3 sm:gap-2 mt-4">
           <AlertDialogCancel className="w-full sm:w-auto order-2 sm:order-1">{cancelText}</AlertDialogCancel>
           <AlertDialogAction
+            type="button"
             onClick={onConfirm}
             className={variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto order-1 sm:order-2" : "w-full sm:w-auto order-1 sm:order-2"}
           >

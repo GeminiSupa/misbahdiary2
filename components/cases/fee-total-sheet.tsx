@@ -25,9 +25,9 @@ export function FeeTotalSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="ghost" size="sm" className="w-full sm:w-auto min-w-0">
+          <Button variant="ghost" size="sm" className="w-full sm:w-auto">
             <Settings className="mr-2 h-4 w-4 shrink-0" />
-            <span className="truncate">Set Fee Total</span>
+            <span className="whitespace-nowrap">Set Fee Total</span>
           </Button>
         )}
       </SheetTrigger>

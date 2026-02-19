@@ -176,16 +176,16 @@ export function SignUpForm() {
           <div className="flex justify-center w-full">
             <Button
               type="submit"
-              className="w-full sm:w-auto h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px] min-w-0"
+              className="w-full sm:w-auto h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 border-0 min-h-[44px] sm:min-h-[48px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Creating account...</span>
+                  <span className="whitespace-nowrap">Creating account...</span>
                 </>
               ) : (
-                <span className="truncate">Create account</span>
+                <span className="whitespace-nowrap">Create account</span>
               )}
             </Button>
           </div>

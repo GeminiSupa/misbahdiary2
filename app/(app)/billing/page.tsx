@@ -46,8 +46,14 @@ export default async function BillingPage() {
         status,
         issue_date,
         due_date,
+        subtotal,
+        tax_amount,
+        discount_amount,
         total_amount,
         amount_paid,
+        notes,
+        client_id,
+        matter_id,
         client:clients ( id, full_name ),
         matter:matters (
           id,
@@ -80,12 +86,32 @@ export default async function BillingPage() {
         matter:matters ( serial_number, case_number ),
         description,
         amount,
-        started_at
+        started_at,
+        invoice_id
       `,
     )
     .eq("firm_id", profile.firm_id)
-    .is("invoice_id", null)
     .order("started_at", { ascending: false });
+
+  const unbilledEntries =
+    timeEntries?.filter((e) => !e.invoice_id).map((entry) => ({
+      id: entry.id,
+      label: `${entry.matter?.serial_number ?? entry.matter?.case_number ?? "Matter"} — PKR ${Number(entry.amount ?? 0).toLocaleString()} (${entry.description ?? "No description"})`,
+      amount: Number(entry.amount ?? 0),
+    })) ?? [];
+
+  const linkedByInvoice = new Map<string, Array<{ id: string; label: string; amount: number }>>();
+  timeEntries?.filter((e) => e.invoice_id).forEach((entry) => {
+    const invId = entry.invoice_id as string;
+    if (!linkedByInvoice.has(invId)) {
+      linkedByInvoice.set(invId, []);
+    }
+    linkedByInvoice.get(invId)!.push({
+      id: entry.id,
+      label: `${entry.matter?.serial_number ?? entry.matter?.case_number ?? "Matter"} — PKR ${Number(entry.amount ?? 0).toLocaleString()} (${entry.description ?? "No description"})`,
+      amount: Number(entry.amount ?? 0),
+    });
+  });
 
   const invoiceItems =
     invoices?.map((invoice) => {
@@ -107,6 +133,14 @@ export default async function BillingPage() {
         amountPaid: Number(invoice.amount_paid ?? 0),
         clientName,
         matterLabel,
+        clientId: invoice.client_id,
+        matterId: invoice.matter_id ?? "",
+        subtotal: Number(invoice.subtotal ?? 0),
+        taxAmount: Number(invoice.tax_amount ?? 0),
+        discountAmount: Number(invoice.discount_amount ?? 0),
+        notes: (invoice as { notes?: string | null }).notes ?? "",
+        timeEntryIds: linkedByInvoice.get(invoice.id)?.map((e) => e.id) ?? [],
+        linkedTimeEntries: linkedByInvoice.get(invoice.id) ?? [],
       };
     }) ?? [];
 
@@ -122,12 +156,6 @@ export default async function BillingPage() {
       label: `${matter.serial_number ?? matter.case_number ?? "Matter"} — ${matter.client?.full_name ?? matter.court_name ?? "—"}`,
     })) ?? [];
 
-  const unbilledEntries =
-    timeEntries?.map((entry) => ({
-      id: entry.id,
-      label: `${entry.matter?.serial_number ?? entry.matter?.case_number ?? "Matter"} — PKR ${Number(entry.amount ?? 0).toLocaleString()} (${entry.description ?? "No description"})`,
-      amount: Number(entry.amount ?? 0),
-    })) ?? [];
 
   const agingBuckets = buildAgingBuckets(invoices ?? []);
 
@@ -239,7 +267,12 @@ export default async function BillingPage() {
             </div>
           </div>
 
-          <InvoiceBoard invoices={invoiceItems} />
+          <InvoiceBoard
+            invoices={invoiceItems}
+            clients={clientOptions}
+            matters={matterOptions}
+            unbilledTimeEntries={unbilledEntries}
+          />
         </div>
       </div>
 

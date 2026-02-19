@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { createInvoice, type InvoiceFormValues } from "@/app/(app)/billing/actions";
+import { updateInvoice, type InvoiceFormValues } from "@/app/(app)/billing/actions";
 import { invoiceStatusOptions } from "@/lib/constants/invoices";
 import { invoiceFormSchema } from "@/lib/validation/invoices";
 import {
@@ -26,7 +26,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Receipt, User, Briefcase, Calendar, DollarSign, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type InvoiceFormProps = {
+type EditInvoiceFormProps = {
+  invoiceId: string;
+  invoice: InvoiceFormValues & { id: string };
   clients: Array<{ id: string; label: string }>;
   matters: Array<{ id: string; label: string }>;
   unbilledTimeEntries: Array<{
@@ -34,28 +36,37 @@ type InvoiceFormProps = {
     label: string;
     amount: number;
   }>;
+  linkedTimeEntries?: Array<{
+    id: string;
+    label: string;
+    amount: number;
+  }>;
   onSuccess?: () => void;
 };
 
-export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }: InvoiceFormProps) {
+export function EditInvoiceForm({ invoiceId, invoice, clients, matters, unbilledTimeEntries, linkedTimeEntries = [], onSuccess }: EditInvoiceFormProps) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const allTimeEntries = [...linkedTimeEntries, ...unbilledTimeEntries.filter((e) => !linkedTimeEntries.some((l) => l.id === e.id))];
+  const defaultTimeEntryIds = linkedTimeEntries.map((e) => e.id);
+  const timeEntryAmountMap = new Map(allTimeEntries.map((entry) => [entry.id, entry.amount]));
+
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
     defaultValues: {
-      invoiceNumber: "",
-      clientId: "",
-      matterId: "",
-      status: "draft",
-      issueDate: new Date().toISOString().slice(0, 10),
-      dueDate: "",
-      subtotal: 0,
-      taxAmount: 0,
-      discountAmount: 0,
-      notes: "",
-      timeEntryIds: [],
+      invoiceNumber: invoice.invoiceNumber || "",
+      clientId: invoice.clientId || "",
+      matterId: invoice.matterId || "",
+      status: invoice.status || "draft",
+      issueDate: invoice.issueDate || new Date().toISOString().slice(0, 10),
+      dueDate: invoice.dueDate || "",
+      subtotal: invoice.subtotal || 0,
+      taxAmount: invoice.taxAmount || 0,
+      discountAmount: invoice.discountAmount || 0,
+      notes: invoice.notes || "",
+      timeEntryIds: invoice.timeEntryIds ?? defaultTimeEntryIds,
     },
   });
 
@@ -67,10 +78,6 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
     control: form.control,
     name: "timeEntryIds",
   }) ?? [];
-
-  const timeEntryAmountMap = new Map(
-    unbilledTimeEntries.map((entry) => [entry.id, entry.amount]),
-  );
 
   const timeEntryTotal = watchedTimeEntryIds.reduce((sum, entryId) => {
     const amount = timeEntryAmountMap.get(entryId) ?? 0;
@@ -87,22 +94,9 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
     setFormError(null);
     setIsSubmitting(true);
 
-    const result = await createInvoice(values);
+    const result = await updateInvoice(invoiceId, values);
 
     if (result.success) {
-      form.reset({
-        invoiceNumber: "",
-        clientId: "",
-        matterId: "",
-        status: "draft",
-        issueDate: new Date().toISOString().slice(0, 10),
-        dueDate: "",
-        subtotal: 0,
-        taxAmount: 0,
-        discountAmount: 0,
-        notes: "",
-        timeEntryIds: [],
-      });
       router.refresh();
       onSuccess?.();
       setIsSubmitting(false);
@@ -132,14 +126,13 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
     <div className="space-y-6">
       {formError && (
         <Alert variant="destructive">
-          <AlertTitle>Unable to create invoice</AlertTitle>
+          <AlertTitle>Unable to update invoice</AlertTitle>
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Basic Information */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-border/40">
               <Receipt className="h-4 w-4 text-primary" />
@@ -293,7 +286,6 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
 
           <Separator />
 
-          {/* Financial Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-border/40">
               <DollarSign className="h-4 w-4 text-primary" />
@@ -363,12 +355,11 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
               />
             </div>
 
-            {/* Summary Card */}
             <div className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground flex items-center gap-2">
                   <Clock className="h-3.5 w-3.5" />
-                  Unbilled Time Entries
+                  Time Entries
                 </span>
                 <span className="font-semibold text-primary">
                   PKR {timeEntryTotal.toLocaleString()}
@@ -388,7 +379,7 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
             </div>
           </div>
 
-          {unbilledTimeEntries.length > 0 && (
+          {allTimeEntries.length > 0 && (
             <>
               <Separator />
               <div className="space-y-4">
@@ -401,10 +392,10 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
                   name="timeEntryIds"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Attach Unbilled Time Entries</FormLabel>
+                      <FormLabel>Attach Time Entries</FormLabel>
                       <FormControl>
                         <div className="grid gap-2 max-h-48 overflow-y-auto p-3 border rounded-lg bg-muted/30">
-                          {unbilledTimeEntries.map((entry) => {
+                          {allTimeEntries.map((entry) => {
                             const checked = field.value?.includes(entry.id) ?? false;
                             return (
                               <label
@@ -452,7 +443,6 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
 
           <Separator />
 
-          {/* Notes */}
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -476,7 +466,6 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
 
           <Separator />
 
-          {/* Submit Button */}
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
             <Button
               type="button"
@@ -491,12 +480,12 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Creating...</span>
+                  <span className="whitespace-nowrap">Updating...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Create Invoice</span>
+                  <span className="whitespace-nowrap">Update Invoice</span>
                 </>
               )}
             </Button>

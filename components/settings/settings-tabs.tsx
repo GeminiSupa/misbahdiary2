@@ -223,7 +223,7 @@ export function SettingsTabs({
                     </p>
                   </div>
                 </div>
-                <SignOutButton variant="destructive" className="w-full sm:w-auto min-w-0" />
+                <SignOutButton variant="destructive" className="w-full sm:w-auto" />
               </div>
             </div>
           </div>

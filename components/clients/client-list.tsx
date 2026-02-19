@@ -71,16 +71,16 @@ export function ClientList({ clients }: ClientListProps) {
               {client.city ? <span className="truncate max-w-full" title={client.city}>City: {client.city}</span> : null}
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-w-0">
-                <Link href={`/clients/${client.id}`} className="flex items-center gap-2 min-w-0">
-                  <span className="truncate">View details</span>
+              <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                <Link href={`/clients/${client.id}`} className="flex items-center gap-2">
+                  <span className="whitespace-nowrap">View details</span>
                 </Link>
               </Button>
               <DeleteClientButton
                 clientId={client.id}
                 clientName={client.fullName}
                 size="sm"
-                className="w-full sm:w-auto min-w-0"
+                className="w-full sm:w-auto"
               />
             </div>
           </article>

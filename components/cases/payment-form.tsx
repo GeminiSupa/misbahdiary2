@@ -241,22 +241,22 @@ export function PaymentForm({ matterId, currentTotal = 0, currentPaid = 0, onSuc
                 variant="outline"
                 onClick={onCancel}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-w-0"
+                className="w-full sm:w-auto"
               >
                 <X className="mr-2 h-4 w-4 shrink-0" />
-                <span className="truncate">Cancel</span>
+                <span className="whitespace-nowrap">Cancel</span>
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Recording...</span>
+                  <span className="whitespace-nowrap">Recording...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">Record Payment</span>
+                  <span className="whitespace-nowrap">Record Payment</span>
                 </>
               )}
             </Button>

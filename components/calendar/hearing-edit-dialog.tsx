@@ -60,9 +60,9 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="w-full sm:w-auto min-w-0">
+        <Button variant="ghost" size="sm" className="w-full sm:w-auto">
           <PencilLine className="mr-2 h-4 w-4 shrink-0" />
-          <span className="truncate">Reschedule</span>
+          <span className="whitespace-nowrap">Reschedule</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -186,13 +186,13 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
 
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
               <DialogClose asChild>
-                <Button variant="ghost" className="w-full sm:w-auto min-w-0 h-11 sm:h-10">
-                  <span className="truncate">Cancel</span>
+                <Button variant="ghost" className="w-full sm:w-auto h-11 sm:h-10">
+                  <span className="whitespace-nowrap">Cancel</span>
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={isPending} className="w-full sm:w-auto min-w-0 h-11 sm:h-10 text-base sm:text-sm">
+              <Button type="submit" disabled={isPending} className="w-full sm:w-auto h-11 sm:h-10 text-base sm:text-sm">
                 {isPending ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
-                <span className="truncate">{isPending ? "Saving..." : "Save changes"}</span>
+                <span className="whitespace-nowrap">{isPending ? "Saving..." : "Save changes"}</span>
               </Button>
             </div>
           </form>

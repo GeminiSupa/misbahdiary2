@@ -212,14 +212,14 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                 variant="outline"
                 onClick={() => form.reset()}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] touch-manipulation"
               >
-                Reset
+                <span className="whitespace-nowrap">Reset</span>
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-w-0 min-h-[44px] sm:min-h-[40px]"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] touch-manipulation"
               >
                 {isSubmitting ? (
                   <>

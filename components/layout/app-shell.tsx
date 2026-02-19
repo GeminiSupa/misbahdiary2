@@ -50,7 +50,7 @@ export function AppShell({ firmName, notifications, children }: AppShellProps) {
               variant="ghost"
               size="sm"
               collapseLabelInSidebar
-              className="w-full justify-center min-h-[44px] sm:min-h-[40px] text-sm min-w-0 px-2 py-2 sm:px-3 sm:py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="w-full justify-center min-h-[44px] sm:min-h-[40px] text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             />
           </div>
         </div>

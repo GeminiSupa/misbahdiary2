@@ -178,16 +178,16 @@ export function FeeTotalForm({
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-w-0">
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="truncate">Updating...</span>
+                  <span className="whitespace-nowrap">Updating...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="truncate">Update Fee Total</span>
+                  <span className="whitespace-nowrap">Update Fee Total</span>
                 </>
               )}
             </Button>

@@ -43,10 +43,10 @@ export function MatterTeamCard({ members, client }: MatterTeamCardProps) {
               Review who is responsible for filings and hearings across courts and districts.
             </p>
           </div>
-          <Button asChild variant="outline" size="sm" className="w-full sm:w-auto min-w-0">
-            <Link href="/settings" className="truncate block min-w-0">
+          <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
+            <Link href="/settings" className="whitespace-nowrap flex items-center">
               <Settings className="mr-2 h-4 w-4 shrink-0" />
-              <span className="truncate">Manage Staff</span>
+              <span className="whitespace-nowrap">Manage Staff</span>
             </Link>
           </Button>
         </div>

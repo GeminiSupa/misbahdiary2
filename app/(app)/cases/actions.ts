@@ -19,6 +19,7 @@ const matterSchema = z
     caseNumber: z.string().optional(),
     caseFileDate: z.string().optional(),
     caseType: z.enum(matterCaseTypeOptions.map((option) => option.value) as [string, ...string[]]).optional(),
+    caseTypeOther: z.string().optional(),
     courtName: z.string().min(2),
     district: z.string().min(2),
     clientBrief: z.string().optional(),
@@ -38,6 +39,15 @@ const matterSchema = z
         code: z.ZodIssueCode.custom,
         message: "Select a case type for litigation matters.",
       });
+    }
+    if (data.matterType === "litigation" && data.caseType === "other") {
+      if (!data.caseTypeOther || String(data.caseTypeOther).trim().length === 0) {
+        ctx.addIssue({
+          path: ["caseTypeOther"],
+          code: z.ZodIssueCode.custom,
+          message: "Please specify the case type when selecting Other.",
+        });
+      }
     }
     if (data.matterType === "litigation" && !data.caseFileDate) {
       ctx.addIssue({
@@ -115,6 +125,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
       district: payload.district,
       case_file_date: filingDate,
       case_type: payload.caseType ?? null,
+      case_type_other: payload.caseType === "other" && payload.caseTypeOther ? payload.caseTypeOther.trim() : null,
       client_brief: payload.clientBrief ?? null,
       against_parties: payload.againstParties
         ? {

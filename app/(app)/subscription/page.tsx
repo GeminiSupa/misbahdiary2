@@ -71,14 +71,14 @@ export default async function SubscriptionPage() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-              <Button asChild variant="default" className="w-full sm:w-auto min-w-0">
-                <a href="/contact" className="truncate block min-w-0">
-                  <span className="truncate">Contact Support</span>
+              <Button asChild variant="default" className="w-full sm:w-auto">
+                <a href="/contact" className="whitespace-nowrap flex items-center">
+                  <span className="whitespace-nowrap">Contact Support</span>
                 </a>
               </Button>
-              <Button asChild variant="outline" className="w-full sm:w-auto min-w-0">
-                <a href="mailto:info@ux4u.online" target="_blank" rel="noopener noreferrer" className="truncate block min-w-0">
-                  <span className="truncate">Email: info@ux4u.online</span>
+              <Button asChild variant="outline" className="w-full sm:w-auto">
+                <a href="mailto:info@ux4u.online" target="_blank" rel="noopener noreferrer" className="whitespace-nowrap flex items-center">
+                  <span className="whitespace-nowrap">Email: info@ux4u.online</span>
                 </a>
               </Button>
             </div>

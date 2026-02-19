@@ -12,9 +12,9 @@ export function NewClientSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="default" className="w-full sm:w-auto min-w-0" size="sm">
+        <Button variant="default" className="w-full sm:w-auto" size="sm">
           <Plus className="mr-2 h-4 w-4 shrink-0" />
-          <span className="truncate">New client</span>
+          <span className="whitespace-nowrap">New client</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right">

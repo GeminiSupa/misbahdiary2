@@ -72,9 +72,9 @@ export function ActivityFilters({ actions, entityTypes }: ActivityFiltersProps) 
       </div>
       {hasFilters && (
         <div className="sm:flex-none">
-          <Button variant="outline" onClick={clearFilters} className="w-full sm:w-auto min-w-0">
+          <Button variant="outline" onClick={clearFilters} className="w-full sm:w-auto">
             <X className="mr-2 h-4 w-4 shrink-0" />
-            <span className="truncate">Clear Filters</span>
+            <span className="whitespace-nowrap">Clear Filters</span>
           </Button>
         </div>
       )}
