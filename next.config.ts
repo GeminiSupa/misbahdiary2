@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "picsum.photos", pathname: "/**" },
+    ],
+  },
   // Reduce bundle size
   experimental: {
     optimizePackageImports: [
@@ -9,6 +15,8 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-select',
       'lucide-react',
       'recharts',
+      '@supabase/ssr',
+      '@supabase/supabase-js',
     ],
   },
 
