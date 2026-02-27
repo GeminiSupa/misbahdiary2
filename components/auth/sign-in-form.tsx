@@ -364,7 +364,7 @@ export function SignInForm() {
                     type="email"
                     placeholder="you@lawfirm.pk"
                     autoComplete="email"
-                    className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
+                    className="h-12 bg-white border-slate-300 text-black placeholder:text-slate-400 focus:border-blue-500/70 focus:ring-blue-500/30 transition-all duration-200"
                   />
                 </FormControl>
                 <FormMessage className="text-red-400" />
@@ -384,7 +384,7 @@ export function SignInForm() {
                     type="password"
                     placeholder="••••••••"
                     autoComplete="current-password"
-                    className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
+                    className="h-12 bg-white border-slate-300 text-black placeholder:text-slate-400 focus:border-blue-500/70 focus:ring-blue-500/30 transition-all duration-200"
                   />
                 </FormControl>
                 <FormMessage className="text-red-400" />
@@ -447,7 +447,7 @@ export function SignInForm() {
                       type="email"
                       placeholder="you@lawfirm.pk"
                       autoComplete="email"
-                      className="h-12 bg-slate-700/50 border-slate-600/50 text-white placeholder:text-white/40 focus:border-blue-500/50 focus:ring-blue-500/20 backdrop-blur-sm transition-all duration-200"
+                      className="h-12 bg-white border-slate-300 text-black placeholder:text-slate-400 focus:border-blue-500/70 focus:ring-blue-500/30 transition-all duration-200"
                     />
                   </FormControl>
                   <FormMessage className="text-red-400" />

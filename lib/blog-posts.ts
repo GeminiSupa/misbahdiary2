@@ -11,7 +11,7 @@ export type BlogPost = {
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "how-to-file-cases-online-pakistan-2026",
-    image: "https://picsum.photos/seed/lawyer-efiling/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Laptop with legal documents for e-filing",
     title: "How to File Cases Online in Pakistan 2026 – Guide for Advocates",
     description:
@@ -41,7 +41,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "top-7-challenges-pakistani-lawyers-manual-diaries",
-    image: "https://picsum.photos/seed/lawyer-diary-paper/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Traditional paper diary and pen",
     title: "Top 7 Challenges Pakistani Lawyers Face with Manual Diaries (and Solutions)",
     description:
@@ -83,7 +83,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "pkr-invoicing-tax-compliance-law-firms-pakistan",
-    image: "https://picsum.photos/seed/lawyer-invoice/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Invoice and financial documents",
     title: "PKR Invoicing & Tax Compliance for Law Firms in Pakistan",
     description:
@@ -116,7 +116,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "lawyer-diary-vs-manual-register-vs-indian-apps",
-    image: "https://picsum.photos/seed/lawyer-comparison/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Comparison and choice of options",
     title: "Comparison: Lawyer Diary vs Manual Register vs Indian Apps",
     description:
@@ -152,7 +152,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "manage-court-hearings-calendar-pakistan",
-    image: "https://picsum.photos/seed/lawyer-calendar/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Calendar and schedule planning",
     title: "How to Manage Court Hearings and Calendar in Pakistan",
     description:
@@ -180,7 +180,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "client-management-pakistani-law-firms",
-    image: "https://picsum.photos/seed/lawyer-client/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Professional client meeting",
     title: "Client Management for Pakistani Law Firms – Best Practices",
     description:
@@ -206,7 +206,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "digital-transformation-law-firms-pakistan",
-    image: "https://picsum.photos/seed/lawyer-digital/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Modern digital workplace",
     title: "Digital Transformation for Law Firms in Lahore, Karachi & Islamabad",
     description:
@@ -229,7 +229,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "solo-practitioners-pakistan-legal-software",
-    image: "https://picsum.photos/seed/lawyer-solo/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Solo professional at work",
     title: "Why Solo Practitioners in Pakistan Need Legal Practice Software",
     description:
@@ -252,7 +252,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "gst-tax-reporting-advocates-pakistan",
-    image: "https://picsum.photos/seed/lawyer-gst-tax/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Tax documents and calculator",
     title: "GST and Tax Reporting for Advocates in Pakistan",
     description:
@@ -275,7 +275,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "signs-law-firm-needs-practice-management",
-    image: "https://picsum.photos/seed/lawyer-signs/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Organized law office workspace",
     title: "5 Signs Your Law Firm Needs Practice Management Software",
     description:
@@ -304,7 +304,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "switching-paper-diaries-lawyer-diary",
-    image: "https://picsum.photos/seed/lawyer-switch/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Transition from paper to digital",
     title: "Switching from Paper Diaries to Lawyer Diary – A Step-by-Step Guide",
     description:
@@ -333,7 +333,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "time-tracking-billing-pakistani-advocates",
-    image: "https://picsum.photos/seed/lawyer-time-billing/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Time tracking and scheduling",
     title: "Time Tracking and Billing for Pakistani Advocates",
     description:
@@ -360,7 +360,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "team-collaboration-multi-partner-law-firms",
-    image: "https://picsum.photos/seed/lawyer-team/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Law firm team collaboration",
     title: "Team Collaboration for Multi-Partner Law Firms in Pakistan",
     description:
@@ -383,7 +383,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "data-security-backup-legal-practices",
-    image: "https://picsum.photos/seed/lawyer-security/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Data security and encryption",
     title: "Data Security and Backup for Legal Practices in Pakistan",
     description:
@@ -410,7 +410,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "free-trial-to-paid-lawyer-diary",
-    image: "https://picsum.photos/seed/lawyer-trial/800/450",
+    image: "/lawyer-diary-dashboard.png",
     imageAlt: "Team success and growth",
     title: "Free Trial to Paid: Getting the Most from Lawyer Diary",
     description:

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/app/providers";
@@ -14,11 +15,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://ux4u.online";
+
 export const metadata: Metadata = {
-  title: "Lawyer Diary & Case Management",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "Lawyer Diary – Legal Practice Management for Pakistani Law Firms",
+    template: "%s | Lawyer Diary",
+  },
   description:
-    "Modern legal practice management software tailored for Pakistani law firms and solo practitioners.",
-  // Latest commit test - 2026-01-28 - Vercel auto-deploy verification
+    "Case management, billing, calendar & hearings. Modern software for law firms and solo practitioners in Pakistan.",
 };
 
 export default async function RootLayout({
@@ -51,6 +60,17 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppProviders>{children}</AppProviders>
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );
