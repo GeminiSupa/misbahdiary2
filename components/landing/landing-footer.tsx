@@ -7,11 +7,12 @@ const FACEBOOK_URL = "https://www.facebook.com/ux4u.erpsolutions";
 
 const LAWYER_RESOURCES = [
   { label: "Pakistan Bar Council", href: "https://www.pakistanbarcouncil.org/" },
-  { label: "Supreme Court of Pakistan", href: "https://www.supremecourt.gov.pk/" },
-  { label: "Lahore High Court", href: "https://lhc.gov.pk/" },
-  { label: "Islamabad High Court", href: "https://mis.ihc.gov.pk/" },
-  { label: "Sindh High Court", href: "https://www.sindhhighcourt.gov.pk/" },
-  { label: "Lahore High Court Bar Association", href: "https://lhcbar.com/" },
+  { label: "Supreme Court Judgments", href: "https://www.supremecourt.gov.pk/" },
+  { label: "Islamabad High Court Judgments", href: "https://mis.ihc.gov.pk/" },
+  { label: "Lahore High Court Judgments", href: "https://lhc.gov.pk/" },
+  { label: "Sindh High Court Judgments", href: "https://www.sindhhighcourt.gov.pk/" },
+  { label: "Peshawar High Court Judgments", href: "https://peshawarhighcourt.gov.pk/" },
+  { label: "Balochistan High Court Judgments", href: "https://bhc.gov.pk/" },
 ];
 
 const socialLinks = [
