@@ -9,6 +9,10 @@ const LAWYER_RESOURCES = [
   { label: "Pakistan Bar Council", href: "https://www.pakistanbarcouncil.org/" },
   { label: "Supreme Court Judgments", href: "https://www.supremecourt.gov.pk/" },
   { label: "Islamabad High Court Judgments", href: "https://mis.ihc.gov.pk/" },
+  {
+    label: "Islamabad High Court – Lawyer’s Calendar",
+    href: "https://mis.ihc.gov.pk/frmLwyrCseSrch",
+  },
   { label: "Lahore High Court Judgments", href: "https://lhc.gov.pk/" },
   { label: "Sindh High Court Judgments", href: "https://www.sindhhighcourt.gov.pk/" },
   { label: "Peshawar High Court Judgments", href: "https://peshawarhighcourt.gov.pk/" },

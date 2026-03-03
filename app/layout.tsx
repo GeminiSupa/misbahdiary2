@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   },
   description:
     "Case management, billing, calendar & hearings. Modern software for law firms and solo practitioners in Pakistan.",
+  verification: {
+    google: "u517o2FOWT9NPw36PnH1CdDQcfXhjPetms-MjehW--E",
+  },
 };
 
 export default async function RootLayout({
