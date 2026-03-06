@@ -10,6 +10,140 @@ export type BlogPost = {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "e-filing-in-pakistan",
+    image: "/lawyer-diary-dashboard.png",
+    imageAlt:
+      "Advocate using e-filing portal on laptop at law office in Pakistan",
+    title: "E-Filing in Pakistan: Step-by-Step Guide for Advocates (2026 Update)",
+    description:
+      "Step-by-step e-filing process for Pakistani courts including Supreme Court 2025 rules, required documents, biometric verification, and common mistakes to avoid.",
+    publishedAt: "2026-03-06",
+    content: `
+<h1>E‑Filing in Pakistan: Step‑by‑Step Guide for Advocates (2026 Update)</h1>
+<p>E‑filing is quickly becoming <strong>mandatory</strong> across Pakistan's superior courts, especially after the Supreme Court rolled out its nationwide electronic filing system and new 2025 Rules. For advocates, this means submitting petitions, paper books, and documents digitally instead of physical filing.</p>
+<p>This guide covers <strong>exactly what you need to know</strong> - from registration to avoiding rejections - to make e‑filing work smoothly in your practice.</p>
+
+<h2>What is e‑filing in Pakistani courts?</h2>
+<p>E‑filing lets you submit case documents through online portals instead of court counters. Documents go directly into the court's Case Management System (CMS) and get automatically emailed to relevant parties.</p>
+<p>Key courts now live with e‑filing:</p>
+<ul>
+  <li><strong>Supreme Court</strong>: All registries accept electronic petitions and paper books</li>
+  <li><strong>Islamabad High Court</strong>: Full e‑court system operational</li>
+  <li><strong>District Courts</strong>: Swat, Punjab districts with biometric integration</li>
+</ul>
+
+<h2>Supreme Court 2025 Rules: What advocates must know</h2>
+<p>The new rules make e‑filing <strong>mandatory</strong> at the apex court:</p>
+<ul>
+  <li>Scanned copies required with every petition</li>
+  <li>Digital notices/orders replace paper dispatch</li>
+  <li>Advocates must register mobile/email in CMS</li>
+  <li>Video-link hearings officially permitted</li>
+  <li>Cases filed electronically get priority listing</li>
+</ul>
+
+<h2>Step-by-step e‑filing process (Supreme Court &amp; High Courts)</h2>
+
+<h3>1. Register on the court portal</h3>
+<p><strong>Supreme Court:</strong> supremecourt.gov.pk/efiling<br />
+<strong>Islamabad HC:</strong> mis.ihc.gov.pk/frmEcourt</p>
+<p>Upload CNIC, bar council number, and contact details.</p>
+
+<h3>2. Complete biometric verification (Punjab mandatory)</h3>
+<ul>
+  <li>Visit NADRA center or judicial biometric desk</li>
+  <li>Get tracking number for case filing</li>
+  <li><strong>No biometric = no filing</strong> in Punjab courts after Jan 2026</li>
+</ul>
+
+<h3>3. Prepare documents (PDF format)</h3>
+<p>Required for every filing:</p>
+<ul>
+  <li>Petition/plaint (scanned clearly)</li>
+  <li>Vakalatnama/power of attorney</li>
+  <li>Annexures (index + pages)</li>
+  <li>Court fee challan</li>
+  <li>Party CNIC copies</li>
+  <li>Contact details (mobile/email)</li>
+</ul>
+
+<h3>4. Fill online filing form</h3>
+<p>Case details → Party information → Document upload → Fee verification → Submit → Get e‑filing ID</p>
+
+<h3>5. Track scrutiny status</h3>
+<p>Day 1–3: Acknowledgment email<br />
+Day 4–7: Scrutiny complete<br />
+Accepted → Hearing date assigned<br />
+Objections → Fix by deadline</p>
+
+<h2>Common e‑filing mistakes (and fixes)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Mistake</th>
+      <th>Why it fails</th>
+      <th>Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Blurry scans</td>
+      <td>Scrutiny rejection</td>
+      <td>Use flatbed scanner, 300 DPI</td>
+    </tr>
+    <tr>
+      <td>Missing biometric</td>
+      <td>Punjab courts reject</td>
+      <td>NADRA verification first</td>
+    </tr>
+    <tr>
+      <td>Wrong case category</td>
+      <td>Administrative delay</td>
+      <td>Check court circulars</td>
+    </tr>
+    <tr>
+      <td>No party contacts</td>
+      <td>Notices bounce</td>
+      <td>Verify emails before filing</td>
+    </tr>
+    <tr>
+      <td>Large file sizes</td>
+      <td>Upload failure</td>
+      <td>Compress PDFs under 10MB</td>
+    </tr>
+  </tbody>
+<!-- End Meta Pixel Code --> 
+</table>
+
+<h2>How Lawyer Diary simplifies e‑filing workflow</h2>
+<p><strong>Organize everything in one place:</strong></p>
+<ol>
+  <li><strong>Document checklist templates</strong> per case type</li>
+  <li><strong>Store biometric tracking numbers</strong> with each case</li>
+  <li><strong>Track scrutiny deadlines</strong> automatically</li>
+  <li><strong>Client portals</strong> for sharing filing status</li>
+  <li><strong>Email integration</strong> for court notices</li>
+</ol>
+<p>Example workflow in Lawyer Diary:<br />
+Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submission → Track Status</p>
+
+<h2>Quick checklist before every e‑filing</h2>
+<ul>
+  <li>CNIC + biometric verification complete</li>
+  <li>All documents scanned clearly (PDF)</li>
+  <li>File sizes under portal limits</li>
+  <li>Party/counsel emails verified</li>
+  <li>Court fee challan attached</li>
+  <li>Case category confirmed</li>
+</ul>
+
+<h2>Start your free Lawyer Diary trial</h2>
+<p>Streamline e‑filing, cause lists, billing, and client communication in one platform built for Pakistani advocates.</p>
+<p><a href="/sign-up">Start Free Trial</a></p>
+<p><em>Last updated March 6, 2026. E-filing rules evolve quickly - always check latest court circulars.</em></p>
+`,
+  },
+  {
     slug: "how-to-file-cases-online-pakistan-2026",
     image: "/lawyer-diary-dashboard.png",
     imageAlt: "Laptop with legal documents for e-filing",
