@@ -10,8 +10,147 @@ export type BlogPost = {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "niswaniyat-ka-alami-din",
+    image: "/images/blog/celebration.svg",
+    imageAlt: "Celebration illustration for Urdu blog post",
+    title: "نسوانیت کا عالمی دن",
+    description:
+      "Adv Misbah Akram Rana کا ایک فکری مضمون: بدلتی نسلیں، اقدار، اور معاشرے میں نسوانیت و مردانگی کے تصور پر ایک نظر۔",
+    publishedAt: "2026-03-08",
+    content: `
+<div lang="ur" dir="rtl">
+  <h1>نسوانیت کا عالمی دن</h1>
+  <p><strong>تحریر: Adv Misbah Akram Rana</strong></p>
+  <p>اب تک دنیا والے خواتین کا عالمی دن مناتے آئے ہیں، وہ دن دور نہیں جب مردوں کا بھی عالمی دن منایا جائے گا۔ اب کوئی کہے گا کہ مردوں کا عالمی دن کیوں؟ ویسے میری دانست میں تو کب کا منایا جانا چاہئیے، کیونکہ مرد کو اللہ نے جو مقام و مرتبہ جس وجہ سے عطا کیا ہے، اور مرد کو جن اوصاف کی بناء پہ مرد کہا جاتا ہے، وہ بہت ہی کم دوسری جنس میں پائے جاتے ہیں۔ لہذا یہ دن اس وجہ سے منایا جانا چاہئیے تھا کہ انہیں باور کروایا جائے کہ مرد ہونا دراصل کیا ہے۔ اب تک زیادہ تر مائیں یہ بات سمجھانے اور سکھانے میں ناکام ہی رہی ہیں۔ خیر آئندہ کے لیے مردوں کا عالمی دن اس لیے منایا جانا ضروری ہو جائے گا کہ جنریشن زی اور ایلفا کے لڑکے بھی اب لڑکے نہیں رہے۔ صرف میلنئیل میں ہی لڑکے بچے ہیں۔ اب جو نسل آ رہی ہے ان میں اتنی نزاکت ہے کہ چند برسوں میں لڑکیاں انہیں ہراساں کرنے لگیں گی۔ کیونکہ سرخی پوڈر، سن بلاک، سن گلاسز، لپ بام اور پتہ نہیں کیا کیا لیپا پوتی کیے بنا یہ گھر سے قدم نہیں نکالتے۔</p>
+  <p>میرا پہلا تجربہ ایسے لڑکوں سے نمل یونیورسٹی میں ہوا تھا، وہاں ایک ایونٹ میں گئی تھی، سال 2017 تھا، ہم آخری سمیسٹر میں تھے اور پہلی بار آوارہ گرد ہوئے تھے۔ خیر وہاں ایک عجیب سا ماحول تھا، ہر لڑکے نے سن بلاک لگا رکھا تھا، ہر لڑکے نے چشمہ لگا رکھا تھا، ہر لڑکے نے کچھ نہ کچھ زیورات پہن رکھے تھے۔ جنہیں دیکھ کر مجھے اور میری سہیلیوں کو کلچرل شاک لگا۔ ایک طرف ہماری اسلامی یونیورسٹی کے ملاں، جو سال دو سال میں اولڈ کیمپس کی کسی کانفرنس پہ دکھائی دیتے، یا ہم خود سٹوڈنٹ یونین والے تھے تو جامعہ سے باہر کسی ایونٹ پہ سلام دعا ہوتی۔ خیر تب سے میں سب کی بہن ہوں۔ خیر ہم نے اپنے اساتذہ کو دیکھا تھا کہ وہ شلوار قمیض اور واسکوٹ پہنا کرتے تھے، ایک بہت ہی شاندار سا لباس ہوا کرتا تھا، اور ہمیں بس مردوں کو اسی لباس میں دیکھنے کی عادت تھی۔</p>
+  <p>بچپن میں جب ائیر بیسز پہ تھے، تو ٹین ایج بوائز کے جو فیشن اس وقت تھے، وہ سکول کالج تک سب کرتے تھے، ہم بھی کرتے تھے اور بس ٹھیک تھا۔ لیکن تب بھی لڑکے اتنی سکن کئیر فالو نہیں کرتے تھے۔ پھر ہم دیکھا کرتے تھے کہ فضائیہ انٹر کالج اور بحریہ کالج کے لڑکوں کے اکثر پھڈے ہوتے تھے۔ ہر جمعہ کالج کے گیٹ پہ لڑکوں کے دو گروپ آپس میں ڈبلیو ڈبلیو ای کھیلتے۔ آج کل کے لڑکے تو لڑائی بھی نہیں کرتے۔ پہلے مشہور ہونے کے لیے لڑکے بدمعاشی کرتے تھے، اب ٹک ٹاکر بنتے ہیں۔ پہلے لڑکے، لڑکیوں کو پرنسس ٹریٹمنٹ دیتے تھے، اب میں لڑکوں کو پرنسس ٹریٹمنٹ وصول کرتے دیکھتی ہوں۔ پھر جنہیں لڑکیوں سے پرنسس ٹریٹمنٹ نہیں ملتا تو وہ آپس میں ہی صنفی تقسیم کر لیتے ہیں۔ یہ رواج لاہور میں عروج پہ ہے۔ مرد زنخے بنتے چلے جا رہے ہیں، عورتوں میں نسوانیت کی جگہ مردانہ پن آتا چلا جا رہا ہے۔ میرے ایل ایل ایم کا مقالہ ٹرانس جینڈر ایکٹ پہ تھا، یعنی ٹرانس جینڈر ایکٹ کیسے شریعت و فطرت کے خلاف ہے، اس پہ کچھ لوگوں کو مجھ سے بھرپور اختلاف بھی ہے۔ بہرحال وہ اپنی ضد پہ قائم میں اپنے موقف پہ۔ اللہ نے جسے جیسا تخلیق کیا ہے وہ اپنی تخلیق پہ شکر گزار ہونے اور اسے اپنانے کی بجائے ناجانے کس نفسیاتی بیماری میں مبتلا ہوئے جا رہا ہے۔</p>
+  <p>بہرحال بات یہ ہو رہی تھی کہ آئندہ سالوں میں مردوں کا عالمی دن بھی منایا جائے گا، اس کی بہت سی وجوہات میں سے دو تو یہ ہیں کہ کچھ تو ٹرانس جینڈر بنتے جا رہے ہیں، باقی ماندہ لڑکے ہوتے ہوئے بھی نازک مزاج ہوتے چلے جا رہے ہیں۔ تو پھر مردوں کی یاد میں مردوں کا عالمی دن منایا جائے گا کہ کبھی اس دنیا میں مرد بھی ہوا کرتے تھے، جو اب نایاب ہیں۔</p>
+  <p>مجھے نہیں معلوم کہ آئندہ سالوں میں عورتوں کی خصوصیات کیا ہوں گی، مگر وہ تو بالکل نہیں ہوں گی جو ہماری ماؤں کی تھیں، حتی کہ جو عادات و خصائل میلینلز میں ہیں، وہ جنریشن زی اور ایلفا میں بھی نہیں۔ عورت مارچ اس سال نہیں ہوا، آئندہ بھی ناپید ہو جائے گا، اس کی وجہ یہ ہے کہ آئندہ نسلوں میں عورت میں نسوانیت و کمزوری بھی ناپید ہو جائے گی۔ جو کشش، جو رتبہ فطرت نے عورت میں رکھا تھا، اسے ہم نے کھرچ کھرچ کر مٹا دیا ہے۔ عورت کو مضبوط اور خود کفیل بناتے بناتے معاشرے و اقدار و حالات و زمانے نے عورت کو عورت کم مرد زیادہ بنا دیا ہے۔ کیونکہ مرد وقت کے ساتھ ساتھ نسوانیت اوڑھتا چلا جا رہا ہے۔ ایسے میں عورتوں کی نسوانیت کی یاد میں \"خواتین کا عالمی دن مبارک ہو\" ویسے میرے حساب سے تو نسوانیت کا عالمی دن منایا جانا زیادہ اہم ہو گا کہ اسے اس کی مقام و مرتبے پہ واپس لانے کے لیے مرد معاشرے اور خود عورتوں کو بھی سعی کرنا ہو گی۔ کیونکہ جو بار ذمہ داری آج ڈالا جا چکا ہے، وہ عورتوں کے لیے نہیں تھا۔ اس سب میں ہماری نسوانیت کہیں کھو گئی ہے۔</p>
+</div>
+`,
+  },
+  {
+    slug: "mohabbat-aur-jung",
+    image: "/images/blog/love.svg",
+    imageAlt: "Love illustration for Urdu blog post",
+    title: "محبت اور جنگ",
+    description:
+      "Adv Misbah Akram Rana کی تحریر: بار الیکشنز کے بعد بدتمیزی، لیگل ایتھکس، اور معاشرے میں احترام و روزگار کے مواقع کی ضرورت۔",
+    publishedAt: "2026-03-04",
+    content: `
+<div lang="ur" dir="rtl">
+  <h1>محبت اور جنگ</h1>
+  <p><strong>تحریر: Adv Misbah Akram Rana</strong></p>
+  <p><em>تاریخ: 4 مارچ 2026</em></p>
+  <p>فروری جو محبت کا مہینہ تھا اب جنگ و جدل کا بن چکا ہے۔ اس سال فروری میں سردی ختم ہوئی، بہار آئی، ویلنٹائنز ڈے پہ ہی اسلام آباد ہائیکورٹ بار ایسوسی ایشن کے انتخابات ہوئے، انتخابات کے بعد گالم گلوچ، الزام تراشی اور ایک لا متناہی بدتمیزی کا دور شروع ہو گیا۔ ہم بہت سے افراد کو معمر گردانتے ہیں مگر انہیں بھی کیچڑ میں لت پت ہوتے دیکھا تو بے حد افسوس ہوا۔ کچھ عرصہ قبل کسی جونئیر وکیل نے کسی سینئر وکیل سے بدتمیزی کی، مجھ تک یہ خبر پہنچی، سن کر افسوس ہوا اور موجودہ کابینہ سے گزارش کی اس بار جو طلباء طالبات بار ووکیشنل ٹریننگ کر کے وکالت کا لائسنس لیں انہیں نا صرف ویلکم پارٹی دی جائے بلکہ انہیں ایک چھوٹا سا لیکچر بھی دیا جائے کہ سینییرز کا احترام کریں۔ یعنی حفظ مراتب کا خیال رکھیں، اگرچہ یہ سینئیر جونیئرز سبھی پہ لاگو ہوتی ہے۔ ہماری خواہش تھی کہ بار کے معزز وکلاء کو بلایا جائے گا، تاکہ نئے آنے والوں کو علم ہو کہ یہاں کس قد کاٹھ کے لوگ موجود ہیں، اور ہمیں سب سے احترام کا تعلق رکھنا ہے۔</p>
+  <p>Aneeq Khatana صاحب چونکہ ان معاملات میں خصوصی دلچسپی رکھتے ہیں لہذا اس خواہش کا اظہار ان سے بھی کیا، وہ معترض ہوئے اور کہنے لگے کہ مضائقہ تو نہیں لیکن پہلے ہی بار ووکیشنل ٹریننگ سیشنز میں لیگل ایتھکس کا لیکچر ہوتا ہے وہاں یہ معلومات بہم پہنچا دی جاتی ہیں، بہر کیف وہ پھر بھی آمادہ تھے کہ نوجوانوں سے مکالمہ ضرور ہو۔ انیق کھٹانہ صاحب اپنے طور سے بہت سے نوجوانوں کی تربیت کا بیڑا اٹھائے ہوئے ہیں اور بہترین و عملی موضوعات پہ بات چیت کرتے رہتے ہیں. ان کے اور ان جیسے تمام وکلاء کے پیش نظر صرف وکیل اور وکالت کی بہتری ہی ہے۔</p>
+  <p>خیر الیکشن کے بعد جو صورتحال ہوئی اسے دیکھ پڑھ کر ہمیں خاصی مایوسی ہوئی، کہ یہاں تو آوے کا آوا ہی بگڑا ہوا ہے۔ خیر سے فروری کچھ آگے بڑھا تو بین الاقوامی سطح پہ جنگیں شروع ہو گئیں، پاکستان و افغانستان آپس میں دست و گریباں ہے تو امریکہ و اسرائیل، ایران پہ چڑھ دوڑے۔ امت کے اتحاد کی واحد علامت امام خمینی کی شہادت نے امت مسلمہ کو ہلا کے رکھ دیا۔ اگر کسی کو یہ شک و زعم ہے کہ وہ محض شیعوں کے امام تھے، تو یہ بہت ہی زیادتی کی بات ہے، حکومتوں اور چند شیاطین کو پرے رکھ دیجئیے، باقی تمام عالم اسلام کو ان سے عقیدت تھی۔ کیا شیعہ کیا سنی، سبھی حضرت امام سے محبت کرتے تھے اسی لیے ان کی شہادت سے بہت سی آنکھیں بھیگ گئیں۔</p>
+  <p>جن کی آنکھوں میں نمی نہیں آئی وہ یقیناً حضرت امام کے رتبے و مقام سے ناواقف تھے، ورنہ جو نظر جانتی ہے، بھیگ جاتی ہے، ہر دھڑکتا دل اس سانحہ عظیم پہ گرفتہ ہے، کیا نورانی صورت تھی، ہمارے پیارے نبی صلی اللہ علیہ وسلم کے وارثوں میں سے تھے، اسی خاندان سے تھے۔ میں اکثر ان کا چہرہ دیکھتی، ان کی آواز سنتی ان کی بات سنتی، ان کا طریق دیکھتی، تو سوچتی کہ اللہ کے نبی صلی اللہ علیہ وسلم کیا شخصیت ہوں گے۔ وہ کتنے جمیل ہوں گے۔ اگرچہ یہ بھی بے ادبی ہے کہ ان کے چہرے کا تصور کروں، اللہ مجھے اس جسارت پہ معاف کرے۔ بس یونہی بھٹکتا ہوا اک خیال آ جاتا۔ پھر کربلا کی یاد آئی، واللہ جس روز شہادت ہوئی ہے، دل یونہی مغموم تھا جیسے محرم میں ہوا کرتا ہے۔</p>
+  <p>ابھی ہم اسی غم میں تھے کہ لاہور ہائیکورٹ بار ایسوسی ایشن کے الیکشن ہوئے، نتائج کے بعد وہاں بھی چیخم دھاڑم، گالی گلوچ، مکم مکا، تمام وکلاء ہوئے۔ پھر ایک ویڈیو منظر عام ہوئی جس میں دو وکیل آپس میں یوں لڑ رہے تھے کہ بس ابھی اک دوجے کو نیچے گرا دیں گے۔ میں واقعے میں جنس کی تفریق نہیں کروں گی، دونوں وکیل تھے دونوں بد تمیز تھے۔ مجھے حیرانی ہے کہ بار کونسل ایسے ایسوں کی لائسنس کینسل کیوں نہیں کرتی۔</p>
+  <p>ابھی کچھ عرصہ پہلے ایک خاتون وکیل نے کسی مقدمہ کے سلسلے میں پبلک میسج دیا تھا، اس پہ بہت سوں نے \" لیگل ایتھکس\" اور پتہ نہیں کس کس بات کے ڈوب جانے کے بھاشن دئیے تھے میری وال اور انباکس میں، ایک صاحب تو مصر تھے کہ ان محترمہ کا لائسنس ہی کینسل کر دیا جانا چاہئیے۔ اسی طرح اور بھی بہت سے معاملات ہمارے سامنے سے گزرتے ہیں جن میں کہا جاتا ہے کہ آپ کی یہ حرکت لیگل پریکٹیشنرز ایکٹ اینڈ رولز کی خلاف ورزی ہے، کی مرتبہ مختلف انواع کے بار کونسل کے نوٹیفکیشنز بھی پڑھے ہیں۔ مثلا جو لوگ ٹک ٹاک بناتے ہیں یا سوشل میڈیا پہ کسی طرح سے ویڈیوز بنا کے شئیر کرتے ہیں ان کے خلاف فورا بار کونسل کی طرف سے نوٹیفکیشن آ جاتا ہے۔</p>
+  <p>میں یہ نہیں کہہ رہی کہ بار ان سب معاملات پہ ایکشن لینا چھوڑ دے، میں صرف یہ کہتی ہوں کہ جب اس قسم کے تماشے لگتے ہیں تب بار کونسل کہاں چلی جاتی ہے؟ کیا انہیں نظر نہیں آتا کہ حالیہ الیکشنز کے بعد، چاہے وہ اسلام آباد کے تھے یا لاہور کے، یہ جو طوفان بدتمیزی سوشل میڈیا پہ چل رہا ہے، اس سے ہم وکلاء کی ساکھ کا قدر متاثر ہو رہی ہے۔</p>
+  <p>دیکھئیے جن لوگوں کے تو خاندان کے خاندان کالے کوٹوں والے ہیں، انہیں شاید فرق نہیں پڑتا مگر فرسٹ جنریشن لائر، اور خاندان پہلے اور واحد وکلاء پہ بہت برا اثر پڑتا ہے۔ اس قسم کی ویڈیوز پورا خاندان ہمیں بھیجتا ہے، کہ دیکھئیے یہ حالت ہے آپ لوگوں کی، جنہیں دیکھ کے شرم آتی ہے۔ اب یہاں کوئی یہ نوٹیفکیشن تو چلا نہیں سکتا کہ کچھ نامعلوم افراد وکلاء کے بھیس میں کچہری داخل ہو گئے تھے اور انہوں نے یہ مار پیٹ کی، وکلاء تو بہت معزز ہیں، وہ یہ حرکتیں نہیں کرتے۔</p>
+  <p>خدارا بار کونسل آن واقعات کا ایکشن لے یا نہ لے لیکن وکلاء کے لیے روزگار کے اچھے مواقع فراہم کرے تاکہ ان کے پاس کسی سے کسی کے لیے بھی یوں ہاتھا پائی کرنے کا وقت نہ ہو، ان کے پاس کرنے کو کام ہو، وہ اپنا وقت, انرجی اور دماغ اچھی اور مفید سرگرمیوں میں لگا سکیں۔ جب وکیل کے پاس کرنے کو کام ہو، فیس مل رہی ہو، روزانہ کی بنیاد پہ مصروفیت ہو گی تو وہ اس قسم کی دھینگا مشتی کا حصہ نہیں بنے گا۔ مزید یہ کہ اپنے رولز ریوائز کیجئیے، نوجوانوں کے ساتھ ساتھ معمر وکلاء کی بھی تربیت کریں، بہت بار دیکھا ہے کہ بہت سے سینئیر وکلاء نے (معذرت کے ساتھ) نوجوان وکلاء کی فوج صرف اس لیے رکھی ہوتی ہے کہ وقت آنے پہ وہ ان کے لیے ووٹ مانگیں، نعرے لگائیں اور ضرورت پڑنے پہ گالم گلوچ بھی کریں۔ کیونکہ جب وہ یہ سب کر رہے ہوتے ہیں تو وہ سینییرز اپنے جونیئرز کو بالکل منع نہیں کرتے، بلکہ انہیں بڑھاوا دیتے ہیں۔ بہت سے وکیل اپنے لیڈر کی محبت میں یہ سب کرتے ہیں تو بہت سے دوسرے کی نفرت میں یہ کرتے ہیں۔ پھر یہ بڑھاوا ، محبت و نفرت کا یوں بے لگام اظہار، ان کی شخصیت میں رچ بس جاتا ہے، یہی وجہ ہے کہ انتخابی مہمات اور بعد از نتائج میں بد تمیزی اپنے عروج پہ ہوتی ہے۔</p>
+  <p>مختصراً یہ کہ معاشرے کا یہ پڑھا لکھا طبقہ ہر گزرتے سال کے ساتھ اپنی ساکھ کھو رہا ہے۔ براہ کرم اس کی بہتری کے لیے تمام بزرگ سنجیدگی سے عملی اقدامات کریں، جس کا بہترین حل یہ ہے کہ انہیں کام کرنے اور معاشی حالت بہتر کرنے کا مواقع فراہم کریں۔ کیونکہ خالی دماغ شیطان کا گھر ہوا کرتا ہے۔ مانا کہ زمانہ کہتا ہے محبت اور جنگ میں سبھی جائز ہے لیکن جب سبھی کچھ جائز کر لیا جائے تو نتیجہ بربادی و تنزلی ہی نکلتا ہے۔</p>
+</div>
+`,
+  },
+  {
+    slug: "vakalatnama-pakistan-format-stamp-paper-common-mistakes",
+    image: "/images/blog/contract.svg",
+    imageAlt: "Vakalatnama and legal contract illustration",
+    title: "Vakalatnama in Pakistan: Format, Stamp Paper, and Common Mistakes (2026)",
+    description:
+      "A practical advocate’s guide to preparing a Vakalatnama in Pakistan—what to include, stamp paper considerations, attachments, and mistakes that cause objections.",
+    publishedAt: "2026-03-11",
+    content: `
+<h1>Vakalatnama in Pakistan: Format, Stamp Paper, and Common Mistakes (2026)</h1>
+<p>A properly prepared <strong>Vakalatnama</strong> prevents delays, objections, and wasted court visits. This guide is written for Pakistani advocates and their staff: clear checklist, what to attach, and what usually goes wrong.</p>
+
+<h2>What is a Vakalatnama?</h2>
+<p>A Vakalatnama is the authorization by a client (party) appointing an advocate to appear, plead, and act on their behalf in a matter. Courts and registries often raise objections when signatures, details, or annexures are missing.</p>
+
+<h2>Vakalatnama checklist (quick)</h2>
+<ul>
+  <li><strong>Party names</strong> exactly as per pleadings (CNIC spelling consistency)</li>
+  <li><strong>Case/matter title</strong> (if known) and court/forum</li>
+  <li><strong>Advocate details</strong>: name, enrollment, chamber address, phone/email</li>
+  <li><strong>Client signatures/thumb impression</strong> (where required)</li>
+  <li><strong>Witness/attestation</strong> if required by forum practice</li>
+  <li><strong>Date</strong> and place</li>
+  <li><strong>Proper stamping</strong> as per applicable rules/practice</li>
+</ul>
+
+<h2>Common mistakes that cause objections</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Mistake</th>
+      <th>What happens</th>
+      <th>How to fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name mismatch vs plaint/petition</td>
+      <td>Registry objection / refiling</td>
+      <td>Match party names exactly; verify CNIC spelling</td>
+    </tr>
+    <tr>
+      <td>Missing advocate enrollment / stamp</td>
+      <td>File not processed</td>
+      <td>Add enrollment details and required bar/court stamps</td>
+    </tr>
+    <tr>
+      <td>Undated or incomplete</td>
+      <td>Return for completion</td>
+      <td>Add date, forum, and full addresses before signing</td>
+    </tr>
+    <tr>
+      <td>Signature placement errors</td>
+      <td>Doubt on authorization</td>
+      <td>Use consistent signature boxes and get fresh signatures if needed</td>
+    </tr>
+    <tr>
+      <td>Attachments missing (CNIC/authority)</td>
+      <td>Scrutiny delay</td>
+      <td>Attach CNIC copy and any authority letter (company/POA) where applicable</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Stamp paper: what advocates should check</h2>
+<p>Stamping practices can vary by forum and matter type. Before filing, confirm the current requirement (court rules/circulars and local practice). When in doubt, verify with the filing counter/registry or a senior in your chamber.</p>
+<ul>
+  <li>Use the correct stamp value/type for the forum.</li>
+  <li>Ensure stamp paper details (purchaser/date) align with the client where required.</li>
+  <li>Avoid using outdated formats when a new proforma is in use.</li>
+</ul>
+
+<h2>Recommended attachments (by scenario)</h2>
+<ul>
+  <li><strong>Individual client:</strong> CNIC copy, contact number</li>
+  <li><strong>Company client:</strong> authorization letter/board resolution (as applicable) + signatory CNIC</li>
+  <li><strong>Overseas client:</strong> POA/authority documents as required and properly attested</li>
+</ul>
+
+<h2>How Lawyer Diary helps you avoid objections</h2>
+<p>Most Vakalatnama issues are preventable if you keep a standard checklist and never miss attachments.</p>
+<ol>
+  <li>Create a <strong>document checklist template</strong> per case type</li>
+  <li>Store <strong>CNIC + authority documents</strong> inside the case</li>
+  <li>Track <strong>filing/scrutiny</strong> and the next date in one place</li>
+  <li>Assign tasks to juniors/staff so nothing is missed</li>
+</ol>
+
+<p><a href=\"/sign-up\">Start Free Trial</a> and keep every filing ready before you reach the court.</p>
+<hr />
+<p><em>Note: Requirements vary by forum and can change via circulars. Always verify current rules for your court before filing.</em></p>
+`,
+  },
+  {
     slug: "e-filing-in-pakistan",
-    image: "/lawyer-diary-dashboard.png",
+    image: "/images/blog/documents.svg",
     imageAlt:
       "Advocate using e-filing portal on laptop at law office in Pakistan",
     title: "E-Filing in Pakistan: Step-by-Step Guide for Advocates (2026 Update)",
@@ -112,7 +251,6 @@ Objections → Fix by deadline</p>
       <td>Compress PDFs under 10MB</td>
     </tr>
   </tbody>
-<!-- End Meta Pixel Code --> 
 </table>
 
 <h2>How Lawyer Diary simplifies e‑filing workflow</h2>
@@ -144,8 +282,102 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
 `,
   },
   {
+    slug: "imran-khan-cases-pending-judicial-bias-or-lawyer-incompetence",
+    image: "/images/blog/judge.svg",
+    imageAlt: "Judge and courtroom illustration",
+    title:
+      "Why Imran Khan's Legal Cases Remain Pending: Judicial Bias or Lawyer Incompetence?",
+    description:
+      "A practical, balanced look at why high-profile criminal matters can stay pending in Pakistan—backlog, procedure, adjournments, and the limits of what lawyers can control.",
+    publishedAt: "2026-03-10",
+    content: `
+<h1>Why Imran Khan's Legal Cases Remain Pending: Judicial Bias or Lawyer Incompetence?</h1>
+<p>Since 2022, former Prime Minister Imran Khan has faced multiple criminal and inquiry proceedings. Many people ask the same question: why do some matters move quickly at one stage but take months (or longer) at another?</p>
+<p>This article takes a <strong>process-based</strong> view. It explains the most common, <strong>verifiable</strong> reasons high-profile cases remain pending in Pakistan—without assuming outcomes or motives.</p>
+<hr />
+
+<h2>Background: Why the timeline feels "stuck"</h2>
+<p>In Pakistan, a single public figure can face parallel proceedings across forums (trial courts, accountability courts, anti-terrorism courts, and appellate benches). Even when a party gets relief in one matter (for example, a bail order), other pending FIRs or fresh proceedings can keep litigation active.</p>
+
+<h2>Reason 1: Appellate backlogs are real</h2>
+<p>High Courts and the Supreme Court carry heavy cause lists. Appeals, sentence suspension applications, and miscellaneous petitions are often listed according to roster, seniority, and administrative scheduling. Even a well-prepared appeal can sit in the queue.</p>
+<ul>
+  <li>More pending matters → fewer effective hearing dates.</li>
+  <li>Benches change → matters can be re-listed or delayed.</li>
+  <li>Interim applications (bail/suspension) may be heard separately.</li>
+</ul>
+
+<h2>Reason 2: Procedure can slow down even strong cases</h2>
+<p>Delays often come from procedural steps rather than the merits:</p>
+<ul>
+  <li>Service of notices and submissions of paper books</li>
+  <li>Calling for records from the trial court</li>
+  <li>Objections by registry (format, annexures, attestation)</li>
+  <li>Time needed for replies and rejoinders</li>
+  <li>Availability of counsel, investigating officers, or witnesses</li>
+  <li>Video-link or custody production logistics</li>
+</ul>
+
+<h2>Reason 3: Adjournments (from both sides) add up</h2>
+<p>Adjournments can happen for ordinary reasons (judge on leave, counsel engaged elsewhere, missing record) and are common in high-volume courts. In politically sensitive cases, the number of connected applications and parties can multiply hearing time.</p>
+
+<h2>Reason 4: Multiple cases create "litigation lock-in"</h2>
+<p>When there are many FIRs or proceedings, the overall situation can look unchanged even if progress is happening behind the scenes. A person may secure relief in one forum while another forum schedules the next date weeks later.</p>
+<p><strong>Practical impact:</strong> the public measures progress by release/outcome, while the courts measure progress by orders, listings, and compliance steps.</p>
+
+<h2>So is it judicial bias or lawyer incompetence?</h2>
+<p>It can be either in specific instances, but in practice many delays are explained by structural and procedural factors:</p>
+<table>
+  <thead>
+    <tr>
+      <th>What people assume</th>
+      <th>What often explains it</th>
+      <th>What lawyers can do</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>"The court is refusing to hear it"</td>
+      <td>Roster/backlog/bench availability</td>
+      <td>Move for early hearing with supporting grounds</td>
+    </tr>
+    <tr>
+      <td>"The appeal is weak"</td>
+      <td>Records, paper book, and service delays</td>
+      <td>Complete filings fast; track objections daily</td>
+    </tr>
+    <tr>
+      <td>"Lawyers are incompetent"</td>
+      <td>Parallel proceedings and administrative steps</td>
+      <td>Centralize strategy; coordinate across forums</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>How Pakistani advocates can avoid avoidable delays (for any case)</h2>
+<ol>
+  <li>Maintain a <strong>document checklist</strong> for every filing (annexures, pagination, attestation).</li>
+  <li>Track <strong>registry objections</strong> and clear them immediately.</li>
+  <li>Keep <strong>hearing dates</strong> and limitation deadlines in one calendar.</li>
+  <li>Use a single matter file for all connected FIRs and applications.</li>
+</ol>
+
+<h2>Use Lawyer Diary to manage complex litigation</h2>
+<p>When matters spread across multiple courts and dates, organization becomes the difference between progress and delay.</p>
+<ul>
+  <li>Store petitions, annexures, and orders in one place</li>
+  <li>Track hearing dates and reminders per case</li>
+  <li>Maintain checklists for filings and compliance steps</li>
+</ul>
+<p><a href="/sign-up">Start Free Trial</a></p>
+
+<hr />
+<p><em>Note: This is general legal-process information, not legal advice. For case-specific guidance, consult counsel and review the latest orders/cause lists.</em></p>
+`,
+  },
+  {
     slug: "how-to-file-cases-online-pakistan-2026",
-    image: "/lawyer-diary-dashboard.png",
+    image: "/images/blog/online.svg",
     imageAlt: "Laptop with legal documents for e-filing",
     title: "How to File Cases Online in Pakistan 2026 – Guide for Advocates",
     description:
@@ -175,7 +407,7 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "top-7-challenges-pakistani-lawyers-manual-diaries",
-    image: "/lawyer-diary-dashboard.png",
+    image: "/images/blog/documents.svg",
     imageAlt: "Traditional paper diary and pen",
     title: "Top 7 Challenges Pakistani Lawyers Face with Manual Diaries (and Solutions)",
     description:
@@ -217,8 +449,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "pkr-invoicing-tax-compliance-law-firms-pakistan",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Invoice and financial documents",
+    image: "/images/blog/printing-invoices.svg",
+    imageAlt: "Invoice and billing illustration",
     title: "PKR Invoicing & Tax Compliance for Law Firms in Pakistan",
     description:
       "How to generate compliant invoices in Pakistani Rupees, handle GST, and stay on top of tax reporting.",
@@ -250,7 +482,7 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "lawyer-diary-vs-manual-register-vs-indian-apps",
-    image: "/lawyer-diary-dashboard.png",
+    image: "/images/blog/documents.svg",
     imageAlt: "Comparison and choice of options",
     title: "Comparison: Lawyer Diary vs Manual Register vs Indian Apps",
     description:
@@ -286,8 +518,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "manage-court-hearings-calendar-pakistan",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Calendar and schedule planning",
+    image: "/images/blog/calendar.svg",
+    imageAlt: "Calendar and schedule illustration",
     title: "How to Manage Court Hearings and Calendar in Pakistan",
     description:
       "Practical tips for advocates to never miss a hearing, manage multiple courts, and stay organized.",
@@ -314,8 +546,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "client-management-pakistani-law-firms",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Professional client meeting",
+    image: "/images/blog/team.svg",
+    imageAlt: "Team and collaboration illustration",
     title: "Client Management for Pakistani Law Firms – Best Practices",
     description:
       "How to organize client data, communication, and case history for better service and retention.",
@@ -340,8 +572,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "digital-transformation-law-firms-pakistan",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Modern digital workplace",
+    image: "/images/blog/online.svg",
+    imageAlt: "Online and digital workspace illustration",
     title: "Digital Transformation for Law Firms in Lahore, Karachi & Islamabad",
     description:
       "Why Pakistani law firms are going digital and how to make the transition smoothly.",
@@ -363,8 +595,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "solo-practitioners-pakistan-legal-software",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Solo professional at work",
+    image: "/images/blog/documents.svg",
+    imageAlt: "Documents and organization illustration",
     title: "Why Solo Practitioners in Pakistan Need Legal Practice Software",
     description:
       "Solo advocates often skip software—but the right tool can save hours and win more clients.",
@@ -386,8 +618,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "gst-tax-reporting-advocates-pakistan",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Tax documents and calculator",
+    image: "/images/blog/receipt.svg",
+    imageAlt: "Receipt and accounting illustration",
     title: "GST and Tax Reporting for Advocates in Pakistan",
     description:
       "A primer on GST applicability, record-keeping, and how software can simplify compliance.",
@@ -409,8 +641,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "signs-law-firm-needs-practice-management",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Organized law office workspace",
+    image: "/images/blog/documents.svg",
+    imageAlt: "Organized documents illustration",
     title: "5 Signs Your Law Firm Needs Practice Management Software",
     description:
       "Are you outgrowing paper and spreadsheets? Here are the warning signs.",
@@ -438,8 +670,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "switching-paper-diaries-lawyer-diary",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Transition from paper to digital",
+    image: "/images/blog/documents.svg",
+    imageAlt: "Switching from paper to digital illustration",
     title: "Switching from Paper Diaries to Lawyer Diary – A Step-by-Step Guide",
     description:
       "How to migrate from manual registers to digital practice management without chaos.",
@@ -467,8 +699,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "time-tracking-billing-pakistani-advocates",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Time tracking and scheduling",
+    image: "/images/blog/calendar.svg",
+    imageAlt: "Time tracking and scheduling illustration",
     title: "Time Tracking and Billing for Pakistani Advocates",
     description:
       "How to accurately track billable hours and convert them into professional PKR invoices.",
@@ -494,8 +726,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "team-collaboration-multi-partner-law-firms",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Law firm team collaboration",
+    image: "/images/blog/team.svg",
+    imageAlt: "Law firm team collaboration illustration",
     title: "Team Collaboration for Multi-Partner Law Firms in Pakistan",
     description:
       "How to keep partners and associates aligned on clients, cases, and billing.",
@@ -517,8 +749,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "data-security-backup-legal-practices",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Data security and encryption",
+    image: "/images/blog/security-on.svg",
+    imageAlt: "Data security and lock illustration",
     title: "Data Security and Backup for Legal Practices in Pakistan",
     description:
       "How to protect client data and ensure business continuity with the right tools.",
@@ -544,8 +776,8 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
   },
   {
     slug: "free-trial-to-paid-lawyer-diary",
-    image: "/lawyer-diary-dashboard.png",
-    imageAlt: "Team success and growth",
+    image: "/images/blog/online.svg",
+    imageAlt: "Getting started and growth illustration",
     title: "Free Trial to Paid: Getting the Most from Lawyer Diary",
     description:
       "How to evaluate Lawyer Diary during your free trial and transition to a paid plan.",

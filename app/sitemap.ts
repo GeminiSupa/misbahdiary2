@@ -4,7 +4,7 @@ import { BLOG_POSTS } from "@/lib/blog-posts";
 const baseUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
-  "https://ux4u.online";
+  "https://www.vakeeldiary.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const blogUrls: MetadataRoute.Sitemap = BLOG_POSTS.map((p) => ({

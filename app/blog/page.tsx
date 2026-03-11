@@ -1,12 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
-export const metadata = {
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://www.vakeeldiary.com";
+
+export const metadata: Metadata = {
   title: "Blog – Guides for Pakistani Advocates | Lawyer Diary",
   description:
     "Practical guides on e-filing, invoicing, court management, and legal practice for law firms in Pakistan. From Lawyer Diary.",
+  alternates: {
+    canonical: `${baseUrl}/blog`,
+  },
+  openGraph: {
+    title: "Blog – Guides for Pakistani Advocates | Lawyer Diary",
+    description:
+      "Practical guides on e-filing, invoicing, court management, and legal practice for law firms in Pakistan. From Lawyer Diary.",
+    url: `${baseUrl}/blog`,
+    type: "website",
+    images: [
+      {
+        url: "/images/blog/online.svg",
+        width: 1200,
+        height: 630,
+        alt: "Lawyer Diary blog guides for Pakistani advocates",
+      },
+    ],
+  },
 };
 
 export default function BlogPage() {
@@ -17,7 +41,7 @@ export default function BlogPage() {
           <h1 className="text-2xl font-bold text-black sm:text-3xl md:text-4xl">
             Blog & Guides
           </h1>
-          <p className="mt-2 text-base text-black/70 sm:text-lg">
+          <p className="mt-2 text-base text-slate-700 sm:text-lg">
             Practical guides for Pakistani advocates—e-filing, billing, court
             management, and more.
           </p>
@@ -35,7 +59,7 @@ export default function BlogPage() {
                     src={post.image}
                     alt={post.imageAlt}
                     fill
-                    className="object-cover transition group-hover:scale-105"
+                    className="object-contain bg-white/80 p-3 transition group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, 192px"
                   />
                 </div>
@@ -43,12 +67,12 @@ export default function BlogPage() {
                   <h2 className="text-lg font-semibold text-black transition group-hover:text-[#f97316] sm:text-xl">
                     {post.title}
                   </h2>
-                  <p className="mt-1.5 line-clamp-2 text-sm text-black/70 sm:text-base">
+                  <p className="mt-1.5 line-clamp-2 text-sm text-slate-700 sm:text-base">
                     {post.description}
                   </p>
                   <time
                     dateTime={post.publishedAt}
-                    className="mt-2 block text-xs text-black/50 sm:text-sm"
+                    className="mt-2 block text-xs text-slate-600 sm:text-sm"
                   >
                     {new Date(post.publishedAt).toLocaleDateString("en-PK", {
                       year: "numeric",

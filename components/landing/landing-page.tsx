@@ -15,31 +15,51 @@ import { useState } from "react";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://ux4u.online";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.vakeeldiary.com";
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "Lawyer Diary",
-  applicationCategory: "BusinessApplication",
-  operatingSystem: "Web",
-  description:
-    "Legal practice management software for Pakistani law firms and solo practitioners. Case management, billing, calendar, and hearing scheduling.",
-  image: `${baseUrl}/ux4u-logo.png`,
-  publisher: {
+const structuredData = [
+  {
+    "@context": "https://schema.org",
     "@type": "Organization",
     name: "UX4U",
-    logo: {
-      "@type": "ImageObject",
-      url: `${baseUrl}/ux4u-logo.png`,
+    url: baseUrl,
+    logo: `${baseUrl}/ux4u-logo.png`,
+    sameAs: [
+      "https://www.facebook.com/ux4u.erpsolutions",
+      "https://www.linkedin.com/company/ux4u-erp/?viewAsMember=true",
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Lawyer Diary",
+    url: baseUrl,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Lawyer Diary",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: baseUrl,
+    description:
+      "Legal practice management software for Pakistani law firms and solo practitioners. Case management, billing, calendar, and hearing scheduling.",
+    image: `${baseUrl}/lawyer-diary-dashboard.png`,
+    publisher: {
+      "@type": "Organization",
+      name: "UX4U",
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/ux4u-logo.png`,
+      },
+    },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "PKR",
     },
   },
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "PKR",
-  },
-};
+];
 
 const navLinks = [
   { href: "#features", label: "Features" },
@@ -97,7 +117,7 @@ export function LandingPage() {
           <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
             <Link
               href="/"
-              className="flex items-center gap-2 shrink-0"
+              className="flex shrink-0 items-center gap-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Image
@@ -122,7 +142,7 @@ export function LandingPage() {
               ))}
               <Link
                 href="/sign-up"
-                className="ml-2 rounded-xl bg-[#E9730C] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#d4650a]"
+                className="ml-2 inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-xl bg-[#f97316] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#ea580c] active:scale-[0.98]"
               >
                 Start Free Trial
               </Link>
@@ -132,14 +152,14 @@ export function LandingPage() {
             <div className="flex items-center gap-2 lg:hidden">
               <Link
                 href="/sign-up"
-                className="rounded-xl bg-[#E9730C] px-3 py-2 text-sm font-semibold text-white"
+                className="inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-xl bg-[#f97316] px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#ea580c] active:scale-[0.98]"
               >
                 Start Trial
               </Link>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-black/80 hover:bg-black/10"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-black/80 transition hover:bg-black/10"
                 aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? (
@@ -192,28 +212,41 @@ export function LandingPage() {
             <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
               {/* Left: Headline + CTAs */}
               <div className="text-center lg:text-left">
-                <h1 className="text-2xl font-bold tracking-tight text-black sm:text-3xl md:text-4xl lg:text-5xl xl:text-[2.75rem]">
-                  Legal Practice Management for Pakistani Law Firms
+                <h1 className="text-balance text-2xl font-bold tracking-tight text-black sm:text-3xl md:text-4xl lg:text-5xl xl:text-[2.75rem]">
+                  Manage Cases, Hearings, Billing — Built for Pakistani Advocates
                 </h1>
-                <p className="mx-auto mt-4 max-w-xl text-base text-black/80 sm:text-lg lg:mx-0">
-                  Case management, billing, calendar & hearings — all in one
-                  platform. Modern software for solo practitioners and law
-                  firms across Lahore, Karachi & Islamabad.
+                <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-black/80 sm:text-lg lg:mx-0">
+                  One workspace for matters, clients, court dates, and invoices.
+                  Designed for how law firms operate in Pakistan.
                 </p>
                 <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
                   <Link
                     href="/sign-up"
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-[#E9730C] px-6 py-3 text-base font-semibold text-white shadow-lg transition-colors hover:bg-[#d4650a] sm:w-auto"
+                    className="inline-flex min-h-[48px] items-center justify-center whitespace-nowrap rounded-xl bg-[#f97316] px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-[#ea580c] active:scale-[0.98] sm:w-auto"
                   >
                     Start Free Trial
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Link>
                   <Link
                     href="/sign-in"
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-black/20 bg-black/5 px-6 py-3 text-base font-semibold text-black transition-colors hover:bg-black/10 sm:w-auto"
+                    className="inline-flex min-h-[48px] items-center justify-center whitespace-nowrap rounded-xl border border-black/20 bg-white px-6 py-3 text-base font-semibold text-black shadow-sm transition hover:bg-black/5 active:scale-[0.98] sm:w-auto"
                   >
                     Sign In
                   </Link>
+                </div>
+                <div className="mx-auto mt-6 flex max-w-xl flex-wrap justify-center gap-2 lg:mx-0 lg:justify-start">
+                  <span className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-black/70">
+                    PKR invoicing
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-black/70">
+                    Hearing reminders
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-black/70">
+                    Team access for firms
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-black/70">
+                    No credit card
+                  </span>
                 </div>
               </div>
 
@@ -256,9 +289,9 @@ export function LandingPage() {
                     className="rounded-xl border border-black/10 bg-slate-50 p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-[#E9730C]/40 hover:shadow-xl hover:shadow-orange-500/10 lg:p-8"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E9730C]/20">
-                      <Icon className="h-6 w-6 text-[#E9730C]" />
+                      <Icon className="h-6 w-6 text-[#f97316]" />
                     </div>
-                    <p className="mt-4 text-sm font-medium text-[#E9730C]">
+                    <p className="mt-4 text-sm font-medium text-[#f97316]">
                       {feature.metric}
                     </p>
                     <h3 className="mt-2 font-semibold text-black">
@@ -357,7 +390,7 @@ export function LandingPage() {
             </p>
             <Link
               href="/sign-up"
-              className="mt-8 inline-flex min-h-[48px] items-center rounded-xl bg-[#E9730C] px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-[#d4650a]"
+              className="mt-8 inline-flex min-h-[48px] items-center whitespace-nowrap rounded-xl bg-[#f97316] px-8 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#ea580c] active:scale-[0.98]"
             >
               Get started
               <ChevronRight className="ml-2 h-4 w-4" />
