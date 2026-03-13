@@ -63,8 +63,9 @@ function getActionColor(action: string): string {
 export default async function ActivityPage({
   searchParams,
 }: {
-  searchParams: { action?: string; entity_type?: string; search?: string };
+  searchParams: Promise<{ action?: string; entity_type?: string; search?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -105,11 +106,11 @@ export default async function ActivityPage({
     .limit(100);
 
   // Apply filters
-  if (searchParams.action) {
-    query = query.eq("action", searchParams.action);
+  if (resolvedSearchParams.action) {
+    query = query.eq("action", resolvedSearchParams.action);
   }
-  if (searchParams.entity_type) {
-    query = query.eq("entity_type", searchParams.entity_type);
+  if (resolvedSearchParams.entity_type) {
+    query = query.eq("entity_type", resolvedSearchParams.entity_type);
   }
 
   const { data: auditLogs, error } = await query;
