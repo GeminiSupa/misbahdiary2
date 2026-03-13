@@ -78,9 +78,30 @@ $$;
 
 do $$
 begin
-  create type public.matter_status as enum ('fresh diary', 'pending', 'execution', 'revision', 'review', 'appeal');
+  create type public.matter_status as enum ('fresh diary', 'pending', 'execution', 'revision', 'review', 'appeal', 'decided', 'disposed off', 'sine die adjourned');
 exception
   when duplicate_object then null;
+end
+$$;
+
+-- Ensure newer statuses exist even if type was created earlier
+do $$
+begin
+  begin
+    alter type public.matter_status add value 'decided';
+  exception
+    when duplicate_object then null;
+  end;
+  begin
+    alter type public.matter_status add value 'disposed off';
+  exception
+    when duplicate_object then null;
+  end;
+  begin
+    alter type public.matter_status add value 'sine die adjourned';
+  exception
+    when duplicate_object then null;
+  end;
 end
 $$;
 

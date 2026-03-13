@@ -5,6 +5,9 @@ export const matterStatusOptions = [
   { value: "revision", label: "Revision" },
   { value: "review", label: "Review" },
   { value: "appeal", label: "Appeal" },
+  { value: "decided", label: "Decided" },
+  { value: "disposed off", label: "Disposed off" },
+  { value: "sine die adjourned", label: "Sine-die adjourned" },
 ] as const;
 
 export const matterTypeOptions = [
