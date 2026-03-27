@@ -2,11 +2,16 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
+import fs from "node:fs";
+import path from "node:path";
 import {
   getBlogPost,
   getAllBlogSlugs,
-  getRelatedPosts,
-  type BlogPost,
+  getAllBlogs,
+  getLanguageRelatedBlogs,
+  getCrossLanguageBlogs,
+  inferBlogLanguage,
+  type BlogListItem,
 } from "@/lib/blog-posts";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
@@ -18,6 +23,118 @@ const baseUrl =
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+const INTERNAL_PHRASE_PATTERNS = [
+  { phrase: "case management", routes: ["/cases"] },
+  { phrase: "client management", routes: ["/clients"] },
+  { phrase: "legal documents", routes: ["/cases"] },
+  { phrase: "court hearings", routes: ["/calendar"] },
+  { phrase: "law firm software", routes: ["/blog"] },
+] as const;
+
+const AVAILABLE_ROUTES = getAvailableRoutes();
+
+function getAvailableRoutes(): Set<string> {
+  const routes = new Set<string>(["/"]);
+  const appDir = path.join(process.cwd(), "app");
+
+  if (!fs.existsSync(appDir)) {
+    return routes;
+  }
+
+  const walk = (currentDir: string, segments: string[]) => {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+
+    const hasPage = entries.some(
+      (entry) =>
+        entry.isFile() &&
+        ["page.tsx", "page.ts", "page.jsx", "page.js"].includes(entry.name),
+    );
+
+    if (hasPage) {
+      routes.add(segments.length === 0 ? "/" : `/${segments.join("/")}`);
+    }
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+
+      const segment = entry.name;
+      const absolutePath = path.join(currentDir, segment);
+
+      if (segment.startsWith("[")) continue;
+
+      if (segment.startsWith("(") && segment.endsWith(")")) {
+        walk(absolutePath, segments);
+        continue;
+      }
+
+      walk(absolutePath, [...segments, segment]);
+    }
+  };
+
+  walk(appDir, []);
+  return routes;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getContextualLinkMap(
+  availableRoutes: Set<string>,
+): Array<{ phrase: string; href: string }> {
+  const links: Array<{ phrase: string; href: string }> = [];
+
+  for (const pattern of INTERNAL_PHRASE_PATTERNS) {
+    const href = pattern.routes.find((route) =>
+      availableRoutes.has(route),
+    );
+
+    if (href) {
+      links.push({ phrase: pattern.phrase, href });
+    }
+  }
+
+  return links;
+}
+
+const CONTEXTUAL_LINKS = getContextualLinkMap(AVAILABLE_ROUTES);
+
+function injectContextualLinks(content: string, maxLinks = 5): string {
+  if (CONTEXTUAL_LINKS.length === 0) return content;
+
+  let inserted = 0;
+  const anchorPattern = /(<a\b[^>]*>[\s\S]*?<\/a>)/gi;
+  const parts = content.split(anchorPattern);
+
+  return parts
+    .map((part) => {
+      if (inserted >= maxLinks) return part;
+      if (/^<a\b/i.test(part)) return part;
+
+      return part.replace(/>([^<]+)</g, (segment, text: string) => {
+        if (inserted >= maxLinks) return segment;
+
+        let updated = text;
+
+        for (const link of CONTEXTUAL_LINKS) {
+          if (inserted >= maxLinks) break;
+
+          const regex = new RegExp(`\\b${escapeRegExp(link.phrase)}\\b`, "i");
+          if (!regex.test(updated)) continue;
+
+          updated = updated.replace(
+            regex,
+            (match) => `<a href="${link.href}">${match}</a>`,
+          );
+          inserted += 1;
+        }
+
+        return `>${updated}<`;
+      });
+    })
+    .join("");
+}
 
 export async function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -57,31 +174,65 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-function RelatedPosts({ currentSlug }: { currentSlug: string }) {
-  const related = getRelatedPosts(currentSlug, 3);
-  if (related.length === 0) return null;
+function SeoInternalLinks({
+  relatedBlogs,
+  crossLanguageBlogs,
+  language,
+}: {
+  relatedBlogs: BlogListItem[];
+  crossLanguageBlogs: BlogListItem[];
+  language: "ur" | "en";
+}) {
+  const crossLanguageLabel = language === "en" ? "Read in Urdu" : "Read in English";
+
+  if (relatedBlogs.length === 0 && crossLanguageBlogs.length === 0) return null;
+
   return (
     <aside className="mt-10 rounded-xl border border-black/10 bg-black/3 p-4 sm:mt-12 sm:p-6">
-      <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-black/60 sm:text-sm">
-        Related guides
-      </h3>
-      <ul className="space-y-3">
-        {related.map((p) => (
-          <li key={p.slug}>
-            <Link
-              href={`/blog/${p.slug}`}
-              className="block py-1 text-sm font-medium text-slate-800 transition hover:text-[#f97316] sm:text-base"
-            >
-              {p.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {relatedBlogs.length > 0 && (
+        <>
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-black/60 sm:text-sm">
+            Related Articles
+          </h3>
+          <ul className="space-y-3">
+            {relatedBlogs.map((blog) => (
+              <li key={blog.slug}>
+                <Link
+                  href={`/blog/${blog.slug}`}
+                  className="block py-1 text-sm font-medium text-slate-800 transition hover:text-[#f97316] sm:text-base"
+                >
+                  {blog.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {crossLanguageBlogs.length > 0 && (
+        <>
+          <h3 className="mb-4 mt-8 text-xs font-semibold uppercase tracking-wider text-black/60 sm:text-sm">
+            {crossLanguageLabel}
+          </h3>
+          <ul className="space-y-3">
+            {crossLanguageBlogs.map((blog) => (
+              <li key={blog.slug}>
+                <Link
+                  href={`/blog/${blog.slug}`}
+                  className="block py-1 text-sm font-medium text-slate-800 transition hover:text-[#f97316] sm:text-base"
+                >
+                  {blog.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </aside>
   );
 }
 
-function BlogContent({ post }: { post: BlogPost }) {
+function BlogContent({ content }: { content: string }) {
   return (
     <article
       className="blog-content
@@ -103,7 +254,7 @@ function BlogContent({ post }: { post: BlogPost }) {
       [&_thead_tr]:grid-cols-3 [&_tbody_tr]:grid-cols-3
       [&_thead_th]:bg-black/3 [&_thead_th]:px-3 [&_thead_th]:py-2.5 [&_thead_th]:text-left [&_thead_th]:text-xs [&_thead_th]:font-semibold [&_thead_th]:text-black/70 sm:[&_thead_th]:text-sm
       [&_tbody_td]:border-t [&_tbody_td]:border-black/10 [&_tbody_td]:px-3 [&_tbody_td]:py-2.5 [&_tbody_td]:align-top [&_tbody_td]:text-[14px] [&_tbody_td]:text-black/80 sm:[&_tbody_td]:text-[15px]"
-      dangerouslySetInnerHTML={{ __html: post.content.trim() }}
+      dangerouslySetInnerHTML={{ __html: content }}
     />
   );
 }
@@ -112,6 +263,13 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = getBlogPost(slug);
   if (!post) notFound();
+
+  const allBlogs = getAllBlogs();
+  const currentBlog = allBlogs.find((blog) => blog.slug === slug);
+  const language = currentBlog?.language ?? inferBlogLanguage(post);
+  const relatedBlogs = getLanguageRelatedBlogs(slug, 3, 5);
+  const crossLanguageBlogs = getCrossLanguageBlogs(slug, 2);
+  const linkedContent = injectContextualLinks(post.content.trim(), 5);
 
   const postUrl = `${baseUrl}/blog/${post.slug}`;
   const blogPostingLd = {
@@ -184,10 +342,14 @@ export default async function BlogPostPage({ params }: Props) {
             </time>
           </header>
 
-          <BlogContent post={post} />
-        </article>
+          <BlogContent content={linkedContent} />
 
-        <RelatedPosts currentSlug={slug} />
+          <SeoInternalLinks
+            relatedBlogs={relatedBlogs}
+            crossLanguageBlogs={crossLanguageBlogs}
+            language={language}
+          />
+        </article>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-black/10 pt-10 sm:flex-row sm:items-center sm:gap-6">
           <Link
