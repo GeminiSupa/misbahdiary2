@@ -8,6 +8,16 @@ export type BlogPost = {
   content: string;
 };
 
+export type BlogLanguage = "ur" | "en";
+
+export type BlogListItem = {
+  title: string;
+  slug: string;
+  language: BlogLanguage;
+};
+
+export type BlogTopic = "case" | "client" | "document" | "general";
+
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "why-use-digital-online-diary-pakistan-lawyers",
@@ -1062,4 +1072,84 @@ export function getAllBlogSlugs(): string[] {
 /** Get 2–3 related posts excluding the current slug */
 export function getRelatedPosts(currentSlug: string, count = 3): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.slug !== currentSlug).slice(0, count);
+}
+
+export function inferBlogLanguage(
+  post: Pick<BlogPost, "title" | "content">,
+): BlogLanguage {
+  if (/\blang\s*=\s*["']ur["']/i.test(post.content)) {
+    return "ur";
+  }
+
+  return /[\u0600-\u06FF]/.test(post.title) ? "ur" : "en";
+}
+
+export function getAllBlogs(): BlogListItem[] {
+  return BLOG_POSTS.map((post) => ({
+    title: post.title,
+    slug: post.slug,
+    language: inferBlogLanguage(post),
+  }));
+}
+
+export function getBlogTopic(title: string): BlogTopic {
+  const normalized = title.toLowerCase();
+
+  if (normalized.includes("case")) return "case";
+  if (normalized.includes("client")) return "client";
+  if (normalized.includes("document")) return "document";
+
+  return "general";
+}
+
+export function getLanguageRelatedBlogs(
+  currentSlug: string,
+  minCount = 3,
+  maxCount = 5,
+): BlogListItem[] {
+  const blogs = getAllBlogs();
+  const current = blogs.find((blog) => blog.slug === currentSlug);
+  if (!current) return [];
+
+  const currentTopic = getBlogTopic(current.title);
+  const candidates = blogs.filter((blog) => blog.slug !== currentSlug);
+
+  const sameTopicAndLanguage = candidates.filter(
+    (blog) =>
+      blog.language === current.language &&
+      getBlogTopic(blog.title) === currentTopic,
+  );
+
+  const sameLanguage = candidates.filter(
+    (blog) =>
+      blog.language === current.language &&
+      !sameTopicAndLanguage.some((prioritized) => prioritized.slug === blog.slug),
+  );
+
+  const anyLanguage = candidates.filter(
+    (blog) =>
+      !sameTopicAndLanguage.some((prioritized) => prioritized.slug === blog.slug) &&
+      !sameLanguage.some((prioritized) => prioritized.slug === blog.slug),
+  );
+
+  const targetCount = Math.min(maxCount, Math.max(minCount, blogs.length - 1));
+  return [...sameTopicAndLanguage, ...sameLanguage, ...anyLanguage].slice(
+    0,
+    targetCount,
+  );
+}
+
+export function getCrossLanguageBlogs(
+  currentSlug: string,
+  count = 2,
+): BlogListItem[] {
+  const blogs = getAllBlogs();
+  const current = blogs.find((blog) => blog.slug === currentSlug);
+  if (!current) return [];
+
+  return blogs
+    .filter(
+      (blog) => blog.slug !== currentSlug && blog.language !== current.language,
+    )
+    .slice(0, count);
 }

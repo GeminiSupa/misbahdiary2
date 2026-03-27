@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAllBlogs } from "@/lib/blog-posts";
 import { LandingPage } from "@/components/landing/landing-page";
 
 const baseUrl =
@@ -57,6 +59,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  const blogs = getAllBlogs();
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -64,7 +67,21 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return <LandingPage />;
+    return (
+      <>
+        <LandingPage />
+        <section className="sr-only" aria-label="Latest Articles">
+          <h2>Latest Articles</h2>
+          <ul>
+            {blogs.slice(0, 6).map((blog) => (
+              <li key={blog.slug}>
+                <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </>
+    );
   }
 
   const { data: profile } = await supabase
