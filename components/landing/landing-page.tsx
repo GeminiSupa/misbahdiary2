@@ -11,8 +11,15 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Prata } from "next/font/google";
 import { LandingFooter } from "@/components/landing/landing-footer";
+
+const prata = Prata({
+  subsets: ["latin"],
+  weight: "400",
+  fallback: ["Georgia", "serif"],
+});
 
 const baseUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.vakeeldiary.com";
@@ -102,8 +109,54 @@ const features = [
   },
 ];
 
+const productScreenshots = [
+  { src: "/screenshots/Dashboard.png", label: "Dashboard" },
+  { src: "/screenshots/Matters.png", label: "Matters" },
+  { src: "/screenshots/CalenderAndHearing.png", label: "Hearing Calendar" },
+  { src: "/screenshots/ClientProfiles.png", label: "Client Profiles" },
+  { src: "/screenshots/BillingAndFinance.png", label: "Billing & Finance" },
+  { src: "/screenshots/ActivityLogs.png", label: "Activity Logs" },
+  { src: "/screenshots/TeamMessages.png", label: "Team Messages" },
+];
+
 export function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [heroCards, setHeroCards] = useState(productScreenshots.slice(0, 5));
+  const pointerStartXRef = useRef<number | null>(null);
+  const swipeTriggeredRef = useRef(false);
+
+  const cycleHeroCards = () => {
+    setHeroCards((prev) => {
+      if (prev.length < 2) return prev;
+      return [...prev.slice(1), prev[0]];
+    });
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    pointerStartXRef.current = event.clientX;
+    swipeTriggeredRef.current = false;
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerStartXRef.current === null) return;
+
+    const deltaX = event.clientX - pointerStartXRef.current;
+    pointerStartXRef.current = null;
+
+    if (Math.abs(deltaX) > 30) {
+      swipeTriggeredRef.current = true;
+      cycleHeroCards();
+    }
+  };
+
+  const handleCardClick = () => {
+    if (swipeTriggeredRef.current) {
+      swipeTriggeredRef.current = false;
+      return;
+    }
+
+    cycleHeroCards();
+  };
 
   return (
     <>
@@ -111,7 +164,7 @@ export function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <div className="min-h-screen overflow-x-hidden bg-white">
+      <div className={`${prata.className} min-h-screen overflow-x-hidden bg-white [&_h1]:font-normal [&_h1]:leading-[1.25] [&_h2]:font-normal [&_h2]:leading-[1.25] [&_h3]:font-normal [&_h3]:leading-[1.3] [&_p]:leading-[1.65]`}>
         {/* Sticky Top Navigation */}
         <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur-md">
           <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
@@ -212,12 +265,12 @@ export function LandingPage() {
             <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
               {/* Left: Headline + CTAs */}
               <div className="text-center lg:text-left">
-                <h1 className="text-balance text-2xl font-bold tracking-tight text-black sm:text-3xl md:text-4xl lg:text-5xl xl:text-[2.75rem]">
-                  Manage Cases, Hearings, Billing — Built for Pakistani Advocates
+                <h1 className="text-balance text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl md:text-4xl lg:text-5xl xl:text-[2.75rem]">
+                  Lawyer Diary for Pakistani Advocates Manage Cases, Hearings and Clients
                 </h1>
                 <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-black/80 sm:text-lg lg:mx-0">
-                  One workspace for matters, clients, court dates, and invoices.
-                  Designed for how law firms operate in Pakistan.
+                  One workspace for cases, clients, court dates, and billing.
+                  Built for how law firms operate in Pakistan.
                 </p>
                 <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
                   <Link
@@ -250,17 +303,46 @@ export function LandingPage() {
                 </div>
               </div>
 
-              {/* Right: Dashboard screenshot */}
+              {/* Right: Swipeable product screenshots */}
               <div className="flex justify-center lg:justify-end">
-                <div className="relative w-full max-w-md">
-                  <Image
-                    src="/lawyer-diary-dashboard.png"
-                    alt="Lawyer Diary dashboard - case management, billing, calendar for Pakistani law firms"
-                    width={600}
-                    height={400}
-                    className="rounded-2xl border border-black/10 shadow-2xl w-full h-auto"
-                    priority
-                  />
+                <div
+                  className="relative h-[250px] w-[320px] select-none sm:h-[320px] sm:w-[500px]"
+                  onPointerDown={handlePointerDown}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={() => {
+                    pointerStartXRef.current = null;
+                  }}
+                  onClick={handleCardClick}
+                >
+                  {heroCards.map((item, index) => {
+                    const scale = Math.max(0.9, 1 - index * 0.03);
+                    const opacity = Math.max(0.7, 1 - index * 0.08);
+                    return (
+                    <article
+                      key={item.src}
+                      className="absolute left-0 top-0 h-[220px] w-[300px] rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:h-[280px] sm:w-[420px] sm:p-4"
+                      style={{
+                        transform: `translateX(${index * 20}px) translateY(${index * 10}px) rotate(${index * -2}deg) scale(${scale})`,
+                        zIndex: heroCards.length - index,
+                        opacity,
+                      }}
+                    >
+                      <span className="absolute left-4 top-4 rounded-md border border-black/10 bg-white/90 px-2 py-1 text-xs text-black/70">
+                        {item.label}
+                      </span>
+                      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-white pt-7 sm:pt-8">
+                        <Image
+                          src={item.src}
+                          alt={`${item.label} screenshot`}
+                          width={900}
+                          height={600}
+                          className="h-full w-full object-contain"
+                          draggable={false}
+                        />
+                      </div>
+                    </article>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -273,7 +355,7 @@ export function LandingPage() {
           className="border-b border-black/10 bg-white py-16 sm:py-20 lg:py-24"
         >
           <div className="mx-auto max-w-6xl px-4">
-            <h2 className="text-center text-2xl font-bold text-black sm:text-3xl">
+            <h2 className={`${prata.className} text-center text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl`}>
               Everything You Need to Run Your Practice
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-base text-black/70">
@@ -294,7 +376,7 @@ export function LandingPage() {
                     <p className="mt-4 text-sm font-medium text-[#f97316]">
                       {feature.metric}
                     </p>
-                    <h3 className="mt-2 font-semibold text-black">
+                    <h3 className={`${prata.className} mt-2 font-normal leading-[1.3] tracking-normal text-black`}>
                       {feature.title}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-black/70">
@@ -313,7 +395,7 @@ export function LandingPage() {
           className="border-b border-black/10 bg-slate-50/50 py-16 sm:py-20 lg:py-24"
         >
           <div className="mx-auto max-w-6xl px-4">
-            <h2 className="text-center text-2xl font-bold text-black sm:text-3xl">
+            <h2 className={`${prata.className} text-center text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl`}>
               Trusted by Advocates Across Pakistan
             </h2>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-black/60">
@@ -353,7 +435,7 @@ export function LandingPage() {
           <div className="mx-auto max-w-6xl px-4">
             <div className="grid gap-10 md:grid-cols-2">
               <div className="rounded-xl border border-black/10 bg-slate-50 p-6">
-                <h3 className="text-lg font-semibold text-black">
+                <h3 className={`${prata.className} text-lg font-normal leading-[1.3] tracking-normal text-black`}>
                   For Solo Practitioners
                 </h3>
                 <p className="mt-2 text-sm text-black/70">
@@ -362,7 +444,7 @@ export function LandingPage() {
                 </p>
               </div>
               <div className="rounded-xl border border-black/10 bg-slate-50 p-6">
-                <h3 className="text-lg font-semibold text-black">
+                <h3 className={`${prata.className} text-lg font-normal leading-[1.3] tracking-normal text-black`}>
                   For Law Firms
                 </h3>
                 <p className="mt-2 text-sm text-black/70">
@@ -380,7 +462,7 @@ export function LandingPage() {
           className="border-b border-black/10 bg-slate-50/50 py-16 sm:py-20"
         >
           <div className="mx-auto max-w-3xl px-4 text-center">
-            <h2 className="text-2xl font-bold text-black sm:text-3xl">
+            <h2 className={`${prata.className} text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl`}>
               Built for Pakistani Legal Practice
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base text-black/70">

@@ -31,6 +31,14 @@ export const metadata: Metadata = {
   verification: {
     google: "u517o2FOWT9NPw36PnH1CdDQcfXhjPetms-MjehW--E",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: [{ url: "/favicon.ico" }],
+  },
 };
 
 export default async function RootLayout({

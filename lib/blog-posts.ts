@@ -16,9 +16,74 @@ export type BlogListItem = {
   language: BlogLanguage;
 };
 
-export type BlogTopic = "case" | "client" | "document" | "general";
+export type BlogTopic =
+  | "case"
+  | "client"
+  | "document"
+  | "legal"
+  | "corporate"
+  | "general";
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: "secp-kya-karta-hai-pakistan-mukammal-guide-qawaneen-sections-rules",
+    image: "/images/blog/documents.svg",
+    imageAlt: "SECP laws and regulations guide illustration",
+    title: "SECP کیا کرتا ہے پاکستان میں مکمل گائیڈ قوانین سیکشنز اور رولز",
+    description:
+      "پاکستان میں SECP کے کردار، اہم قوانین، سیکشنز، اور ریگولیشنز پر ایک جامع اردو گائیڈ۔",
+    publishedAt: "2026-03-28",
+    content: `
+<div lang="ur" dir="rtl">
+  <h1>SECP کیا کرتا ہے پاکستان میں مکمل گائیڈ</h1>
+
+  <h2>تعارف</h2>
+  <p>پاکستان میں کاروباری نظام کو قانونی اور منظم رکھنے کے لیے Securities and Exchange Commission of Pakistan یعنی SECP ایک مرکزی کردار ادا کرتا ہے۔ اگر آپ کمپنی رجسٹر کرنا چاہتے ہیں، <strong>case management system</strong> بہتر بنانا چاہتے ہیں، یا <strong>legal document management</strong> کو منظم کرنا چاہتے ہیں تو SECP کے قوانین کو سمجھنا بہت ضروری ہے۔</p>
+
+  <h2>SECP کے اہم کام</h2>
+  <p>SECP درج ذیل شعبوں کو ریگولیٹ کرتا ہے:</p>
+  <ul>
+    <li><strong>کمپنیاں اور کارپوریٹ سیکٹر:</strong> کمپنی رجسٹریشن، سالانہ فائلنگ، اور case management سے متعلق امور</li>
+    <li><strong>اسٹاک مارکیٹ:</strong> سرمایہ کاری، بروکرز، اور investor protection</li>
+    <li><strong>انشورنس سیکٹر:</strong> انشورنس کمپنیوں اور پالیسی ہولڈرز کے حقوق</li>
+    <li><strong>نان بینک فنانشل ادارے:</strong> لیزنگ، mutual funds، اور pension systems</li>
+    <li><strong>ریگولیٹری سروس پرووائیڈرز:</strong> آڈیٹرز، ریٹنگ ایجنسیاں، اور corporate compliance</li>
+  </ul>
+
+  <h2>اہم قوانین اور سیکشنز</h2>
+  <p><strong>Companies Act 2017</strong> کے اہم سیکشنز:</p>
+  <ul>
+    <li><strong>کمپنی رجسٹریشن:</strong> Sections 10 تا 16 کمپنی کا نام، Sections 17 تا 29 رجسٹریشن، Sections 30 تا 33 رجسٹریشن کے اثرات</li>
+    <li><strong>شیئر کیپیٹل:</strong> Sections 68 تا 87 شیئر کیپیٹل، Sections 88 تا 105 شیئر ٹرانسفر</li>
+    <li><strong>ڈائریکٹرز اور مینجمنٹ:</strong> Sections 147 تا 181 بورڈ آف ڈائریکٹرز، Sections 182 تا 187 میٹنگز، Sections 197 تا 206 آڈیٹرز</li>
+    <li><strong>اکاؤنٹس اور آڈٹ:</strong> Sections 223 تا 237 فنانشل اسٹیٹمنٹس</li>
+  </ul>
+
+  <p><strong>SECP Act 1997</strong> اہم پوائنٹس:</p>
+  <ul>
+    <li>Section 5 اختیارات</li>
+    <li>Section 20 ڈیلیگیشن</li>
+    <li>Section 29 سزائیں</li>
+    <li>Section 30 اپیل</li>
+  </ul>
+
+  <h2>اہم ریگولیشنز</h2>
+  <ul>
+    <li>Companies Incorporation Regulations 2017</li>
+    <li>Corporate Governance Regulations 2019</li>
+    <li>Public Offering Regulations 2017</li>
+    <li>NBFC Regulations 2008</li>
+    <li>Insurance Ordinance 2000</li>
+  </ul>
+
+  <h2>قانونی کام کو آسان کیسے بنائیں</h2>
+  <p>اگر آپ اپنی قانونی پریکٹس کو بہتر بنانا چاہتے ہیں تو آپ کو ایک اچھا <strong>case management system</strong> اور <strong>client management system</strong> استعمال کرنا چاہیے تاکہ آپ اپنے کیسز، کلائنٹس اور دستاویزات کو بہتر طریقے سے manage کر سکیں۔ اس کے ساتھ <strong>legal document management</strong> اپنانا آپ کے ریکارڈ کو زیادہ محفوظ اور قابل تلاش بناتا ہے۔</p>
+
+  <h2>نتیجہ</h2>
+  <p>SECP پاکستان میں کاروباری نظام کو محفوظ اور شفاف رکھنے میں اہم کردار ادا کرتا ہے۔ اگر آپ ایک وکیل یا بزنس اونر ہیں تو ان قوانین کو سمجھنا آپ کے لیے بہت ضروری ہے۔</p>
+</div>
+`,
+  },
   {
     slug: "why-use-digital-online-diary-pakistan-lawyers",
     image: "/images/blog/online.svg",
@@ -1095,6 +1160,14 @@ export function getAllBlogs(): BlogListItem[] {
 export function getBlogTopic(title: string): BlogTopic {
   const normalized = title.toLowerCase();
 
+  if (normalized.includes("secp")) return "legal";
+  if (
+    normalized.includes("company") ||
+    normalized.includes("companies") ||
+    normalized.includes("کمپنی")
+  ) {
+    return "corporate";
+  }
   if (normalized.includes("case")) return "case";
   if (normalized.includes("client")) return "client";
   if (normalized.includes("document")) return "document";

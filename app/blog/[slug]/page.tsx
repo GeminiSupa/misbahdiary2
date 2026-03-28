@@ -25,9 +25,9 @@ type Props = {
 };
 
 const INTERNAL_PHRASE_PATTERNS = [
-  { phrase: "case management", routes: ["/cases"] },
-  { phrase: "client management", routes: ["/clients"] },
-  { phrase: "legal documents", routes: ["/cases"] },
+  { phrase: "case management system", routes: ["/cases"] },
+  { phrase: "client management system", routes: ["/clients"] },
+  { phrase: "legal document management", routes: ["/cases"] },
   { phrase: "court hearings", routes: ["/calendar"] },
   { phrase: "law firm software", routes: ["/blog"] },
 ] as const;

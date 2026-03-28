@@ -14,11 +14,11 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 type InvitePageProps = {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 };
 
 export default async function InvitePage({ params }: InvitePageProps) {
-  const token = params.token;
+  const { token } = await params;
 
   if (!token || token.length < 10) {
     redirect("/");

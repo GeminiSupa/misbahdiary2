@@ -8,9 +8,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export default async function OAuthRedirectPage({
   searchParams,
 }: {
-  searchParams: { code?: string; error?: string; error_description?: string };
+  searchParams: Promise<{
+    code?: string;
+    error?: string;
+    error_description?: string;
+  }>;
 }) {
-  const { code, error: errorParam, error_description } = searchParams;
+  const { code, error: errorParam, error_description } = await searchParams;
 
   // Handle OAuth errors
   if (errorParam) {

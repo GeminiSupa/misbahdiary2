@@ -2,11 +2,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 type SearchPageProps = {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string }>;
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = (searchParams.q ?? "").trim();
+  const resolvedSearchParams = await searchParams;
+  const query = (resolvedSearchParams.q ?? "").trim();
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
