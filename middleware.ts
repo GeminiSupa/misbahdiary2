@@ -59,6 +59,10 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const pathname = request.nextUrl.pathname;
+  const isClientRoute = pathname.startsWith("/client/");
+  const isLawyerRoute = pathname.startsWith("/lawyer/");
+
   // Public routes that don't require authentication
   // NOTE: `/auth/callback` must be public or OAuth code exchange will be blocked by middleware.
   const publicRoutes = [
@@ -72,26 +76,59 @@ export async function middleware(request: NextRequest) {
     "/terms",
     "/api/webhooks",
   ];
-  const pathname = request.nextUrl.pathname;
+
   const isPublicRoute =
     pathname === "/" || // Landing page for SEO
     publicRoutes.some((route) => pathname.startsWith(route));
 
-  // If not authenticated and trying to access protected route, redirect to sign-in
-  if (!user && !isPublicRoute && !request.nextUrl.pathname.startsWith("/api")) {
+  // Resolve client mapping once for client/lawyer specific routes.
+  let clientForUser: { id: string } | null = null;
+  if (user && (isClientRoute || isLawyerRoute)) {
+    const { data: client } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("auth_user_id", user.id)
+      .eq("portal_enabled", true)
+      .maybeSingle();
+    clientForUser = client ?? null;
+  }
+
+  // Client routes: require authenticated, mapped client portal user.
+  if (isClientRoute) {
+    if (!user) {
+      const signInUrl = new URL("/sign-in", request.url);
+      signInUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    if (!clientForUser) {
+      const signInUrl = new URL("/sign-in", request.url);
+      signInUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  }
+
+  // Lawyer routes: block client users and send them to client dashboard.
+  if (isLawyerRoute && user && clientForUser) {
+    const clientDashboardUrl = new URL("/client/dashboard", request.url);
+    return NextResponse.redirect(clientDashboardUrl);
+  }
+
+  // If not authenticated and trying to access protected non-API route, redirect to sign-in
+  if (!user && !isPublicRoute && !pathname.startsWith("/api")) {
     const signInUrl = new URL("/sign-in", request.url);
-    signInUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    signInUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(signInUrl);
   }
 
-  // If authenticated, check subscription for ALL app routes
+  // If authenticated, check subscription for ALL app routes (excluding public + API)
   // Block access to everything except subscription, onboarding, and public routes when expired
-  if (user && !isPublicRoute && !request.nextUrl.pathname.startsWith("/api")) {
+  if (user && !isPublicRoute && !pathname.startsWith("/api")) {
     // Always allow access to subscription, onboarding, and user manual pages
     if (
-      request.nextUrl.pathname.startsWith("/subscription") ||
-      request.nextUrl.pathname.startsWith("/onboarding") ||
-      request.nextUrl.pathname.startsWith("/user-manual")
+      pathname.startsWith("/subscription") ||
+      pathname.startsWith("/onboarding") ||
+      pathname.startsWith("/user-manual")
     ) {
       return response;
     }
@@ -105,7 +142,7 @@ export async function middleware(request: NextRequest) {
       .maybeSingle();
 
     // Always allow /admin - admin pages do their own super-admin check
-    if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (pathname.startsWith("/admin")) {
       return response;
     }
 

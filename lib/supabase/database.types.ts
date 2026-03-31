@@ -234,6 +234,7 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          auth_user_id: string | null
           city: string | null
           cnic: string | null
           country: string | null
@@ -245,6 +246,7 @@ export type Database = {
           id: string
           notes: string | null
           organization_name: string | null
+          portal_enabled: boolean
           phone: string | null
           province: string | null
           type: Database["public"]["Enums"]["client_type"]
@@ -252,6 +254,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auth_user_id?: string | null
           city?: string | null
           cnic?: string | null
           country?: string | null
@@ -263,6 +266,7 @@ export type Database = {
           id?: string
           notes?: string | null
           organization_name?: string | null
+          portal_enabled?: boolean
           phone?: string | null
           province?: string | null
           type?: Database["public"]["Enums"]["client_type"]
@@ -270,6 +274,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auth_user_id?: string | null
           city?: string | null
           cnic?: string | null
           country?: string | null
@@ -281,6 +286,7 @@ export type Database = {
           id?: string
           notes?: string | null
           organization_name?: string | null
+          portal_enabled?: boolean
           phone?: string | null
           province?: string | null
           type?: Database["public"]["Enums"]["client_type"]
