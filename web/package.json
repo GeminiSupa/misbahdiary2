@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
-    "build": "next build",
-    "start": "next start",
+    "dev": "echo \"This legacy /web app is disabled. Run dev from repository root.\" && exit 1",
+    "build": "echo \"This legacy /web app is disabled. Set Vercel Root Directory to repository root (/).\" && exit 1",
+    "start": "echo \"This legacy /web app is disabled. Use root app instead.\" && exit 1",
     "lint": "eslint",
     "supabase:types": "supabase gen types typescript --project-id xsdqwbcpvdreawkyvpnk --schema public --out lib/supabase/database.types.ts",
     "supabase:apply": "node ./scripts/apply-schema.mjs",
