@@ -9,10 +9,11 @@ import type { ClientFormValues } from "@/app/(app)/clients/actions";
 
 type EditClientSheetProps = {
   client: ClientFormValues;
+  portalEnabled?: boolean;
   trigger?: React.ReactNode;
 };
 
-export function EditClientSheet({ client, trigger }: EditClientSheetProps) {
+export function EditClientSheet({ client, portalEnabled = false, trigger }: EditClientSheetProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -42,6 +43,7 @@ export function EditClientSheet({ client, trigger }: EditClientSheetProps) {
         <div className="mt-6">
           <ClientForm
             initialClient={client}
+            initialPortalEnabled={portalEnabled}
             onSuccess={() => setOpen(false)}
           />
         </div>

@@ -46,7 +46,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
   const { data: client, error: clientError } = await supabase
     .from("clients")
     .select(
-      "id, type, name, full_name, father_name, representation, representative_details, organization_name, email, phone, address, city, province, country, cnic, notes",
+      "id, type, name, full_name, father_name, representation, representative_details, organization_name, email, phone, address, city, province, country, cnic, notes, portal_enabled",
     )
     .eq("firm_id", profile.firm_id)
     .eq("id", id)
@@ -159,7 +159,10 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
               <Badge variant="outline" className="capitalize text-sm font-medium">
                 {clientData.type as string}
               </Badge>
-              <EditClientSheet client={clientFormValues} />
+              <EditClientSheet
+                client={clientFormValues}
+                portalEnabled={Boolean(clientData.portal_enabled)}
+              />
               <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                 <a href={`/api/clients/${clientData.id}/pdf`} download target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <Download className="h-4 w-4 shrink-0" />
@@ -190,7 +193,10 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                 Background information shared with your team, including representation capacity.
               </p>
             </div>
-            <EditClientSheet client={clientFormValues} />
+            <EditClientSheet
+              client={clientFormValues}
+              portalEnabled={Boolean(clientData.portal_enabled)}
+            />
           </div>
           <Separator />
           <div className="grid gap-4 md:grid-cols-2">

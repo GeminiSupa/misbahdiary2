@@ -43,14 +43,24 @@ import { clientSchemaForForm, type ClientSchemaForForm } from "@/lib/validation/
 
 type ClientFormProps = {
   initialClient?: ClientFormValues | null;
+  initialPortalEnabled?: boolean;
   onReset?: () => void;
   onSuccess?: () => void;
 };
 
-export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProps) {
+export function ClientForm({
+  initialClient,
+  initialPortalEnabled = false,
+  onReset,
+  onSuccess,
+}: ClientFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [portalEnabled, setPortalEnabled] = useState(initialPortalEnabled);
+  const [isPortalUpdating, setIsPortalUpdating] = useState(false);
+  const [portalMessage, setPortalMessage] = useState<string | null>(null);
+  const [portalError, setPortalError] = useState<string | null>(null);
 
   const form = useForm<ClientSchemaForForm>({
     resolver: zodResolver(clientSchemaForForm),
@@ -94,6 +104,12 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
       representativeCapacity: initialClient?.representativeCapacity ?? "",
     });
   }, [initialClient, form]);
+
+  useEffect(() => {
+    setPortalEnabled(initialPortalEnabled);
+    setPortalMessage(null);
+    setPortalError(null);
+  }, [initialPortalEnabled, initialClient?.id]);
 
   const handleSubmit = async (values: ClientSchemaForForm) => {
     setFormError(null);
@@ -158,6 +174,43 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
   const isEditing = Boolean(initialClient?.id);
   const representation = useWatch({ control: form.control, name: "representation" });
   const clientType = useWatch({ control: form.control, name: "type" });
+
+  const handlePortalToggle = async (checked: boolean) => {
+    if (!initialClient?.id || isPortalUpdating) {
+      return;
+    }
+
+    const previousValue = portalEnabled;
+    setPortalEnabled(checked);
+    setPortalMessage(null);
+    setPortalError(null);
+    setIsPortalUpdating(true);
+
+    try {
+      const endpoint = checked
+        ? `/api/lawyer/clients/${initialClient.id}/enable-portal`
+        : `/api/lawyer/clients/${initialClient.id}/disable-portal`;
+
+      const response = await fetch(endpoint, { method: "POST" });
+      const payload = (await response.json().catch(() => ({}))) as { message?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.message || "Could not update client portal access.");
+      }
+
+      if (checked) {
+        setPortalMessage("Client portal enabled. Login link sent to email.");
+      } else {
+        setPortalMessage("Client portal disabled.");
+      }
+      router.refresh();
+    } catch (error) {
+      setPortalEnabled(previousValue);
+      setPortalError(error instanceof Error ? error.message : "Could not update client portal access.");
+    } finally {
+      setIsPortalUpdating(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -527,6 +580,43 @@ export function ClientForm({ initialClient, onReset, onSuccess }: ClientFormProp
           </div>
 
           <Separator />
+
+          {isEditing ? (
+            <>
+              <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-medium text-foreground">Client Portal</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Allow this client to log in and view their case details.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant={portalEnabled ? "default" : "outline"}
+                    size="sm"
+                    disabled={isPortalUpdating}
+                    onClick={() => void handlePortalToggle(!portalEnabled)}
+                    className="min-w-[90px]"
+                  >
+                    {isPortalUpdating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving
+                      </>
+                    ) : portalEnabled ? (
+                      "Enabled"
+                    ) : (
+                      "Disabled"
+                    )}
+                  </Button>
+                </div>
+                {portalMessage ? <p className="text-sm text-emerald-600">{portalMessage}</p> : null}
+                {portalError ? <p className="text-sm text-destructive">{portalError}</p> : null}
+              </div>
+              <Separator />
+            </>
+          ) : null}
 
           {/* Submit Button */}
           <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
