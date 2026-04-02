@@ -18,8 +18,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const errorParam = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
-  // if "next" param exists → redirect there after login
-  const next = searchParams.get("next") ?? "/";
+  const next = searchParams.get("next") ?? searchParams.get("redirect") ?? "/dashboard";
 
   // Check for OAuth provider errors (e.g., user denied access)
   if (errorParam) {

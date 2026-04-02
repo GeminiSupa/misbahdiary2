@@ -12,9 +12,12 @@ export default async function OAuthRedirectPage({
     code?: string;
     error?: string;
     error_description?: string;
+    next?: string;
+    redirect?: string;
   }>;
 }) {
-  const { code, error: errorParam, error_description } = await searchParams;
+  const { code, error: errorParam, error_description, next, redirect: redirectTo } = await searchParams;
+  const successRedirect = next || redirectTo || "/dashboard";
 
   // Handle OAuth errors
   if (errorParam) {
@@ -40,6 +43,5 @@ export default async function OAuthRedirectPage({
     redirect("/sign-in?error=" + encodeURIComponent("Failed to create session"));
   }
 
-  // Redirect to home page - it will handle routing to onboarding or dashboard
-  redirect("/");
+  redirect(successRedirect);
 }

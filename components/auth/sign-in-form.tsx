@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
@@ -36,6 +36,7 @@ export function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { supabase } = useSupabase();
+  const hasHandledCodeExchange = useRef(false);
   const [error, setError] = useState<string | null>(() => {
     const errorParam = params.get("error");
     if (errorParam) {
@@ -51,6 +52,37 @@ export function SignInForm() {
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
+
+  useEffect(() => {
+    if (!supabase || hasHandledCodeExchange.current) {
+      return;
+    }
+
+    const code = new URLSearchParams(window.location.search).get("code");
+    if (!code) {
+      return;
+    }
+
+    hasHandledCodeExchange.current = true;
+
+    const completeMagicLinkSignIn = async () => {
+      setError(null);
+      setInfo("Completing your secure sign-in...");
+
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (exchangeError) {
+        setInfo(null);
+        setError(exchangeError.message || "Failed to complete sign in. Please request a new magic link.");
+        return;
+      }
+
+      router.replace("/dashboard");
+      router.refresh();
+    };
+
+    void completeMagicLinkSignIn();
+  }, [supabase, router]);
 
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(credentialsSchema),
