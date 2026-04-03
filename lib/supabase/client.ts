@@ -13,7 +13,11 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
     // This should never happen if called correctly, but prevents crashes during SSR
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-    return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
+    return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        flowType: "pkce",
+      },
+    });
   }
 
   if (browserClient) return browserClient;
@@ -30,10 +34,11 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
     console.error(errorMsg);
     
     // Create a client with invalid URL so errors are clear
-    browserClient = createBrowserClient<Database>(
-      supabaseUrl || "",
-      supabaseAnonKey || ""
-    );
+    browserClient = createBrowserClient<Database>(supabaseUrl || "", supabaseAnonKey || "", {
+      auth: {
+        flowType: "pkce",
+      },
+    });
     return browserClient;
   }
 
@@ -42,7 +47,11 @@ export const getBrowserClient = (): SupabaseClient<Database> => {
   // The code verifier will be stored in cookies automatically when signInWithOAuth is called
   // NOTE: If PKCE errors occur, the cookie might not be persisting through redirects
   // This could be due to cookie attributes (SameSite, Secure) or browser settings
-  browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
+  browserClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      flowType: "pkce",
+    },
+  });
   return browserClient;
 };
 

@@ -15,10 +15,7 @@ import {
 } from "@/lib/blog-posts";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://www.vakeeldiary.com";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 type Props = {
   params: Promise<{ slug: string }>;

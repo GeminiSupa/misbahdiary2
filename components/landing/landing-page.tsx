@@ -21,8 +21,7 @@ const prata = Prata({
   fallback: ["Georgia", "serif"],
 });
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.vakeeldiary.com";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 const structuredData = [
   {

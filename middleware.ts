@@ -106,6 +106,9 @@ export async function middleware(request: NextRequest) {
       signInUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(signInUrl);
     }
+
+    // Valid portal session: skip subscription checks (portal users are not firm subscribers).
+    return response;
   }
 
   // Lawyer routes: block client users and send them to client dashboard.

@@ -51,13 +51,18 @@ export function SignUpForm() {
     setError(null);
     setIsSubmitting(true);
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+    if (!siteUrl) {
+      setError("NEXT_PUBLIC_SITE_URL is not configured.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error: signUpError } = await supabase.auth.signUp({
       email: values.email.trim(),
       password: values.password,
       options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-          "http://localhost:3000/auth/callback",
+        emailRedirectTo: `${siteUrl}/auth/callback`,
         data: {
           full_name: values.fullName.trim(),
         },

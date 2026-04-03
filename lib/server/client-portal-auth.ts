@@ -66,10 +66,11 @@ export async function getOrCreateAuthUser(normalizedEmail: string) {
 }
 
 function getPortalRedirectUrl(requestOrigin: string): string {
+  // Prefer env (must match Supabase Auth redirect allow list). Dev fallback: localhost.
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
-    requestOrigin;
+    (process.env.NODE_ENV === "development" ? "http://localhost:3000" : requestOrigin);
   const redirectUrl = new URL("/auth/callback", baseUrl);
   redirectUrl.searchParams.set("next", "/client/dashboard");
   return redirectUrl.toString();

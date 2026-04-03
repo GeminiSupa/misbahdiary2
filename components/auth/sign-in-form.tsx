@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
@@ -36,7 +36,6 @@ export function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { supabase } = useSupabase();
-  const hasHandledCodeExchange = useRef(false);
   const [error, setError] = useState<string | null>(() => {
     const errorParam = params.get("error");
     if (errorParam) {
@@ -54,35 +53,27 @@ export function SignInForm() {
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
 
   useEffect(() => {
-    if (!supabase || hasHandledCodeExchange.current) {
+    if (!supabase) {
       return;
     }
 
-    const code = new URLSearchParams(window.location.search).get("code");
-    if (!code) {
-      return;
-    }
+    const cleanupInvalidSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    hasHandledCodeExchange.current = true;
-
-    const completeMagicLinkSignIn = async () => {
-      setError(null);
-      setInfo("Completing your secure sign-in...");
-
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-      if (exchangeError) {
-        setInfo(null);
-        setError(exchangeError.message || "Failed to complete sign in. Please request a new magic link.");
+      if (!session) {
         return;
       }
 
-      router.replace("/dashboard");
-      router.refresh();
+      const { error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        await supabase.auth.signOut();
+      }
     };
 
-    void completeMagicLinkSignIn();
-  }, [supabase, router]);
+    void cleanupInvalidSession();
+  }, [supabase]);
 
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(credentialsSchema),
@@ -210,15 +201,10 @@ export function SignInForm() {
     // Suppress warnings before redirect
     suppressGoogleOAuthWarnings();
 
-    // IMPORTANT: redirectTo MUST use the same hostname the user is currently on.
-    // Example bug: user visits http://0.0.0.0:3000 but redirectTo is http://localhost:3000/auth/callback
-    // -> PKCE cookie is set for one host, callback returns to another -> "PKCE code verifier not found".
-    const redirectUrl = window.location.origin.concat("/auth/callback");
+    const redirectUrl = "http://localhost:3000/auth/callback";
 
     console.log("🔗 Redirect URL:", redirectUrl);
     console.log("🔗 Site URL env:", process.env.NEXT_PUBLIC_SITE_URL);
-    console.log("🔗 Window origin:", window.location.origin);
-
     try {
       console.log("🔄 Initiating client-side OAuth (required for PKCE cookie storage):", redirectUrl);
 
@@ -267,6 +253,8 @@ export function SignInForm() {
       return;
     }
 
+    const callbackUrl = "http://localhost:3000/auth/callback";
+
     setError(null);
     setInfo(null);
     setIsSubmitting(true);
@@ -275,7 +263,7 @@ export function SignInForm() {
       const { error: magicError } = await supabase.auth.signInWithOtp({
         email: values.email.trim(),
         options: {
-          emailRedirectTo: window.location.origin.concat("/auth/callback"),
+          emailRedirectTo: callbackUrl,
         },
       });
 

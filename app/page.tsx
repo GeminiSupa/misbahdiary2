@@ -5,10 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAllBlogs } from "@/lib/blog-posts";
 import { LandingPage } from "@/components/landing/landing-page";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://www.vakeeldiary.com";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -39,6 +39,23 @@ export function SignInForm() {
   const [error, setError] = useState<string | null>(() => params.get("error"));
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const cleanupInvalidSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      const { error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        await supabase.auth.signOut();
+      }
+    };
+
+    void cleanupInvalidSession();
+  }, [supabase]);
 
   const form = useForm<CredentialsFormValues>({
     resolver: zodResolver(credentialsSchema),
@@ -108,13 +125,13 @@ export function SignInForm() {
     setInfo(null);
     setIsSubmitting(true);
 
+    const callbackUrl = "http://localhost:3000/auth/callback";
+
     try {
       const { error: magicError } = await supabase.auth.signInWithOtp({
         email: values.email.trim(),
         options: {
-          emailRedirectTo:
-            process.env.NEXT_PUBLIC_SITE_URL?.concat("/auth/callback") ??
-            "http://localhost:3000/auth/callback",
+          emailRedirectTo: callbackUrl,
         },
       });
 

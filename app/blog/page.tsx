@@ -4,10 +4,7 @@ import type { Metadata } from "next";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://www.vakeeldiary.com";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   title: "Blog – Guides for Pakistani Advocates | Lawyer Diary",
