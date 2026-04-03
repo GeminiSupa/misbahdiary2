@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase/client";
 
@@ -11,27 +11,40 @@ function safeNextPath(next: string | null): string {
   return next;
 }
 
-/**
- * Magic links can return either:
- * - PKCE: ?code=...&... (server-visible; we exchange on client)
- * - Implicit: #access_token=... (hash is NOT sent to the server — must run in browser)
- *
- * This page must stay client-only for hash tokens; a Route Handler cannot see #fragments.
- */
-function AuthCallbackInner() {
+const SESSION_RETRIES = [0, 50, 150, 300, 500];
+
+function AuthCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = useMemo(() => getBrowserClient(), []);
-  const [error, setError] = useState<string | null>(null);
+  const queryKey = searchParams.toString();
 
   useEffect(() => {
     let cancelled = false;
 
+    const failToSignIn = () => {
+      router.replace("/sign-in?error=link-expired");
+    };
+
+    const waitForSession = async () => {
+      const supabase = getBrowserClient();
+      for (const ms of SESSION_RETRIES) {
+        if (ms > 0) {
+          await new Promise((r) => setTimeout(r, ms));
+        }
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          return data.session;
+        }
+      }
+      return null;
+    };
+
     const complete = async () => {
-      const next = safeNextPath(searchParams.get("next"));
-      const code = searchParams.get("code");
-      const oauthError = searchParams.get("error");
-      const oauthErrorDesc = searchParams.get("error_description");
+      const params = new URLSearchParams(queryKey);
+      const next = safeNextPath(params.get("next"));
+      const code = params.get("code");
+      const oauthError = params.get("error");
+      const oauthErrorDesc = params.get("error_description");
 
       if (oauthError) {
         router.replace(
@@ -41,48 +54,31 @@ function AuthCallbackInner() {
       }
 
       try {
+        const supabase = getBrowserClient();
+
         if (code) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) {
             if (!cancelled) {
-              setError(exchangeError.message || "Failed to complete sign in.");
+              failToSignIn();
             }
             return;
           }
-        } else {
-          // Implicit / hash flow: Supabase client parses URL on init (detectSessionInUrl).
-          // Wait a tick so _initialize can finish.
-          await new Promise((r) => setTimeout(r, 0));
-          const { data: s1 } = await supabase.auth.getSession();
-          if (!s1.session) {
-            await new Promise((r) => setTimeout(r, 150));
-            const { data: s2 } = await supabase.auth.getSession();
-            if (!s2.session) {
-              if (!cancelled) {
-                setError(
-                  "Could not establish a session from this link. If tokens are in the URL hash, ensure you opened the link to /auth/callback (not /sign-in).",
-                );
-              }
-              return;
-            }
-          }
         }
 
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const session = await waitForSession();
         if (!session) {
           if (!cancelled) {
-            setError("Session not available after sign in.");
+            failToSignIn();
           }
           return;
         }
 
         router.replace(next);
         router.refresh();
-      } catch (e) {
+      } catch {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Something went wrong.");
+          failToSignIn();
         }
       }
     };
@@ -91,14 +87,12 @@ function AuthCallbackInner() {
     return () => {
       cancelled = true;
     };
-  }, [router, searchParams, supabase]);
+  }, [router, queryKey]);
 
   return (
-    <div className="space-y-4 text-center px-4">
+    <div className="space-y-4 px-4 text-center">
       <h1 className="text-2xl font-semibold text-foreground">Completing sign in</h1>
-      <p className="text-sm text-muted-foreground">
-        {error ?? "Please wait while we securely sign you in."}
-      </p>
+      <p className="text-sm text-muted-foreground">Please wait while we securely sign you in.</p>
     </div>
   );
 }
@@ -107,13 +101,13 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="space-y-4 text-center px-4">
+        <div className="space-y-4 px-4 text-center">
           <h1 className="text-2xl font-semibold text-foreground">Completing sign in</h1>
           <p className="text-sm text-muted-foreground">Loading…</p>
         </div>
       }
     >
-      <AuthCallbackInner />
+      <AuthCallbackHandler />
     </Suspense>
   );
 }
