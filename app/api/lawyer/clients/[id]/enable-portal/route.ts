@@ -121,52 +121,35 @@ export async function POST(
       enabledBy: user.id,
     });
 
-    // Send portal magic link with rate-limit protection.
-    const linkResult = await sendClientPortalMagicLink({
-      normalizedEmail,
-      requestOrigin: request.nextUrl.origin,
-      scopeKey: client.id,
-    });
-
-    if (!linkResult.ok) {
-      if (typeof linkResult.retryAfterSeconds === "number") {
-        return NextResponse.json(
-          {
-            success: true,
-            clientId: client.id,
-            authUserId: portalAuthUser.id,
-            portalEnabled: true,
-            emailSent: false,
-            retryAfterSeconds: linkResult.retryAfterSeconds,
-            message: linkResult.message,
-          },
-          { status: 429 },
-        );
-      }
-
-      return NextResponse.json(
-        {
-          message: "Portal enabled, but magic link email could not be sent.",
-          details: linkResult.message,
-        },
-        { status: 502 },
-      );
-    }
-
-    console.info("[client-portal] login-link-sent", {
-      clientId: client.id,
-      authUserId: portalAuthUser.id,
-      sentBy: user.id,
-    });
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       clientId: client.id,
       authUserId: portalAuthUser.id,
       portalEnabled: true,
-      emailSent: true,
-      message: "Client portal enabled and magic login link sent.",
+      message: "Client portal enabled. Login link email is being sent.",
     });
+
+    void sendClientPortalMagicLink({
+      normalizedEmail,
+      requestOrigin: request.nextUrl.origin,
+      scopeKey: client.id,
+    })
+      .then((linkResult) => {
+        if (!linkResult.ok) {
+          console.error("[client-portal] email send failed:", linkResult.message);
+          return;
+        }
+        console.info("[client-portal] login-link-sent", {
+          clientId: client.id,
+          authUserId: portalAuthUser.id,
+          sentBy: user.id,
+        });
+      })
+      .catch((err) => {
+        console.error("[client-portal] email send failed", err);
+      });
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Internal server error." },

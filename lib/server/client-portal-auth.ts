@@ -1,34 +1,7 @@
 import { randomUUID } from "crypto";
 import { z } from "zod";
+import { sendEmail } from "@/lib/email/service";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
-
-/**
- * Sends the client-login URL using Supabase Auth’s mailer (project SMTP / Gmail configured in the
- * Supabase Dashboard). This is the same mechanism as passwordless `signInWithOtp` elsewhere: it
- * POSTs to `/auth/v1/otp` and GoTrue sends the “Magic link” template email.
- *
- * Email subject and HTML/text body come from Dashboard → Authentication → Email Templates → Magic link.
- * To match “proxy only” UX, edit that template so the visible button/link points at `{{ .RedirectTo }}`
- * (your `/client-login?token=…` URL) and keep the real Supabase verify URL for the post–“Continue”
- * step via `client_portal_magic_link_tokens` + `/api/auth/magic-redirect`.
- */
-async function sendClientPortalProxyLoginEmailViaSupabaseAuth(options: {
-  normalizedEmail: string;
-  clientLoginUrl: string;
-}): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabaseAdminClient.auth.signInWithOtp({
-    email: options.normalizedEmail,
-    options: {
-      shouldCreateUser: false,
-      emailRedirectTo: options.clientLoginUrl,
-    },
-  });
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
-  return { success: true };
-}
 
 const emailSchema = z.string().email();
 const MAX_USER_SCAN_PAGES = 10;
@@ -114,87 +87,123 @@ function getRateLimitKey(email: string, scope: string): string {
   return `${scope}:${email}`;
 }
 
+function isResendConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
+}
+
 export async function sendClientPortalMagicLink(options: {
   normalizedEmail: string;
   requestOrigin: string;
   scopeKey?: string;
 }) {
-  const scope = options.scopeKey ?? "default";
-  const key = getRateLimitKey(options.normalizedEmail, scope);
-  const now = Date.now();
-  const previous = portalLinkRateLimit.get(key);
+  try {
+    const scope = options.scopeKey ?? "default";
+    const key = getRateLimitKey(options.normalizedEmail, scope);
+    const now = Date.now();
+    const previous = portalLinkRateLimit.get(key);
 
-  if (typeof previous === "number" && now - previous < RESEND_WINDOW_MS) {
-    const retryAfterSeconds = Math.ceil((RESEND_WINDOW_MS - (now - previous)) / 1000);
-    return {
-      ok: false as const,
-      retryAfterSeconds,
-      message: "Please wait before sending another login link.",
-    };
+    if (typeof previous === "number" && now - previous < RESEND_WINDOW_MS) {
+      const retryAfterSeconds = Math.ceil((RESEND_WINDOW_MS - (now - previous)) / 1000);
+      return {
+        ok: false as const,
+        retryAfterSeconds,
+        message: "Please wait before sending another login link.",
+      };
+    }
+
+    const redirectTo = getPortalRedirectUrl(options.requestOrigin);
+
+    const { data: linkData, error: linkError } = await supabaseAdminClient.auth.admin.generateLink({
+      type: "magiclink",
+      email: options.normalizedEmail,
+      options: {
+        redirectTo,
+      },
+    });
+
+    if (linkError) {
+      return {
+        ok: false as const,
+        message: linkError.message,
+      };
+    }
+
+    const resolvedLink = linkData?.properties?.action_link;
+    if (!resolvedLink || typeof resolvedLink !== "string") {
+      return {
+        ok: false as const,
+        message: "Could not generate login link. Please try again.",
+      };
+    }
+
+    const token = randomUUID();
+    const expiresAt = new Date(Date.now() + PROXY_TOKEN_TTL_MS).toISOString();
+
+    const { data: inserted, error: insertError } = await supabaseAdminClient
+      .from("client_portal_magic_link_tokens")
+      .insert({
+        token,
+        supabase_action_link: resolvedLink,
+        expires_at: expiresAt,
+      })
+      .select("id")
+      .maybeSingle();
+
+    if (insertError || !inserted?.id) {
+      return {
+        ok: false as const,
+        message: insertError?.message ?? "Could not store login link.",
+      };
+    }
+
+    const baseUrl = getPublicSiteBaseUrl(options.requestOrigin);
+    const clientLoginUrl = new URL("/client-login", baseUrl);
+    clientLoginUrl.searchParams.set("token", token);
+
+    const clientLoginUrlString = clientLoginUrl.toString();
+    const subject = "Your Client Portal Access - VakeelDiary";
+    const text = `Hello,
+
+Your lawyer has given you access to your client portal.
+
+Click the link below to access your dashboard:
+${clientLoginUrlString}
+
+This link expires in 15 minutes.
+
+If you did not expect this email, please ignore it.`;
+
+    const html = `<p>Hello,</p>
+<p>Your lawyer has given you access to your client portal.</p>
+<p><a href="${clientLoginUrlString}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Access My Dashboard</a></p>
+<p style="color:#64748b;font-size:14px;">This link expires in 15 minutes.</p>
+<p style="color:#64748b;font-size:14px;">If you did not expect this email, please ignore it.</p>`;
+
+    if (!isResendConfigured()) {
+      console.info("[client-portal] RESEND_API_KEY / RESEND_FROM_EMAIL not set; proxy URL (use for testing):", clientLoginUrlString);
+      portalLinkRateLimit.set(key, now);
+      return { ok: true as const };
+    }
+
+    const emailResult = await sendEmail({
+      to: options.normalizedEmail,
+      subject,
+      text,
+      html,
+    });
+
+    if (!emailResult.success) {
+      await supabaseAdminClient.from("client_portal_magic_link_tokens").delete().eq("id", inserted.id);
+      return {
+        ok: false as const,
+        message: emailResult.error ?? "Could not send login email.",
+      };
+    }
+
+    portalLinkRateLimit.set(key, now);
+    return { ok: true as const };
+  } catch (err) {
+    console.error("[client-portal] sendClientPortalMagicLink failed:", err);
+    throw err;
   }
-
-  const redirectTo = getPortalRedirectUrl(options.requestOrigin);
-
-  const { data: linkData, error: linkError } = await supabaseAdminClient.auth.admin.generateLink({
-    type: "magiclink",
-    email: options.normalizedEmail,
-    options: {
-      redirectTo,
-    },
-  });
-
-  if (linkError) {
-    return {
-      ok: false as const,
-      message: linkError.message,
-    };
-  }
-
-  const resolvedLink = linkData?.properties?.action_link;
-  if (!resolvedLink || typeof resolvedLink !== "string") {
-    return {
-      ok: false as const,
-      message: "Could not generate login link. Please try again.",
-    };
-  }
-
-  const token = randomUUID();
-  const expiresAt = new Date(Date.now() + PROXY_TOKEN_TTL_MS).toISOString();
-
-  const { data: inserted, error: insertError } = await supabaseAdminClient
-    .from("client_portal_magic_link_tokens")
-    .insert({
-      token,
-      supabase_action_link: resolvedLink,
-      expires_at: expiresAt,
-    })
-    .select("id")
-    .maybeSingle();
-
-  if (insertError || !inserted?.id) {
-    return {
-      ok: false as const,
-      message: insertError?.message ?? "Could not store login link.",
-    };
-  }
-
-  const baseUrl = getPublicSiteBaseUrl(options.requestOrigin);
-  const clientLoginUrl = new URL("/client-login", baseUrl);
-  clientLoginUrl.searchParams.set("token", token);
-
-  const emailResult = await sendClientPortalProxyLoginEmailViaSupabaseAuth({
-    normalizedEmail: options.normalizedEmail,
-    clientLoginUrl: clientLoginUrl.toString(),
-  });
-
-  if (!emailResult.success) {
-    await supabaseAdminClient.from("client_portal_magic_link_tokens").delete().eq("id", inserted.id);
-    return {
-      ok: false as const,
-      message: emailResult.error ?? "Login link could not be sent via Supabase Auth email.",
-    };
-  }
-
-  portalLinkRateLimit.set(key, now);
-  return { ok: true as const };
 }
