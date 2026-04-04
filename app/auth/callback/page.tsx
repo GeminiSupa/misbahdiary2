@@ -21,10 +21,6 @@ function AuthCallbackHandler() {
   useEffect(() => {
     let cancelled = false;
 
-    const failToSignIn = () => {
-      router.replace("/sign-in?error=link-expired");
-    };
-
     const waitForSession = async () => {
       const supabase = getBrowserClient();
       for (const ms of SESSION_RETRIES) {
@@ -42,14 +38,35 @@ function AuthCallbackHandler() {
     const complete = async () => {
       const params = new URLSearchParams(queryKey);
       const next = safeNextPath(params.get("next"));
+      const isClientPortalDest = next.startsWith("/client");
+
+      const failToSignIn = () => {
+        if (isClientPortalDest) {
+          router.replace("/client-login?error=link-expired");
+        } else {
+          router.replace("/sign-in?error=link-expired");
+        }
+      };
+
+      const hashRaw = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "";
+      const hashParams = new URLSearchParams(hashRaw);
+      if (hashParams.get("error") || hashParams.get("error_code")) {
+        failToSignIn();
+        return;
+      }
+
       const code = params.get("code");
       const oauthError = params.get("error");
       const oauthErrorDesc = params.get("error_description");
 
       if (oauthError) {
-        router.replace(
-          `/sign-in?error=${encodeURIComponent(oauthErrorDesc || oauthError || "Authentication failed.")}`,
-        );
+        if (isClientPortalDest) {
+          router.replace("/client-login?error=link-expired");
+        } else {
+          router.replace(
+            `/sign-in?error=${encodeURIComponent(oauthErrorDesc || oauthError || "Authentication failed.")}`,
+          );
+        }
         return;
       }
 

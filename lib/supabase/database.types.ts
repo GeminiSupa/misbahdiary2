@@ -231,6 +231,33 @@ export type Database = {
           },
         ]
       }
+      client_portal_magic_link_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          supabase_action_link: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          supabase_action_link: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          supabase_action_link?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           address: string | null

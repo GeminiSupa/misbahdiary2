@@ -90,6 +90,29 @@ If you have any questions, please contact your administrator.`;
   await sendEmail({ to: email, subject, text });
 }
 
+export async function sendClientPortalProxyLoginEmail(
+  to: string,
+  clientLoginUrl: string,
+): Promise<{ success: boolean; error?: string }> {
+  const subject = "Your client portal login link";
+  const text = `You requested access to your client portal.
+
+Open this page in your browser, then click the button to continue (this avoids the login link being used by automated email scanners):
+
+${clientLoginUrl}
+
+This link expires in 15 minutes. If you did not request this, you can ignore this email.`;
+
+  const html = `
+  <p>You requested access to your client portal.</p>
+  <p><a href="${clientLoginUrl}" style="color:#2563eb;font-weight:600;">Open your secure login page</a></p>
+  <p style="color:#64748b;font-size:14px;">After the page opens, use the button <strong>Continue to your dashboard</strong> to complete sign-in. This two-step flow keeps your one-time link safe from automated scanners.</p>
+  <p style="color:#64748b;font-size:14px;">This link expires in 15 minutes.</p>
+`;
+
+  return sendEmail({ to, subject, text, html });
+}
+
 export async function sendPasswordChangeNotification(email: string, userName: string, timestamp: string): Promise<void> {
   const subject = "Password Changed - Security Notification";
   const text = `Hello ${userName},

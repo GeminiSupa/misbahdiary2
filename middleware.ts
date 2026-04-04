@@ -70,6 +70,7 @@ export async function middleware(request: NextRequest) {
     "/sign-in",
     "/sign-up",
     "/confirm",
+    "/client-login",
     "/auth/callback",
     "/diagnostics",
     "/privacy",
