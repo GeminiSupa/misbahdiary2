@@ -32,6 +32,18 @@ const magicLinkSchema = z.object({
 type CredentialsFormValues = z.infer<typeof credentialsSchema>;
 type MagicLinkFormValues = z.infer<typeof magicLinkSchema>;
 
+/** Google OAuth + email OTP redirect; must be listed in Supabase Auth → Redirect URLs. */
+function getAuthCallbackUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (fromEnv?.trim()) {
+    return `${fromEnv.replace(/\/$/, "")}/auth/callback`;
+  }
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/auth/callback`;
+  }
+  return "http://localhost:3000/auth/callback";
+}
+
 export function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -127,7 +139,47 @@ export function SignInForm() {
         return;
       }
 
-      router.replace("/dashboard");
+      const {
+        data: { user: signedInUser },
+      } = await supabase.auth.getUser();
+      if (!signedInUser) {
+        setError("Signed in but could not load your account. Please try again.");
+        return;
+      }
+
+      const { data: portalClient } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("auth_user_id", signedInUser.id)
+        .eq("portal_enabled", true)
+        .maybeSingle();
+
+      const redirectParam = params.get("redirect");
+
+      if (portalClient) {
+        let dest = "/client/dashboard";
+        if (
+          redirectParam &&
+          redirectParam.startsWith("/client") &&
+          !redirectParam.includes("..")
+        ) {
+          dest = redirectParam;
+        }
+        router.replace(dest);
+        router.refresh();
+        return;
+      }
+
+      let dest = "/dashboard";
+      if (
+        redirectParam &&
+        redirectParam.startsWith("/") &&
+        !redirectParam.startsWith("//") &&
+        !redirectParam.startsWith("/client")
+      ) {
+        dest = redirectParam;
+      }
+      router.replace(dest);
       router.refresh();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to connect to the server. Please check your internet connection and try again.";
@@ -201,7 +253,7 @@ export function SignInForm() {
     // Suppress warnings before redirect
     suppressGoogleOAuthWarnings();
 
-    const redirectUrl = "http://localhost:3000/auth/callback";
+    const redirectUrl = getAuthCallbackUrl();
 
     console.log("🔗 Redirect URL:", redirectUrl);
     console.log("🔗 Site URL env:", process.env.NEXT_PUBLIC_SITE_URL);
@@ -253,7 +305,7 @@ export function SignInForm() {
       return;
     }
 
-    const callbackUrl = "http://localhost:3000/auth/callback";
+    const callbackUrl = getAuthCallbackUrl();
 
     setError(null);
     setInfo(null);

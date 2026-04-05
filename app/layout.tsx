@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/app/providers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { MagicLinkHashRecovery } from "@/components/auth/magic-link-hash-recovery";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,7 +69,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <Suspense fallback={null}>
+            <MagicLinkHashRecovery />
+          </Suspense>
+          {children}
+        </AppProviders>
         {/* Google Analytics */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>

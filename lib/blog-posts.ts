@@ -3,10 +3,30 @@ export type BlogPost = {
   title: string;
   description: string;
   publishedAt: string;
+  /**
+   * Cover image: app path (e.g. `/images/blog/judge.svg`) or absolute URL (`https://…`).
+   * Remote URLs must be allowed in `next.config.ts` → `images.remotePatterns`.
+   */
   image: string;
   imageAlt: string;
   content: string;
 };
+
+/** True when `image` is an http(s) URL (needs `remotePatterns` for Next/Image). */
+export function isRemoteBlogImage(image: string): boolean {
+  return /^https?:\/\//i.test(image.trim());
+}
+
+/** Absolute URL for Open Graph, Twitter cards, and JSON-LD. */
+export function absoluteBlogImageUrl(image: string, siteOrigin: string): string {
+  const trimmed = image.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  const origin = siteOrigin.replace(/\/$/, "");
+  const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return `${origin}${path}`;
+}
 
 export type BlogLanguage = "ur" | "en";
 
@@ -1124,6 +1144,41 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
 <p>Not sure yet? Your data stays safe. <a href="/">Learn more</a> or <a href="/sign-up">extend your trial</a>.</p>
 `,
   },
+  {
+    slug: "pakistan-lawyers-courts-fuel-crisis-global-tensions",
+    image: "/images/blog/judge.svg",
+    imageAlt: "Court and justice illustration representing Pakistan legal system under operational stress",
+    title:
+      "How Recent Conflicts and the Fuel Crisis Are Affecting Lawyers and Courts in Pakistan",
+    description:
+      "Adv Misbah Akram Rana on higher fuel costs, power instability, growing dockets, and how global tensions ripple into daily court life and what might help.",
+    publishedAt: "2026-04-05",
+    content: `
+<h1>How Recent Conflicts and the Fuel Crisis Are Affecting Lawyers and Courts in Pakistan</h1>
+<p><strong>By Adv Misbah Akram Rana</strong></p>
+<p>Hey everyone I have been keeping an eye on the news, and it is striking how quickly things can shift. Tensions involving the United States, Israel, and Iran have flared again, and that has sent ripples all the way to Pakistan, where we are already grappling with serious fuel shortages. What really caught my attention is how this double pressure is hitting <strong>lawyers</strong> and the <strong>judgment process</strong> in our legal system. It is not distant headline stuff; it is affecting day to day operations in courts across the country. Here is a plain language breakdown.</p>
+
+<h2>Fuel prices and the daily commute to court</h2>
+<p>Conflict in the Middle East pushed global oil prices higher almost overnight. Pakistan relies heavily on imported fuel, so costs for petrol and diesel jumped fast. Lawyers who commute to high courts or district courts every day feel it in their wallets. Many drive their own cars or use taxis and public transport for client meetings and hearings. When filling the tank eats a bigger share of the budget, some hearings get rescheduled because travel becomes too costly. Clients in smaller towns or rural areas face the same strain they miss appointments, and files sit longer than usual.</p>
+
+<h2>Power supply, generators, and courtroom conditions</h2>
+<p>Fuel problems also hit <strong>electricity</strong>. Courts depend on generators during load shedding, but with fuel expensive and sometimes scarce, backups do not run as reliably. Judges and court staff work in difficult conditions heat, poor lighting, weak fans. Case record systems slow down or fail during outages; arguments get cut short and judgments take longer to prepare. Friends in practice tell me whole sessions are postponed simply because power dropped at the worst moment.</p>
+
+<h2>Judgments, backlog, and new kinds of disputes</h2>
+<p>The backlog was already a challenge; these issues make it worse. Judges face more delays from lawyers who cannot reach court on time and from technical failures tied to unstable power. Timelines that once ran in weeks can stretch into months. Higher transport costs also feed the courts: businesses under stress produce more <strong>contract breaches</strong>, payment defaults, and labour complaints. Lawyers take on heavier dockets while their own office costs rise.</p>
+
+<h2>International angles and practice on the ground</h2>
+<p>Sanctions and trade friction from the wider situation affect Pakistani importers and exporters. Lawyers in trade and compliance see more work navigating restrictions on goods and payments even as fuel shortages make it harder to collect documents quickly or travel for consultations. Firms in Lahore, Karachi, and Islamabad lean on calls and video links, but internet quality varies, and not every client is comfortable online.</p>
+
+<h2>Where we are—and what could help</h2>
+<p>It is a tough moment for the legal community. Global tension plus local fuel stress raises costs, lowers efficiency, and slows justice in ways that hurt ordinary people most. I hope policymakers consider targeted support—ideas like relief for court-related travel or stronger backup power—so the system does not stall. Meanwhile, practitioners are adapting where they can; keeping <a href="/calendar">hearings and deadlines organised</a> in one place helps when travel and power are unpredictable. If you are not on a digital diary yet, <a href="/sign-up">try a structured calendar and matter record</a> so rescheduling and backlog do not slip through the cracks.</p>
+
+<h2>Over to you</h2>
+<p>What are your thoughts? Have you noticed delays in court lately, or lawyers in your circle struggling with fuel and travel costs? Share your experiences below—I would love to hear them. Let us keep the conversation going and hope for smoother times ahead.</p>
+<hr />
+<p><em>Views are the author’s own. Court practice varies by district and forum; always verify local notices and rules.</em></p>
+`,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
@@ -1169,6 +1224,7 @@ export function getBlogTopic(title: string): BlogTopic {
     return "corporate";
   }
   if (normalized.includes("case")) return "case";
+  if (normalized.includes("court")) return "case";
   if (normalized.includes("client")) return "client";
   if (normalized.includes("document")) return "document";
 

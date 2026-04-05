@@ -5,19 +5,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+type ClientProgressEntry = {
+  id: string;
+  date: string;
+  details: string;
+  stage: string | null;
+  court_name: string | null;
+  hearing_date: string | null;
+  next_hearing_reason: string | null;
+};
+
 type ClientCase = {
   id: string;
+  matter_id?: string;
   case_number: string;
   title: string;
   status: string;
   case_type: string | null;
   court_name: string | null;
   filing_date: string | null;
+  progress: ClientProgressEntry[];
 };
 
 type ClientHearing = {
   id: string;
   case_id: string | null;
+  matter_id: string | null;
   scheduled_at: string;
   status: string;
   location: string | null;
@@ -28,6 +41,7 @@ type ClientHearing = {
 type ClientPayment = {
   id: string;
   case_id: string | null;
+  matter_id: string | null;
   invoice_number: string;
   status: string;
   issue_date: string;
@@ -60,6 +74,19 @@ function formatCurrency(amount: number, currencyCode: string): string {
   } catch {
     return `${amount ?? 0}`;
   }
+}
+
+function formatDateOnly(dateString: string | null | undefined): string {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "-";
+  return new Intl.DateTimeFormat("en-PK", { dateStyle: "medium" }).format(date);
+}
+
+function truncate(text: string, max: number): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
 }
 
 export function ClientDashboard() {
@@ -100,7 +127,12 @@ export function ClientDashboard() {
         ])) as [ApiResponse<ClientCase>, ApiResponse<ClientHearing>, ApiResponse<ClientPayment>];
 
         if (!mounted) return;
-        setCases(casesJson.data ?? []);
+        setCases(
+          (casesJson.data ?? []).map((c) => ({
+            ...c,
+            progress: Array.isArray(c.progress) ? c.progress : [],
+          })),
+        );
         setHearings(hearingsJson.data ?? []);
         setPayments(paymentsJson.data ?? []);
       } catch (err) {
@@ -129,11 +161,24 @@ export function ClientDashboard() {
     [hearings, nextUpcomingHearing],
   );
 
+  const recentProgressRows = useMemo(() => {
+    const rows: Array<ClientProgressEntry & { matterLabel: string }> = [];
+    for (const c of cases) {
+      for (const p of c.progress) {
+        rows.push({ ...p, matterLabel: c.title });
+      }
+    }
+    rows.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return rows.slice(0, 50);
+  }, [cases]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 sm:p-6">
       <div>
         <h1 className="text-2xl font-semibold">Client Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Read-only overview of your cases, hearings, and payments.</p>
+        <p className="text-sm text-muted-foreground">
+          Read-only overview of your matters, hearings, recent updates from your lawyers, and invoices.
+        </p>
       </div>
 
       {loading ? <p className="text-sm text-muted-foreground">Loading dashboard...</p> : null}
@@ -170,33 +215,84 @@ export function ClientDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Cases</CardTitle>
-              <CardDescription>All cases linked to your client profile.</CardDescription>
+              <CardTitle>Your matters</CardTitle>
+              <CardDescription>Matters linked to your profile with the latest status from the firm.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Case #</TableHead>
+                    <TableHead>Reference</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Court</TableHead>
+                    <TableHead>Latest update</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {cases.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-muted-foreground">
-                        No cases found.
+                      <TableCell colSpan={5} className="text-muted-foreground">
+                        No matters found.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    cases.map((caseItem) => (
-                      <TableRow key={caseItem.id}>
-                        <TableCell>{caseItem.case_number}</TableCell>
-                        <TableCell>{caseItem.title}</TableCell>
-                        <TableCell>{caseItem.status}</TableCell>
-                        <TableCell>{caseItem.court_name || "-"}</TableCell>
+                    cases.map((caseItem) => {
+                      const latest = caseItem.progress[0];
+                      return (
+                        <TableRow key={caseItem.id}>
+                          <TableCell>{caseItem.case_number}</TableCell>
+                          <TableCell>{caseItem.title}</TableCell>
+                          <TableCell>{caseItem.status}</TableCell>
+                          <TableCell>{caseItem.court_name || "-"}</TableCell>
+                          <TableCell className="max-w-[220px] text-muted-foreground">
+                            {latest ? (
+                              <span className="text-foreground">
+                                {formatDateOnly(latest.date)}
+                                {latest.stage ? ` · ${latest.stage}` : ""}: {truncate(latest.details, 72)}
+                              </span>
+                            ) : (
+                              "—"
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent case updates</CardTitle>
+              <CardDescription>Progress notes recorded by your firm (newest first).</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Matter</TableHead>
+                    <TableHead>Stage</TableHead>
+                    <TableHead>Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentProgressRows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-muted-foreground">
+                        No progress entries yet.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    recentProgressRows.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>{formatDateOnly(row.date)}</TableCell>
+                        <TableCell className="max-w-[160px]">{truncate(row.matterLabel, 48)}</TableCell>
+                        <TableCell>{row.stage || "—"}</TableCell>
+                        <TableCell className="max-w-[320px] whitespace-normal">{row.details}</TableCell>
                       </TableRow>
                     ))
                   )}

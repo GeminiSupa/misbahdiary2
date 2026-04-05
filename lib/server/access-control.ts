@@ -55,6 +55,24 @@ export async function canUserSeeAllCases(
 }
 
 /**
+ * Any firm member may set or update client portal passwords (same practical scope as editing clients).
+ * Access is still enforced by firm_id on the client row in the API routes.
+ */
+export async function canSetClientPortalCredentials(
+  userId: string,
+  firmId: string,
+): Promise<boolean> {
+  const supabase = await createSupabaseServerClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .eq("firm_id", firmId)
+    .maybeSingle();
+  return Boolean(profile);
+}
+
+/**
  * Get list of matter IDs that a user can see based on their role
  * Returns all matter IDs if user can see all cases, otherwise returns filtered list
  */

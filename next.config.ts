@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
       { protocol: "https", hostname: "picsum.photos", pathname: "/**" },
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
+      { protocol: "https", hostname: "i.imgur.com", pathname: "/**" },
+      { protocol: "https", hostname: "images.pexels.com", pathname: "/**" },
+      { protocol: "https", hostname: "cdn.pixabay.com", pathname: "/**" },
+      // Supabase Storage (public buckets): <project>.supabase.co
+      { protocol: "https", hostname: "*.supabase.co", pathname: "/**" },
     ],
   },
   // Reduce bundle size

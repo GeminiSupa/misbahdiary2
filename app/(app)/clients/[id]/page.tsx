@@ -2,11 +2,13 @@ import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { canSetClientPortalCredentials } from "@/lib/server/access-control";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { matterStatusOptions } from "@/lib/constants/cases";
 import { ClientDocumentsCard, type ClientDocument } from "@/components/clients/client-documents-card";
+import { ClientPortalMessagesLawyerCard } from "@/components/clients/client-portal-messages-lawyer-card";
 import { EditClientSheet } from "@/components/clients/edit-client-sheet";
 import { DeleteClientButton } from "@/components/clients/delete-client-button";
 import { Download, Edit, User } from "lucide-react";
@@ -42,11 +44,20 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     redirect("/onboarding");
   }
 
+  const canSetPortalPassword = await canSetClientPortalCredentials(user.id, profile.firm_id);
+
+  const { data: portalLawyers } = await supabase
+    .from("profiles")
+    .select("id, full_name, role")
+    .eq("firm_id", profile.firm_id)
+    .neq("role", "client")
+    .order("full_name");
+
   // Fetch client data
   const { data: client, error: clientError } = await supabase
     .from("clients")
     .select(
-      "id, type, name, full_name, father_name, representation, representative_details, organization_name, email, phone, address, city, province, country, cnic, notes, portal_enabled",
+      "id, type, name, full_name, father_name, representation, representative_details, organization_name, email, phone, address, city, province, country, cnic, notes, portal_enabled, auth_user_id",
     )
     .eq("firm_id", profile.firm_id)
     .eq("id", id)
@@ -162,6 +173,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
               <EditClientSheet
                 client={clientFormValues}
                 portalEnabled={Boolean(clientData.portal_enabled)}
+                canSetPortalPassword={canSetPortalPassword}
               />
               <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                 <a href={`/api/clients/${clientData.id}/pdf`} download target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
@@ -196,6 +208,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
             <EditClientSheet
               client={clientFormValues}
               portalEnabled={Boolean(clientData.portal_enabled)}
+              canSetPortalPassword={canSetPortalPassword}
             />
           </div>
           <Separator />
@@ -270,6 +283,15 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
           )}
         </div>
       </div>
+
+      {Boolean(clientData.portal_enabled) ? (
+        <ClientPortalMessagesLawyerCard
+          clientId={clientData.id}
+          lawyers={portalLawyers ?? []}
+          currentUserId={user.id}
+          clientAuthUserId={(clientData.auth_user_id as string | null | undefined) ?? null}
+        />
+      ) : null}
     </div>
   );
 }

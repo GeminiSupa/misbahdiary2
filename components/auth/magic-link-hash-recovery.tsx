@@ -3,22 +3,47 @@
 import { useEffect } from "react";
 
 /**
- * If Supabase redirects magic-link tokens in the URL hash to /sign-in (misconfigured Site URL),
- * move the user to /auth/callback so the client can read the hash and persist the session.
+ * When Supabase finishes email/magic-link login, it must redirect to an allowlisted URL.
+ * If `https://yoursite.com/auth/callback` is missing in Supabase → Authentication → URL config,
+ * Supabase falls back to the Site URL (often the marketing homepage `/`). Tokens then land as
+ * `?code=` (PKCE) or in the hash — and the session is never saved unless we forward to `/auth/callback`.
+ *
+ * Handles: `/` and `/sign-in` with `code` or magic-link hash fragments.
  */
 export function MagicLinkHashRecovery() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
-    if (!normalizedPath.endsWith("/sign-in")) {
-      return;
-    }
-    const hash = window.location.hash;
-    if (!hash || (!hash.includes("access_token") && !hash.includes("type=magiclink"))) {
+    const isSignIn = normalizedPath.endsWith("/sign-in");
+    const isRoot = normalizedPath === "/";
+    if (!isSignIn && !isRoot) {
       return;
     }
 
     const url = new URL(window.location.href);
+    const hasCode = url.searchParams.has("code");
+    const hash = url.hash;
+    const hasHashTokens =
+      Boolean(hash) &&
+      (hash.includes("access_token") ||
+        hash.includes("refresh_token") ||
+        hash.includes("type=magiclink"));
+
+    if (hasCode) {
+      url.pathname = "/auth/callback";
+      url.searchParams.delete("error");
+      url.searchParams.delete("error_description");
+      if (!url.searchParams.get("next")) {
+        url.searchParams.set("next", "/dashboard");
+      }
+      window.location.replace(url.toString());
+      return;
+    }
+
+    if (!hasHashTokens) {
+      return;
+    }
+
     url.pathname = "/auth/callback";
     url.searchParams.delete("error");
     url.searchParams.delete("error_description");

@@ -81,6 +81,17 @@ export default async function Home() {
     );
   }
 
+  const { data: portalOnlyClient } = await supabase
+    .from("clients")
+    .select("id")
+    .eq("auth_user_id", user.id)
+    .eq("portal_enabled", true)
+    .maybeSingle();
+
+  if (portalOnlyClient) {
+    redirect("/client/dashboard");
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("firm_id, is_super_admin")

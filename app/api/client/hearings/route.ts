@@ -1,38 +1,36 @@
 import { NextResponse } from "next/server";
 import { requireClientPortalAccess } from "@/lib/server/client-portal";
+import { fetchPortalLegacyCaseIds, fetchPortalMatterIds } from "@/lib/server/client-portal-matters";
 
 export async function GET() {
   try {
     const { supabase, client } = await requireClientPortalAccess();
 
-    const { data: clientCases, error: caseError } = await supabase
-      .from("cases")
-      .select("id")
-      .eq("client_id", client.id);
+    const [matterIds, legacyCaseIds] = await Promise.all([
+      fetchPortalMatterIds(supabase, client.id),
+      fetchPortalLegacyCaseIds(supabase, client.id),
+    ]);
 
-    if (caseError) {
-      return NextResponse.json(
-        { message: `Failed to resolve client cases: ${caseError.message}` },
-        { status: 500 },
-      );
+    if (matterIds.length === 0 && legacyCaseIds.length === 0) {
+      return NextResponse.json({ data: [] });
     }
 
-    const caseIds = (clientCases ?? []).map((item) => item.id);
-    if (caseIds.length === 0) {
-      return NextResponse.json({ data: [] });
+    const orParts: string[] = [];
+    if (matterIds.length > 0) {
+      orParts.push(`matter_id.in.(${matterIds.join(",")})`);
+    }
+    if (legacyCaseIds.length > 0) {
+      orParts.push(`case_id.in.(${legacyCaseIds.join(",")})`);
     }
 
     const { data: hearings, error } = await supabase
       .from("hearings")
       .select("id, case_id, matter_id, scheduled_at, status, location, judge, notes, created_at")
-      .in("case_id", caseIds)
+      .or(orParts.join(","))
       .order("scheduled_at", { ascending: false });
 
     if (error) {
-      return NextResponse.json(
-        { message: `Failed to load hearings: ${error.message}` },
-        { status: 500 },
-      );
+      return NextResponse.json({ message: `Failed to load hearings: ${error.message}` }, { status: 500 });
     }
 
     return NextResponse.json({ data: hearings ?? [] });

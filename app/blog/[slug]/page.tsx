@@ -11,6 +11,7 @@ import {
   getLanguageRelatedBlogs,
   getCrossLanguageBlogs,
   inferBlogLanguage,
+  absoluteBlogImageUrl,
   type BlogListItem,
 } from "@/lib/blog-posts";
 import { LandingFooter } from "@/components/landing/landing-footer";
@@ -155,7 +156,7 @@ export async function generateMetadata({ params }: Props) {
       publishedTime: post.publishedAt,
       images: [
         {
-          url: post.image,
+          url: absoluteBlogImageUrl(post.image, baseUrl),
           width: 1200,
           height: 630,
           alt: post.imageAlt,
@@ -166,7 +167,7 @@ export async function generateMetadata({ params }: Props) {
       card: "summary_large_image",
       title: `${post.title} | Lawyer Diary Blog`,
       description: post.description,
-      images: [post.image],
+      images: [absoluteBlogImageUrl(post.image, baseUrl)],
     },
   };
 }
@@ -274,7 +275,7 @@ export default async function BlogPostPage({ params }: Props) {
     "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
-    image: [`${baseUrl}${post.image}`],
+    image: [absoluteBlogImageUrl(post.image, baseUrl)],
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
     author: {

@@ -91,7 +91,23 @@ function AuthCallbackHandler() {
           return;
         }
 
-        router.replace(next);
+        const {
+          data: { user: sessionUser },
+        } = await supabase.auth.getUser();
+        let destination = next;
+        if (sessionUser) {
+          const { data: portalClient } = await supabase
+            .from("clients")
+            .select("id")
+            .eq("auth_user_id", sessionUser.id)
+            .eq("portal_enabled", true)
+            .maybeSingle();
+          if (portalClient && !next.startsWith("/client")) {
+            destination = "/client/dashboard";
+          }
+        }
+
+        router.replace(destination);
         router.refresh();
       } catch {
         if (!cancelled) {

@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { canSetClientPortalCredentials } from "@/lib/server/access-control";
 import {
-  getOrCreateAuthUser,
+  getOrCreateAuthUserWithOptionalPassword,
   normalizeEmail,
+  portalPasswordSchema,
   sendClientPortalMagicLink,
   validatePortalEmail,
 } from "@/lib/server/client-portal-auth";
+
+type EnablePortalBody = {
+  password?: unknown;
+  sendMagicLink?: unknown;
+};
 
 export async function POST(
   request: NextRequest,
@@ -17,6 +24,22 @@ export async function POST(
       return NextResponse.json({ message: "Client ID is required." }, { status: 400 });
     }
 
+    const rawBody = (await request.json().catch(() => ({}))) as EnablePortalBody;
+    const passwordRaw = typeof rawBody.password === "string" ? rawBody.password : "";
+    const passwordTrimmed = passwordRaw.trim();
+    const wantsPassword = passwordTrimmed.length > 0;
+
+    if (wantsPassword) {
+      const parsed = portalPasswordSchema.safeParse(passwordTrimmed);
+      if (!parsed.success) {
+        const msg = parsed.error.flatten().formErrors[0] ?? "Invalid password.";
+        return NextResponse.json({ message: msg }, { status: 400 });
+      }
+    }
+
+    /** Opt-in only: firm email (Resend) is often unset; password handoff is the default path. */
+    const sendMagicLink = rawBody.sendMagicLink === true;
+
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -27,7 +50,6 @@ export async function POST(
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
-    // Existing auth model: a signed-in lawyer/staff must belong to a firm.
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("firm_id")
@@ -41,7 +63,16 @@ export async function POST(
       );
     }
 
-    // Lawyer can only enable portal for clients in their own firm.
+    if (wantsPassword) {
+      const allowed = await canSetClientPortalCredentials(user.id, profile.firm_id);
+      if (!allowed) {
+        return NextResponse.json(
+          { message: "You do not have permission to set a client portal password for this firm." },
+          { status: 403 },
+        );
+      }
+    }
+
     const { data: client, error: clientError } = await supabase
       .from("clients")
       .select("id, firm_id, email, auth_user_id, portal_enabled")
@@ -68,7 +99,6 @@ export async function POST(
       );
     }
 
-    // Edge-case safety: do not allow ambiguous duplicate email mappings.
     const { data: duplicateClients, error: duplicateError } = await supabase
       .from("clients")
       .select("id, auth_user_id, portal_enabled")
@@ -96,7 +126,10 @@ export async function POST(
       );
     }
 
-    const portalAuthUser = await getOrCreateAuthUser(normalizedEmail);
+    const portalAuthUser = await getOrCreateAuthUserWithOptionalPassword(
+      normalizedEmail,
+      wantsPassword ? passwordTrimmed : null,
+    );
 
     const { error: updateError } = await supabase
       .from("clients")
@@ -119,38 +152,53 @@ export async function POST(
       clientId: client.id,
       authUserId: portalAuthUser.id,
       enabledBy: user.id,
+      passwordSet: wantsPassword,
+      sendMagicLink,
     });
+
+    let responseMessage = "Client portal enabled.";
+    if (sendMagicLink) {
+      responseMessage = "Client portal enabled. Login link email is being sent.";
+    } else if (wantsPassword) {
+      responseMessage =
+        "Client portal enabled with password. Share credentials securely with the client (no login email was sent).";
+    }
 
     const response = NextResponse.json({
       success: true,
       clientId: client.id,
       authUserId: portalAuthUser.id,
       portalEnabled: true,
-      message: "Client portal enabled. Login link email is being sent.",
+      message: responseMessage,
     });
 
-    void sendClientPortalMagicLink({
-      normalizedEmail,
-      requestOrigin: request.nextUrl.origin,
-      scopeKey: client.id,
-    })
-      .then((linkResult) => {
-        if (!linkResult.ok) {
-          console.error("[client-portal] email send failed:", linkResult.message);
-          return;
-        }
-        console.info("[client-portal] login-link-sent", {
-          clientId: client.id,
-          authUserId: portalAuthUser.id,
-          sentBy: user.id,
-        });
+    if (sendMagicLink) {
+      void sendClientPortalMagicLink({
+        normalizedEmail,
+        requestOrigin: request.nextUrl.origin,
+        scopeKey: client.id,
       })
-      .catch((err) => {
-        console.error("[client-portal] email send failed", err);
-      });
+        .then((linkResult) => {
+          if (!linkResult.ok) {
+            console.error("[client-portal] email send failed:", linkResult.message);
+            return;
+          }
+          console.info("[client-portal] login-link-sent", {
+            clientId: client.id,
+            authUserId: portalAuthUser.id,
+            sentBy: user.id,
+          });
+        })
+        .catch((err) => {
+          console.error("[client-portal] email send failed", err);
+        });
+    }
 
     return response;
   } catch (error) {
+    if (error instanceof Error && error.message.startsWith("Unable to")) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Internal server error." },
       { status: 500 },

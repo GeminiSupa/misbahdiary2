@@ -231,6 +231,58 @@ export type Database = {
           },
         ]
       }
+      client_lawyer_messages: {
+        Row: {
+          id: string
+          firm_id: string
+          client_id: string
+          lawyer_profile_id: string
+          sender_auth_user_id: string
+          content: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          firm_id: string
+          client_id: string
+          lawyer_profile_id: string
+          sender_auth_user_id: string
+          content: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          firm_id?: string
+          client_id?: string
+          lawyer_profile_id?: string
+          sender_auth_user_id?: string
+          content?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_lawyer_messages_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_lawyer_messages_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "firms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_lawyer_messages_lawyer_profile_id_fkey"
+            columns: ["lawyer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_portal_magic_link_tokens: {
         Row: {
           created_at: string

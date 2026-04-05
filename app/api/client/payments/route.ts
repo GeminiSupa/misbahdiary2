@@ -1,41 +1,28 @@
 import { NextResponse } from "next/server";
 import { requireClientPortalAccess } from "@/lib/server/client-portal";
+import { fetchPortalMatterIds } from "@/lib/server/client-portal-matters";
 
 export async function GET() {
   try {
     const { supabase, client } = await requireClientPortalAccess();
 
-    const { data: clientCases, error: caseError } = await supabase
-      .from("cases")
-      .select("id")
-      .eq("client_id", client.id);
+    const matterIds = await fetchPortalMatterIds(supabase, client.id);
 
-    if (caseError) {
-      return NextResponse.json(
-        { message: `Failed to resolve client cases: ${caseError.message}` },
-        { status: 500 },
-      );
+    const orParts: string[] = [`client_id.eq.${client.id}`];
+    if (matterIds.length > 0) {
+      orParts.push(`matter_id.in.(${matterIds.join(",")})`);
     }
 
-    const caseIds = (clientCases ?? []).map((item) => item.id);
-    if (caseIds.length === 0) {
-      return NextResponse.json({ data: [] });
-    }
-
-    // Existing app payment records are stored in invoices.
     const { data: payments, error } = await supabase
       .from("invoices")
       .select(
-        "id, case_id, invoice_number, status, issue_date, due_date, paid_at, subtotal, tax_amount, discount_amount, total_amount, amount_paid, billing_currency, created_at",
+        "id, case_id, matter_id, invoice_number, status, issue_date, due_date, paid_at, subtotal, tax_amount, discount_amount, total_amount, amount_paid, billing_currency, created_at",
       )
-      .in("case_id", caseIds)
+      .or(orParts.join(","))
       .order("created_at", { ascending: false });
 
     if (error) {
-      return NextResponse.json(
-        { message: `Failed to load payments: ${error.message}` },
-        { status: 500 },
-      );
+      return NextResponse.json({ message: `Failed to load payments: ${error.message}` }, { status: 500 });
     }
 
     return NextResponse.json({ data: payments ?? [] });

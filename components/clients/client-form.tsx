@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -44,6 +45,7 @@ import { clientSchemaForForm, type ClientSchemaForForm } from "@/lib/validation/
 type ClientFormProps = {
   initialClient?: ClientFormValues | null;
   initialPortalEnabled?: boolean;
+  canSetPortalPassword?: boolean;
   onReset?: () => void;
   onSuccess?: () => void;
 };
@@ -51,6 +53,7 @@ type ClientFormProps = {
 export function ClientForm({
   initialClient,
   initialPortalEnabled = false,
+  canSetPortalPassword = false,
   onReset,
   onSuccess,
 }: ClientFormProps) {
@@ -61,6 +64,14 @@ export function ClientForm({
   const [isPortalUpdating, setIsPortalUpdating] = useState(false);
   const [portalMessage, setPortalMessage] = useState<string | null>(null);
   const [portalError, setPortalError] = useState<string | null>(null);
+  const [portalPassword, setPortalPassword] = useState("");
+  const [portalConfirm, setPortalConfirm] = useState("");
+  /** Off by default: access is usually handed off with a firm-set password (no Resend email required). */
+  const [portalSendMagicLink, setPortalSendMagicLink] = useState(false);
+  const [updatePortalPassword, setUpdatePortalPassword] = useState("");
+  const [updatePortalConfirm, setUpdatePortalConfirm] = useState("");
+  const [isPortalPasswordUpdating, setIsPortalPasswordUpdating] = useState(false);
+  const prevPortalPasswordRef = useRef("");
 
   const form = useForm<ClientSchemaForForm>({
     resolver: zodResolver(clientSchemaForForm),
@@ -109,7 +120,25 @@ export function ClientForm({
     setPortalEnabled(initialPortalEnabled);
     setPortalMessage(null);
     setPortalError(null);
+    setPortalPassword("");
+    setPortalConfirm("");
+    setPortalSendMagicLink(false);
+    setUpdatePortalPassword("");
+    setUpdatePortalConfirm("");
+    prevPortalPasswordRef.current = "";
   }, [initialPortalEnabled, initialClient?.id]);
+
+  useEffect(() => {
+    const t = portalPassword.trim();
+    const prev = prevPortalPasswordRef.current.trim();
+    if (t.length > 0 && prev.length === 0) {
+      setPortalSendMagicLink(false);
+    }
+    if (t.length === 0 && prev.length > 0) {
+      setPortalSendMagicLink(false);
+    }
+    prevPortalPasswordRef.current = portalPassword;
+  }, [portalPassword]);
 
   const handleSubmit = async (values: ClientSchemaForForm) => {
     setFormError(null);
@@ -181,9 +210,19 @@ export function ClientForm({
     }
 
     const previousValue = portalEnabled;
-    setPortalEnabled(checked);
     setPortalMessage(null);
     setPortalError(null);
+
+    const p = portalPassword.trim();
+    const c = portalConfirm.trim();
+    if (checked && canSetPortalPassword && (p || c)) {
+      if (!p || !c || p !== c) {
+        setPortalError("Portal password and confirmation must match and cannot be empty.");
+        return;
+      }
+    }
+
+    setPortalEnabled(checked);
     setIsPortalUpdating(true);
 
     try {
@@ -191,7 +230,19 @@ export function ClientForm({
         ? `/api/lawyer/clients/${initialClient.id}/enable-portal`
         : `/api/lawyer/clients/${initialClient.id}/disable-portal`;
 
-      const response = await fetch(endpoint, { method: "POST" });
+      const enableBody = checked
+        ? JSON.stringify(
+            p && c && p === c
+              ? { password: p, sendMagicLink: portalSendMagicLink }
+              : { sendMagicLink: portalSendMagicLink },
+          )
+        : undefined;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: checked ? { "Content-Type": "application/json" } : undefined,
+        body: enableBody,
+      });
       const payload = (await response.json().catch(() => ({}))) as { message?: string };
 
       if (!response.ok) {
@@ -199,7 +250,10 @@ export function ClientForm({
       }
 
       if (checked) {
-        setPortalMessage("Client portal enabled. Login link sent to email.");
+        setPortalMessage(payload.message ?? "Client portal enabled.");
+        setPortalPassword("");
+        setPortalConfirm("");
+        setPortalSendMagicLink(false);
       } else {
         setPortalMessage("Client portal disabled.");
       }
@@ -209,6 +263,38 @@ export function ClientForm({
       setPortalError(error instanceof Error ? error.message : "Could not update client portal access.");
     } finally {
       setIsPortalUpdating(false);
+    }
+  };
+
+  const handleUpdatePortalPassword = async () => {
+    if (!initialClient?.id || isPortalPasswordUpdating) return;
+    const a = updatePortalPassword.trim();
+    const b = updatePortalConfirm.trim();
+    if (!a || !b || a !== b) {
+      setPortalError("New password and confirmation must match and cannot be empty.");
+      return;
+    }
+    setPortalError(null);
+    setPortalMessage(null);
+    setIsPortalPasswordUpdating(true);
+    try {
+      const response = await fetch(`/api/lawyer/clients/${initialClient.id}/set-portal-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: a }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { message?: string };
+      if (!response.ok) {
+        throw new Error(payload.message || "Could not update portal password.");
+      }
+      setPortalMessage(payload.message ?? "Portal password updated.");
+      setUpdatePortalPassword("");
+      setUpdatePortalConfirm("");
+      router.refresh();
+    } catch (error) {
+      setPortalError(error instanceof Error ? error.message : "Could not update portal password.");
+    } finally {
+      setIsPortalPasswordUpdating(false);
     }
   };
 
@@ -611,6 +697,103 @@ export function ClientForm({
                     )}
                   </Button>
                 </div>
+                {!portalEnabled && canSetPortalPassword ? (
+                  <div className="space-y-3 rounded-md border border-border/60 bg-background/50 p-3">
+                    <p className="text-xs font-medium text-foreground">Portal password (recommended)</p>
+                    <p className="text-xs text-muted-foreground">
+                      Set a password and share it securely with the client — they sign in at /sign-in with this email and password (no email delivery required). Leave blank only if the client will use a login link or magic link from their email.
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground" htmlFor="portal-password">
+                          Password
+                        </label>
+                        <Input
+                          id="portal-password"
+                          type="password"
+                          autoComplete="new-password"
+                          value={portalPassword}
+                          onChange={(e) => setPortalPassword(e.target.value)}
+                          placeholder="Min. 8 characters"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground" htmlFor="portal-confirm">
+                          Confirm password
+                        </label>
+                        <Input
+                          id="portal-confirm"
+                          type="password"
+                          autoComplete="new-password"
+                          value={portalConfirm}
+                          onChange={(e) => setPortalConfirm(e.target.value)}
+                          placeholder="Repeat password"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="portal-send-magic"
+                        checked={portalSendMagicLink}
+                        onCheckedChange={(v) => setPortalSendMagicLink(v === true)}
+                      />
+                      <label htmlFor="portal-send-magic" className="text-xs text-muted-foreground cursor-pointer">
+                        Also email login link (in addition to password)
+                      </label>
+                    </div>
+                  </div>
+                ) : null}
+                {portalEnabled && canSetPortalPassword ? (
+                  <div className="space-y-3 rounded-md border border-border/60 bg-background/50 p-3">
+                    <p className="text-xs font-medium text-foreground">Update portal password</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground" htmlFor="update-portal-pw">
+                          New password
+                        </label>
+                        <Input
+                          id="update-portal-pw"
+                          type="password"
+                          autoComplete="new-password"
+                          value={updatePortalPassword}
+                          onChange={(e) => setUpdatePortalPassword(e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground" htmlFor="update-portal-pw2">
+                          Confirm
+                        </label>
+                        <Input
+                          id="update-portal-pw2"
+                          type="password"
+                          autoComplete="new-password"
+                          value={updatePortalConfirm}
+                          onChange={(e) => setUpdatePortalConfirm(e.target.value)}
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      disabled={isPortalPasswordUpdating}
+                      onClick={() => void handleUpdatePortalPassword()}
+                    >
+                      {isPortalPasswordUpdating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Updating
+                        </>
+                      ) : (
+                        "Update password"
+                      )}
+                    </Button>
+                  </div>
+                ) : null}
                 {portalMessage ? <p className="text-sm text-emerald-600">{portalMessage}</p> : null}
                 {portalError ? <p className="text-sm text-destructive">{portalError}</p> : null}
               </div>

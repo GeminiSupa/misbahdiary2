@@ -4,6 +4,12 @@ import { sendEmail } from "@/lib/email/service";
 import { supabaseAdminClient } from "@/lib/supabase/admin";
 
 const emailSchema = z.string().email();
+
+/** Minimum strength for firm-assigned client portal passwords. */
+export const portalPasswordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters.")
+  .max(72, "Password is too long.");
 const MAX_USER_SCAN_PAGES = 10;
 const USERS_PER_PAGE = 1000;
 const RESEND_WINDOW_MS = 60 * 1000; // 1 minute
@@ -66,6 +72,75 @@ export async function getOrCreateAuthUser(normalizedEmail: string) {
   }
 
   return data.user;
+}
+
+/**
+ * Create or load auth user; when password is set, applies it (new user or password update).
+ * Call only from trusted server routes after permission checks.
+ */
+export async function getOrCreateAuthUserWithOptionalPassword(
+  normalizedEmail: string,
+  rawPassword: string | undefined | null,
+) {
+  const hasPassword =
+    rawPassword !== undefined && rawPassword !== null && String(rawPassword).trim().length > 0;
+
+  if (!hasPassword) {
+    return getOrCreateAuthUser(normalizedEmail);
+  }
+
+  const password = portalPasswordSchema.parse(String(rawPassword).trim());
+
+  const existing = await findAuthUserByEmail(normalizedEmail);
+  if (existing) {
+    const { error } = await supabaseAdminClient.auth.admin.updateUserById(existing.id, {
+      password,
+      email_confirm: true,
+    });
+    if (error) {
+      throw new Error(`Unable to set portal password: ${error.message}`);
+    }
+    return existing;
+  }
+
+  const { data, error } = await supabaseAdminClient.auth.admin.createUser({
+    email: normalizedEmail,
+    password,
+    email_confirm: true,
+  });
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("already") || message.includes("exists") || message.includes("registered")) {
+      const racedUser = await findAuthUserByEmail(normalizedEmail);
+      if (racedUser) {
+        const { error: updErr } = await supabaseAdminClient.auth.admin.updateUserById(racedUser.id, {
+          password,
+          email_confirm: true,
+        });
+        if (updErr) throw new Error(`Unable to set portal password: ${updErr.message}`);
+        return racedUser;
+      }
+    }
+    throw new Error(`Unable to create auth user: ${error.message}`);
+  }
+
+  if (!data.user) {
+    throw new Error("Auth user creation returned no user.");
+  }
+
+  return data.user;
+}
+
+export async function updateAuthUserPortalPassword(authUserId: string, rawPassword: string) {
+  const password = portalPasswordSchema.parse(rawPassword.trim());
+  const { error } = await supabaseAdminClient.auth.admin.updateUserById(authUserId, {
+    password,
+    email_confirm: true,
+  });
+  if (error) {
+    throw new Error(`Unable to update portal password: ${error.message}`);
+  }
 }
 
 function getPublicSiteBaseUrl(requestOrigin: string): string {
