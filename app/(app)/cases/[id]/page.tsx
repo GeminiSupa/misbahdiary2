@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UpdateMatterFormValues } from "@/app/(app)/cases/[id]/actions";
+import { splitCourtForForm } from "@/lib/court-name";
 
 export const metadata: Metadata = {
   title: "Matter details • Lawyer Diary",
@@ -362,6 +363,7 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
 
   // Convert matter to form values
   const againstPartiesData = matter.against_parties as any;
+  const courtSplit = splitCourtForForm(matter.court_name ?? "");
   const matterFormValues: UpdateMatterFormValues = {
     id: matter.id,
     clientId: matter.client_id,
@@ -371,7 +373,8 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
     caseFileDate: matter.case_file_date ? new Date(matter.case_file_date).toISOString().slice(0, 10) : "",
     caseType: (matter.case_type as any) ?? "",
     caseTypeOther: ((matter as any).case_type_other as string) ?? "",
-    courtName: matter.court_name ?? "",
+    courtName: courtSplit.courtName,
+    courtNameOther: courtSplit.courtNameOther,
     district: matter.district ?? "",
     clientBrief: matter.client_brief ?? "",
     againstParties: againstPartiesData?.details ?? "",

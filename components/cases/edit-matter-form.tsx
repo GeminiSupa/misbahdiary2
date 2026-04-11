@@ -25,7 +25,7 @@ import {
   matterCaseTypeOptions,
   matterPartyTypeOptions,
 } from "@/lib/constants/cases";
-import { pakistanCourtOptions, pakistanDistrictOptions } from "@/lib/constants/geo";
+import { COURT_NAME_OTHER_VALUE, pakistanCourtOptions, pakistanDistrictOptions } from "@/lib/constants/geo";
 import { Loader2, User, Users, Briefcase, Calendar, FileText, CheckCircle2, X, MapPin, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
@@ -45,7 +45,8 @@ const formSchema = z
       .optional()
       .or(z.literal("")),
     caseTypeOther: z.string().optional().or(z.literal("")),
-    courtName: z.string().min(2, "Court is required"),
+    courtName: z.string().min(1, "Court is required"),
+    courtNameOther: z.string().optional().or(z.literal("")),
     district: z.string().min(2, "District is required"),
     clientBrief: z.string().optional().or(z.literal("")),
     againstParties: z.string().optional().or(z.literal("")),
@@ -82,6 +83,15 @@ const formSchema = z
         });
       }
     }
+    if (data.courtName === COURT_NAME_OTHER_VALUE) {
+      if (!data.courtNameOther || data.courtNameOther.trim().length < 2) {
+        ctx.addIssue({
+          path: ["courtNameOther"],
+          code: z.ZodIssueCode.custom,
+          message: "Enter the full court name when selecting Other.",
+        });
+      }
+    }
   });
 
 type EditMatterFormProps = {
@@ -107,8 +117,9 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
     caseFileDate: matter.caseFileDate ?? "",
     caseType: matter.caseType ?? "",
     caseTypeOther: (matter as any).caseTypeOther ?? "",
-    courtName: (matter.courtName && matter.courtName.length >= 2) ? matter.courtName : "Court Name",
-    district: (matter.district && matter.district.length >= 2) ? matter.district : "District",
+    courtName: matter.courtName?.length ? matter.courtName : "",
+    courtNameOther: matter.courtNameOther ?? "",
+    district: (matter.district && matter.district.length >= 2) ? matter.district : "",
     clientBrief: matter.clientBrief ?? "",
     againstParties: matter.againstParties ?? "",
     againstPartiesType: (matter.againstPartiesType || "individual") as "individual" | "organization",
@@ -125,13 +136,17 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
 
   const matterType = useWatch({ control: form.control, name: "matterType" });
   const caseType = useWatch({ control: form.control, name: "caseType" });
+  const selectedCourtName = useWatch({ control: form.control, name: "courtName" });
   const isLitigation = matterType === "litigation";
 
   const onSubmit = async (values: UpdateMatterFormValues) => {
     setFormError(null);
     setIsSubmitting(true);
 
-    const result = await updateMatter(values);
+    const result = await updateMatter({
+      ...values,
+      courtNameOther: values.courtNameOther?.trim() || undefined,
+    });
 
     if (result.success) {
       router.refresh();
@@ -299,6 +314,7 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
                             {court}
                           </option>
                         ))}
+                        <option value={COURT_NAME_OTHER_VALUE}>Other (type court name)</option>
                       </select>
                     </FormControl>
                     <FormMessage />
@@ -337,6 +353,23 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
                 )}
               />
             </div>
+
+            {selectedCourtName === COURT_NAME_OTHER_VALUE ? (
+              <FormField
+                control={form.control}
+                name="courtNameOther"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Custom court name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Full name of court or bench" className="h-10" />
+                    </FormControl>
+                    <FormDescription className="text-xs">Use when your court is not listed above.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
 
             {isLitigation && (
               <div className="grid gap-4 md:grid-cols-3">

@@ -1312,5 +1312,3 @@ create policy "Firm members can view billing settings"
   on public.billing_settings
   for select
   using (public.is_member_of_firm(firm_id));
-
-

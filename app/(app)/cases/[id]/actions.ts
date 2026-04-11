@@ -10,6 +10,8 @@ import {
   matterCaseTypeOptions,
   matterPartyTypeOptions,
 } from "@/lib/constants/cases";
+import { COURT_NAME_OTHER_VALUE } from "@/lib/constants/geo";
+import { resolveCourtNameForDb } from "@/lib/court-name";
 
 const DOCUMENT_BUCKET = "case_files";
 
@@ -33,6 +35,7 @@ const updateMatterSchema = z
       .or(z.literal("")),
     caseTypeOther: z.string().optional().or(z.literal("")),
     courtName: z.string().min(2, "Court is required"),
+    courtNameOther: z.string().optional().or(z.literal("")),
     district: z.string().min(2, "District is required"),
     clientBrief: z.string().optional().or(z.literal("")),
     againstParties: z.string().optional().or(z.literal("")),
@@ -69,6 +72,17 @@ const updateMatterSchema = z
           message: "Provide the court filing date.",
         });
       }
+    }
+    const resolvedCourt = resolveCourtNameForDb(data.courtName, data.courtNameOther);
+    if (resolvedCourt.length < 2) {
+      ctx.addIssue({
+        path: [data.courtName === COURT_NAME_OTHER_VALUE ? "courtNameOther" : "courtName"],
+        code: z.ZodIssueCode.custom,
+        message:
+          data.courtName === COURT_NAME_OTHER_VALUE
+            ? "Enter the full court name (at least 2 characters)."
+            : "Court is required.",
+      });
     }
   });
 
@@ -132,6 +146,7 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
   const evidenceList = normaliseList(payload.evidenceProvided);
   const documentsList = normaliseList(payload.documentsProvided);
   const pendingList = normaliseList(payload.pendingDocuments);
+  const courtResolved = resolveCourtNameForDb(payload.courtName, payload.courtNameOther);
 
   // Get old assignments for comparison
   const oldAssignments = Array.isArray(existingMatter.assigned_attorneys)
@@ -152,7 +167,7 @@ export async function updateMatter(values: UpdateMatterFormValues): Promise<Acti
       matter_type: payload.matterType,
       matter_status: payload.matterStatus,
       case_number: payload.caseNumber ?? null,
-      court_name: payload.courtName,
+      court_name: courtResolved,
       district: payload.district,
       case_file_date: filingDate,
       case_type: payload.caseType ?? null,

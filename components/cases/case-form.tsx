@@ -26,7 +26,7 @@ import {
   matterCaseTypeOptions,
   matterPartyTypeOptions,
 } from "@/lib/constants/cases";
-import { pakistanCourtOptions, pakistanDistrictOptions } from "@/lib/constants/geo";
+import { COURT_NAME_OTHER_VALUE, pakistanCourtOptions, pakistanDistrictOptions } from "@/lib/constants/geo";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, User, Users, Briefcase, Calendar, FileText, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,7 +48,8 @@ const formSchema = z
       .optional()
       .or(z.literal("")),
     caseTypeOther: z.string().optional().or(z.literal("")),
-    courtName: z.string().min(2, "Court is required"),
+    courtName: z.string().min(1, "Court is required"),
+    courtNameOther: z.string().optional().or(z.literal("")),
     district: z.string().min(2, "District is required"),
     clientBrief: z.string().optional().or(z.literal("")),
     againstParties: z.string().optional().or(z.literal("")),
@@ -86,6 +87,15 @@ const formSchema = z
         });
       }
     }
+    if (data.courtName === COURT_NAME_OTHER_VALUE) {
+      if (!data.courtNameOther || data.courtNameOther.trim().length < 2) {
+        ctx.addIssue({
+          path: ["courtNameOther"],
+          code: z.ZodIssueCode.custom,
+          message: "Enter the full court name when selecting Other.",
+        });
+      }
+    }
   });
 
 type Props = {
@@ -98,6 +108,9 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [aiNotes, setAiNotes] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   const form = useForm<MatterFormValues>({
     resolver: zodResolver(formSchema),
@@ -110,6 +123,7 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
       caseType: "",
       caseTypeOther: "",
       courtName: pakistanCourtOptions[0] ?? "",
+      courtNameOther: "",
       district: pakistanDistrictOptions[0] ?? "",
       clientBrief: "",
       againstParties: "",
@@ -123,7 +137,78 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
 
   const selectedMatterType = useWatch({ control: form.control, name: "matterType" });
   const selectedCaseType = useWatch({ control: form.control, name: "caseType" });
+  const selectedCourtName = useWatch({ control: form.control, name: "courtName" });
   const selectedAttorneys = useWatch({ control: form.control, name: "assignedAttorneys" }) || [];
+
+  const applyAiSuggestions = (s: Record<string, unknown>) => {
+    if (typeof s.clientBrief === "string" && s.clientBrief.trim()) {
+      form.setValue("clientBrief", s.clientBrief.trim());
+    }
+    if (typeof s.againstParties === "string" && s.againstParties.trim()) {
+      form.setValue("againstParties", s.againstParties.trim());
+    }
+    if (typeof s.caseNumber === "string" && s.caseNumber.trim()) {
+      form.setValue("caseNumber", s.caseNumber.trim());
+    }
+    const courtHint = typeof s.suggestedCourtName === "string" ? s.suggestedCourtName.trim() : "";
+    if (courtHint) {
+      const match = pakistanCourtOptions.find((c) => c.toLowerCase() === courtHint.toLowerCase());
+      if (match) {
+        form.setValue("courtName", match);
+        form.setValue("courtNameOther", "");
+      } else {
+        form.setValue("courtName", COURT_NAME_OTHER_VALUE);
+        form.setValue("courtNameOther", courtHint);
+      }
+    }
+    const dist = typeof s.suggestedDistrict === "string" ? s.suggestedDistrict.trim() : "";
+    if (dist) {
+      const dMatch = pakistanDistrictOptions.find((d) => d.toLowerCase() === dist.toLowerCase());
+      if (dMatch) {
+        form.setValue("district", dMatch);
+      }
+    }
+  };
+
+  const handleAiSuggest = async () => {
+    setAiMessage(null);
+    const text = aiNotes.trim();
+    if (text.length < 12) {
+      setAiMessage("Add a short description (at least a sentence or two) for better suggestions.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/matter-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: text }),
+      });
+      const data = (await res.json()) as {
+        configured?: boolean;
+        message?: string;
+        suggestions?: Record<string, unknown>;
+      };
+      if (!res.ok) {
+        setAiMessage(data.message ?? "Could not get suggestions.");
+        return;
+      }
+      if (data.configured === false) {
+        setAiMessage(data.message ?? "Configure OPENAI_API_KEY to enable AI suggestions.");
+        return;
+      }
+      if (data.suggestions && typeof data.suggestions === "object") {
+        applyAiSuggestions(data.suggestions);
+        setAiMessage("Fields below were filled from your notes. Review before saving.");
+      } else {
+        setAiMessage(data.message ?? "No suggestions returned.");
+      }
+    } catch {
+      setAiMessage("Request failed. Try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const toggleAttorney = (attorneyId: string) => {
     const current = form.getValues("assignedAttorneys") || [];
@@ -143,6 +228,7 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
       caseFileDate: values.caseFileDate || undefined,
       caseType: values.caseType || undefined,
       caseTypeOther: values.caseType === "other" ? values.caseTypeOther?.trim() || undefined : undefined,
+      courtNameOther: values.courtNameOther?.trim() || undefined,
       clientBrief: values.clientBrief || undefined,
       againstParties: values.againstParties || undefined,
       evidenceProvided: values.evidenceProvided || undefined,
@@ -192,6 +278,40 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">AI draft assist</h3>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Describe the matter in your own words (parties, court, relief sought). AI can suggest text for several
+              fields—you should always review before saving.
+            </p>
+            <Textarea
+              value={aiNotes}
+              onChange={(e) => setAiNotes(e.target.value)}
+              placeholder="e.g. Civil suit for possession in Karachi; plaintiff is our client; case filed in Sindh High Court..."
+              rows={3}
+              className="resize-none text-sm"
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" size="sm" disabled={aiLoading} onClick={() => void handleAiSuggest()}>
+                {aiLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Working…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Suggest fields
+                  </>
+                )}
+              </Button>
+              {aiMessage ? <span className="text-xs text-muted-foreground">{aiMessage}</span> : null}
+            </div>
+          </div>
+
           {/* Basic Information Section */}
           <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
             <div className="flex items-center gap-2 py-2">
@@ -350,6 +470,7 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
                             {court}
                           </option>
                         ))}
+                        <option value={COURT_NAME_OTHER_VALUE}>Other (type court name)</option>
                       </select>
                     </FormControl>
                     <FormMessage />
@@ -384,6 +505,23 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
                 )}
               />
             </div>
+
+            {selectedCourtName === COURT_NAME_OTHER_VALUE ? (
+              <FormField
+                control={form.control}
+                name="courtNameOther"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Custom court name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Full name of court or bench" className="min-h-[44px] sm:min-h-[40px]" />
+                    </FormControl>
+                    <FormDescription className="text-xs">Use when your court is not listed above.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
 
             <div className="grid gap-4 md:grid-cols-3">
               <FormField

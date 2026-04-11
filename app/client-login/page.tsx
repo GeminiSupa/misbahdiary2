@@ -1,13 +1,26 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function ClientLoginInner() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const error = searchParams.get("error");
+
+  const tokenOk = Boolean(token && UUID_RE.test(token));
+
+  useEffect(() => {
+    if (!tokenOk || error === "link-expired") {
+      return;
+    }
+    const url = `/api/auth/magic-redirect?token=${encodeURIComponent(token!)}`;
+    window.location.replace(url);
+  }, [token, tokenOk, error]);
 
   if (error === "link-expired") {
     return (
@@ -36,22 +49,31 @@ function ClientLoginInner() {
     );
   }
 
+  if (!tokenOk) {
+    return (
+      <div className="space-y-4 text-center">
+        <h1 className="text-xl font-semibold text-white sm:text-2xl">Invalid link</h1>
+        <p className="text-sm text-white/75">This login link is not valid. Ask your lawyer to send a new client portal email.</p>
+        <Link href="/sign-in" className="text-sm font-medium text-blue-400 underline-offset-4 hover:underline">
+          Go to sign in
+        </Link>
+      </div>
+    );
+  }
+
   const continueUrl = `/api/auth/magic-redirect?token=${encodeURIComponent(token)}`;
 
   return (
     <div className="space-y-6 text-center">
       <h1 className="text-xl font-semibold text-white sm:text-2xl">Client portal</h1>
-      <p className="text-sm leading-relaxed text-white/80">
-        For your security, confirm below to open your one-time sign-in link. This helps prevent automated systems from
-        using your login before you do.
+      <p className="text-sm leading-relaxed text-white/80">Opening your secure sign-in link…</p>
+      <p className="text-xs text-white/45">
+        If nothing happens,{" "}
+        <a href={continueUrl} className="font-medium text-blue-400 underline-offset-4 hover:underline">
+          tap here to continue
+        </a>
+        .
       </p>
-      <a
-        href={continueUrl}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900"
-      >
-        Continue to your dashboard
-      </a>
-      <p className="text-xs text-white/45">This step only takes a moment.</p>
     </div>
   );
 }

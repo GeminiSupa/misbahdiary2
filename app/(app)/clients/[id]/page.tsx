@@ -10,6 +10,7 @@ import { matterStatusOptions } from "@/lib/constants/cases";
 import { ClientDocumentsCard, type ClientDocument } from "@/components/clients/client-documents-card";
 import { ClientPortalMessagesLawyerCard } from "@/components/clients/client-portal-messages-lawyer-card";
 import { EditClientSheet } from "@/components/clients/edit-client-sheet";
+import { ClientPortalAccessSheet } from "@/components/clients/client-portal-access-sheet";
 import { DeleteClientButton } from "@/components/clients/delete-client-button";
 import { Download, Edit, User } from "lucide-react";
 import type { ClientFormValues } from "@/app/(app)/clients/actions";
@@ -175,6 +176,13 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                 portalEnabled={Boolean(clientData.portal_enabled)}
                 canSetPortalPassword={canSetPortalPassword}
               />
+              {!clientData.portal_enabled ? (
+                <ClientPortalAccessSheet
+                  clientId={clientData.id as string}
+                  clientEmail={clientData.email as string | null | undefined}
+                  canSetPortalPassword={canSetPortalPassword}
+                />
+              ) : null}
               <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                 <a href={`/api/clients/${clientData.id}/pdf`} download target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <Download className="h-4 w-4 shrink-0" />

@@ -37,8 +37,18 @@ export async function POST(
       }
     }
 
-    /** Opt-in only: firm email (Resend) is often unset; password handoff is the default path. */
+    /** Opt-in: Resend proxy email. Without this, a portal password is required. */
     const sendMagicLink = rawBody.sendMagicLink === true;
+
+    if (!sendMagicLink && !wantsPassword) {
+      return NextResponse.json(
+        {
+          message:
+            "Set a portal password for the client, or pass sendMagicLink: true to send a login email instead.",
+        },
+        { status: 400 },
+      );
+    }
 
     const supabase = await createSupabaseServerClient();
     const {

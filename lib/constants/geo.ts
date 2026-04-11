@@ -1,3 +1,6 @@
+/** Select value when the court is not in `pakistanCourtOptions`; use `courtNameOther` for the label. */
+export const COURT_NAME_OTHER_VALUE = "__other__" as const;
+
 export const pakistanCourtOptions = [
   "Supreme Court of Pakistan",
   "Islamabad High Court",

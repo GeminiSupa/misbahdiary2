@@ -68,13 +68,15 @@ const clientSchema = z
 
 export type ClientFormValues = z.infer<typeof clientSchema>;
 
-type ActionState = {
+export type ClientSaveResult = {
   success?: boolean;
+  /** Present when a new client row was inserted (for chaining portal enable). */
+  clientId?: string;
   message?: string;
   fieldErrors?: Record<string, string[]>;
 };
 
-export async function saveClient(values: ClientFormValues): Promise<ActionState> {
+export async function saveClient(values: ClientFormValues): Promise<ClientSaveResult> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -178,7 +180,7 @@ export async function saveClient(values: ClientFormValues): Promise<ActionState>
     revalidatePath(`/clients/${payload.id}`);
     revalidatePath("/cases");
 
-    return { success: true };
+    return { success: true, clientId: payload.id };
   }
 
   const insertData = {
@@ -238,7 +240,7 @@ export async function saveClient(values: ClientFormValues): Promise<ActionState>
   revalidatePath("/clients");
   revalidatePath("/cases");
 
-  return { success: true };
+  return { success: true, clientId: insertedData.id };
 }
 
 export async function uploadClientDocument(formData: FormData) {
@@ -386,7 +388,7 @@ export async function getSignedClientDocumentUrl(documentId: string) {
   return { success: true, url: signed.signedUrl };
 }
 
-export async function deleteClient(clientId: string): Promise<ActionState> {
+export async function deleteClient(clientId: string): Promise<{ success: boolean; message?: string }> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

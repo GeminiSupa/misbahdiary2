@@ -10,6 +10,8 @@ import {
   matterCaseTypeOptions,
   matterPartyTypeOptions,
 } from "@/lib/constants/cases";
+import { COURT_NAME_OTHER_VALUE } from "@/lib/constants/geo";
+import { resolveCourtNameForDb } from "@/lib/court-name";
 
 const matterSchema = z
   .object({
@@ -20,7 +22,8 @@ const matterSchema = z
     caseFileDate: z.string().optional(),
     caseType: z.enum(matterCaseTypeOptions.map((option) => option.value) as [string, ...string[]]).optional(),
     caseTypeOther: z.string().optional(),
-    courtName: z.string().min(2),
+    courtName: z.string().min(1, "Court is required"),
+    courtNameOther: z.string().optional(),
     district: z.string().min(2),
     clientBrief: z.string().optional(),
     againstParties: z.string().optional(),
@@ -54,6 +57,17 @@ const matterSchema = z
         path: ["caseFileDate"],
         code: z.ZodIssueCode.custom,
         message: "Provide the filing date for litigation matters.",
+      });
+    }
+    const resolvedCourt = resolveCourtNameForDb(data.courtName, data.courtNameOther);
+    if (resolvedCourt.length < 2) {
+      ctx.addIssue({
+        path: [data.courtName === COURT_NAME_OTHER_VALUE ? "courtNameOther" : "courtName"],
+        code: z.ZodIssueCode.custom,
+        message:
+          data.courtName === COURT_NAME_OTHER_VALUE
+            ? "Enter the full court name (at least 2 characters)."
+            : "Court is required.",
       });
     }
   });
@@ -111,6 +125,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
   const evidenceList = normaliseList(payload.evidenceProvided);
   const documentsList = normaliseList(payload.documentsProvided);
   const pendingList = normaliseList(payload.pendingDocuments);
+  const courtResolved = resolveCourtNameForDb(payload.courtName, payload.courtNameOther);
 
   const { data: matterInsert, error: insertError } = await supabase
     .from("matters")
@@ -121,7 +136,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
       matter_type: payload.matterType,
       matter_status: payload.matterStatus,
       case_number: payload.caseNumber ?? null,
-      court_name: payload.courtName,
+      court_name: courtResolved,
       district: payload.district,
       case_file_date: filingDate,
       case_type: payload.caseType ?? null,
@@ -179,7 +194,7 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
     date: new Date().toISOString().slice(0, 10),
     details: "Matter created",
     stage: "Intake",
-    court_name: payload.courtName,
+    court_name: courtResolved,
     case_number: payload.caseNumber ?? null,
     updated_by: user.id,
   } as any);

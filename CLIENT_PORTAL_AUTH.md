@@ -1,25 +1,26 @@
 # Client portal authentication and messaging
 
-## How login works
+## Password-first (recommended)
 
-1. A lawyer saves a **client** with a valid **email**, then enables **Client portal** on that client (client edit form).
-2. The app creates or links a **Supabase Auth** user for that email and sets `clients.auth_user_id` with `portal_enabled = true`.
-3. The client signs in at **`/sign-in`** with that email and either:
-   - a **magic link** sent to their inbox, or
-   - a **password** set by the firm (see below).
+1. Save the **client** with a valid **email** on their record.
+2. Set a **portal password** (and confirmation) when enabling access, then share **email + password** securely with the client (in person or an encrypted channel—not plain email for the password).
+3. The app creates or links a **Supabase Auth** user for that email and sets `clients.auth_user_id` with `portal_enabled = true`.
+4. The client signs in at **`/sign-in`** with that email and password. They are redirected to **`/client/dashboard`** and only see **their** matters, hearings, and messages (RLS), similar to a parent portal seeing only their child’s data.
 
-## Magic link (default)
+**Where to enable**
 
-When portal is enabled **without** a firm-set password, a **magic link** email is sent (if Resend is configured). Opening it completes sign-in and redirects to `/client/dashboard`.
+- **New client**: In **New client**, check **Enable client portal when saving** and fill password fields (or opt into **Also email login link**).
+- **Existing client**: Open the client → **Edit client** (Client Portal section), or use the **Portal access** quick sheet on the client profile.
 
-## Firm-set password (owner / principal partner only)
+**API rule**: Enabling the portal requires either a **password** or an explicit **`sendMagicLink: true`** request (login email). You cannot enable with neither.
 
-**Firm owner** or **principal partner** can optionally set an **initial portal password** when enabling the portal, or **update** it later in the same client edit sheet.
+## Login email (optional alternative)
 
-- Passwords are applied via Supabase Admin on the server only (never logged in application code).
-- **Share credentials securely** with the client (in person or an encrypted channel). Email is not a safe way to send passwords.
-- Checkbox **“Also email login link”**: when a password is set, the default is **not** to email the magic link; you can opt in to send both.
-- Other firm roles can still enable the portal **without** setting a password (magic link only).
+If **“Also email login link”** is checked when enabling, the app can send a one-time link (Resend + proxy URL to **`/client-login?token=…`**). That page **redirects automatically** to complete sign-in. You still need Supabase and app URLs configured correctly (see below).
+
+## Who can set passwords
+
+Any **firm member** with a profile in the firm can set or update portal passwords (same scope as editing clients). Access is enforced by `firm_id` on the client in the API routes.
 
 ## Messaging
 
@@ -31,4 +32,19 @@ Portal users only receive rows allowed by **RLS** (see `portal_linked_client_id(
 
 ## Self-service password (alternative)
 
-Clients can also use Supabase **password recovery** from `/sign-in` if email is configured, without the firm setting a password.
+Clients can use Supabase **password recovery** from `/sign-in` if email is configured.
+
+---
+
+## Deploy checklist (magic link / OAuth reliability)
+
+Configure these so links are not dropped on the wrong origin:
+
+| Setting | Example |
+|--------|---------|
+| **Vercel** `NEXT_PUBLIC_SITE_URL` | `https://yourdomain.com` (no trailing slash) |
+| **Supabase** → Authentication → **Site URL** | Same as public site |
+| **Supabase** → **Redirect URLs** | `https://yourdomain.com/auth/callback`, `https://yourdomain.com/client-login`, and often `https://yourdomain.com/**` |
+| **Google Cloud** (if using Google sign-in) | Authorized JavaScript origins + redirect URIs per Supabase Google provider docs |
+
+The app includes **hash/code recovery** on `/` and `/sign-in` so stray tokens on the homepage still forward to **`/auth/callback`** when Supabase falls back to Site URL.

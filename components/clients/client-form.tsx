@@ -71,6 +71,7 @@ export function ClientForm({
   const [updatePortalPassword, setUpdatePortalPassword] = useState("");
   const [updatePortalConfirm, setUpdatePortalConfirm] = useState("");
   const [isPortalPasswordUpdating, setIsPortalPasswordUpdating] = useState(false);
+  const [enablePortalOnCreate, setEnablePortalOnCreate] = useState(false);
   const prevPortalPasswordRef = useRef("");
 
   const form = useForm<ClientSchemaForForm>({
@@ -125,6 +126,7 @@ export function ClientForm({
     setPortalSendMagicLink(false);
     setUpdatePortalPassword("");
     setUpdatePortalConfirm("");
+    setEnablePortalOnCreate(false);
     prevPortalPasswordRef.current = "";
   }, [initialPortalEnabled, initialClient?.id]);
 
@@ -155,8 +157,63 @@ export function ClientForm({
     const result = await saveClient(clientValues);
 
     if (result.success) {
+      const wasNew = !values.id;
+      const newClientId = result.clientId;
+
+      let portalChainError: string | null = null;
+      if (wasNew && newClientId && enablePortalOnCreate && canSetPortalPassword) {
+        const email = values.email?.trim();
+        if (!email) {
+          portalChainError = "Add a valid email address to enable the client portal.";
+        } else {
+          const p = portalPassword.trim();
+          const c = portalConfirm.trim();
+          if (!portalSendMagicLink) {
+            if (!p || !c || p !== c) {
+              portalChainError =
+                'Set a matching portal password (min. 8 characters), or enable "Also email login link".';
+            }
+          }
+          if (!portalChainError) {
+            const body =
+              portalSendMagicLink && !(p && c && p === c)
+                ? { sendMagicLink: true as const }
+                : { password: p, sendMagicLink: portalSendMagicLink };
+            try {
+              const res = await fetch(`/api/lawyer/clients/${newClientId}/enable-portal`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+              });
+              const payload = (await res.json().catch(() => ({}))) as { message?: string };
+              if (!res.ok) {
+                portalChainError = payload.message ?? "Could not enable client portal.";
+              } else {
+                setPortalMessage(payload.message ?? "Client portal enabled.");
+                setPortalEnabled(true);
+                setPortalPassword("");
+                setPortalConfirm("");
+                setPortalSendMagicLink(false);
+              }
+            } catch {
+              portalChainError = "Could not enable client portal. Enable it from the client profile.";
+            }
+          }
+        }
+      }
+
       router.refresh();
-      if (!values.id) {
+
+      if (portalChainError) {
+        if (newClientId) {
+          form.setValue("id", newClientId);
+        }
+        setFormError(portalChainError);
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (wasNew) {
         form.reset({
           type: "individual",
           fullName: "",
@@ -174,6 +231,7 @@ export function ClientForm({
           representativeToWhom: "",
           representativeCapacity: "",
         });
+        setEnablePortalOnCreate(false);
       }
       onReset?.();
       onSuccess?.();
@@ -200,12 +258,17 @@ export function ClientForm({
     setIsSubmitting(false);
   };
 
-  const isEditing = Boolean(initialClient?.id);
+  const formClientId = useWatch({ control: form.control, name: "id" });
+  const isEditing = Boolean(initialClient?.id ?? formClientId);
   const representation = useWatch({ control: form.control, name: "representation" });
   const clientType = useWatch({ control: form.control, name: "type" });
 
   const handlePortalToggle = async (checked: boolean) => {
-    if (!initialClient?.id || isPortalUpdating) {
+    if (!initialClient?.id && !formClientId) {
+      return;
+    }
+    const portalClientId = initialClient?.id ?? formClientId;
+    if (!portalClientId || isPortalUpdating) {
       return;
     }
 
@@ -215,10 +278,19 @@ export function ClientForm({
 
     const p = portalPassword.trim();
     const c = portalConfirm.trim();
-    if (checked && canSetPortalPassword && (p || c)) {
-      if (!p || !c || p !== c) {
-        setPortalError("Portal password and confirmation must match and cannot be empty.");
-        return;
+    if (checked) {
+      if (!portalSendMagicLink) {
+        if (!p || !c || p !== c) {
+          setPortalError(
+            "Set a matching portal password (min. 8 characters), or enable \"Also email login link\" to use email sign-in instead.",
+          );
+          return;
+        }
+      } else if (p || c) {
+        if (!p || !c || p !== c) {
+          setPortalError("Portal password and confirmation must match.");
+          return;
+        }
       }
     }
 
@@ -227,14 +299,14 @@ export function ClientForm({
 
     try {
       const endpoint = checked
-        ? `/api/lawyer/clients/${initialClient.id}/enable-portal`
-        : `/api/lawyer/clients/${initialClient.id}/disable-portal`;
+        ? `/api/lawyer/clients/${portalClientId}/enable-portal`
+        : `/api/lawyer/clients/${portalClientId}/disable-portal`;
 
       const enableBody = checked
         ? JSON.stringify(
-            p && c && p === c
-              ? { password: p, sendMagicLink: portalSendMagicLink }
-              : { sendMagicLink: portalSendMagicLink },
+            portalSendMagicLink && !(p && c && p === c)
+              ? { sendMagicLink: true }
+              : { password: p, sendMagicLink: portalSendMagicLink },
           )
         : undefined;
 
@@ -267,7 +339,8 @@ export function ClientForm({
   };
 
   const handleUpdatePortalPassword = async () => {
-    if (!initialClient?.id || isPortalPasswordUpdating) return;
+    const pid = initialClient?.id ?? formClientId;
+    if (!pid || isPortalPasswordUpdating) return;
     const a = updatePortalPassword.trim();
     const b = updatePortalConfirm.trim();
     if (!a || !b || a !== b) {
@@ -278,7 +351,7 @@ export function ClientForm({
     setPortalMessage(null);
     setIsPortalPasswordUpdating(true);
     try {
-      const response = await fetch(`/api/lawyer/clients/${initialClient.id}/set-portal-password`, {
+      const response = await fetch(`/api/lawyer/clients/${pid}/set-portal-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: a }),
@@ -667,6 +740,76 @@ export function ClientForm({
 
           <Separator />
 
+          {!isEditing && canSetPortalPassword ? (
+            <>
+              <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="enable-portal-on-create"
+                    checked={enablePortalOnCreate}
+                    onCheckedChange={(v) => setEnablePortalOnCreate(v === true)}
+                  />
+                  <div className="space-y-1">
+                    <label htmlFor="enable-portal-on-create" className="text-sm font-medium text-foreground cursor-pointer">
+                      Enable client portal when saving
+                    </label>
+                    <p className="text-sm text-muted-foreground">
+                      Set a login email above, then choose a password to share with the client (or send a login email). They only see their own matters and hearings.
+                    </p>
+                  </div>
+                </div>
+                {enablePortalOnCreate ? (
+                  <div className="space-y-3 rounded-md border border-border/60 bg-background/50 p-3">
+                    <p className="text-xs text-muted-foreground">
+                      The client signs in with the <strong>email</strong> on this form and the password below (or the link we email, if you enable it).
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground" htmlFor="portal-password-new">
+                          Portal password
+                        </label>
+                        <Input
+                          id="portal-password-new"
+                          type="password"
+                          autoComplete="new-password"
+                          value={portalPassword}
+                          onChange={(e) => setPortalPassword(e.target.value)}
+                          placeholder="Min. 8 characters"
+                          className="h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-muted-foreground" htmlFor="portal-confirm-new">
+                          Confirm password
+                        </label>
+                        <Input
+                          id="portal-confirm-new"
+                          type="password"
+                          autoComplete="new-password"
+                          value={portalConfirm}
+                          onChange={(e) => setPortalConfirm(e.target.value)}
+                          placeholder="Repeat password"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="portal-send-magic-new"
+                        checked={portalSendMagicLink}
+                        onCheckedChange={(v) => setPortalSendMagicLink(v === true)}
+                      />
+                      <label htmlFor="portal-send-magic-new" className="text-xs text-muted-foreground cursor-pointer">
+                        Also email login link (instead of password-only)
+                      </label>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              <Separator />
+            </>
+          ) : null}
+
           {isEditing ? (
             <>
               <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-4 hover:border-border/80 hover:bg-muted/30 transition-colors">
@@ -701,7 +844,7 @@ export function ClientForm({
                   <div className="space-y-3 rounded-md border border-border/60 bg-background/50 p-3">
                     <p className="text-xs font-medium text-foreground">Portal password (recommended)</p>
                     <p className="text-xs text-muted-foreground">
-                      Set a password and share it securely with the client — they sign in at /sign-in with this email and password (no email delivery required). Leave blank only if the client will use a login link or magic link from their email.
+                      Set a password and share it securely with the client — they sign in at <strong>/sign-in</strong> with this email and password. Or enable &quot;Also email login link&quot; to use email sign-in instead of (or in addition to) a password.
                     </p>
                     <div className="grid gap-2 sm:grid-cols-2">
                       <div className="space-y-1">
