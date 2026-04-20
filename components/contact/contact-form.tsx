@@ -140,7 +140,7 @@ export function ContactForm() {
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-              <span className="whitespace-nowrap">Sending...</span>
+              <span>Sending...</span>
             </>
           ) : (
             <>

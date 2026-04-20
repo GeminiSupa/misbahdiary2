@@ -91,7 +91,7 @@ export function UserCard(props: UserCardProps) {
             firmId={firm_id}
             firmName={firm_name || "Firm"}
             trigger={
-              <Button variant="outline" size="sm" className="w-full min-h-[48px] whitespace-nowrap">
+              <Button variant="outline" size="sm" className="w-full min-h-[48px]">
                 Record Cash Payment
               </Button>
             }

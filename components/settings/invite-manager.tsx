@@ -176,7 +176,7 @@ export function InviteManager({ invitations, canInvite = true }: InviteManagerPr
               <div className="flex items-end sm:col-span-2 md:col-span-1">
                 <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]">
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
-                  <span className="whitespace-nowrap">Send invite</span>
+                  <span>Send invite</span>
                 </Button>
               </div>
             </form>

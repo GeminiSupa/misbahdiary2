@@ -21,7 +21,7 @@ export function NewMatterSheet({ clients, staff, trigger }: NewMatterSheetProps)
         {trigger || (
           <Button variant="secondary" className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">New matter</span>
+            <span>New matter</span>
           </Button>
         )}
       </SheetTrigger>

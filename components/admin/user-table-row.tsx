@@ -76,7 +76,7 @@ export function UserTableRow({
             firmId={firm_id}
             firmName={firm_name || "Firm"}
             trigger={
-              <Button variant="outline" size="sm" className="min-h-[48px] min-w-[120px] whitespace-nowrap">
+              <Button variant="outline" size="sm" className="min-h-[48px] min-w-[120px]">
                 Record Cash
               </Button>
             }

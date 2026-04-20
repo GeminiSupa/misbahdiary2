@@ -92,12 +92,12 @@ export function DeleteTeamMemberButton({
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                <span className="whitespace-nowrap">Removing...</span>
+                <span>Removing...</span>
               </>
             ) : (
               <>
                 <Trash2 className="mr-2 h-4 w-4 shrink-0" />
-                <span className="whitespace-nowrap">Remove</span>
+                <span>Remove</span>
               </>
             )}
           </AlertDialogAction>

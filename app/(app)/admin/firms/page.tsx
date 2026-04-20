@@ -56,13 +56,13 @@ export default async function FirmsPage() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="outline" className="min-h-[48px] min-w-fit whitespace-nowrap">
+              <Button asChild variant="outline" className="min-h-[48px] min-w-fit">
                 <Link href="/admin" className="flex items-center">
                   <ArrowLeft className="mr-2 h-4 w-4 shrink-0" />
                   Back to Dashboard
                 </Link>
               </Button>
-              <Button asChild className="min-h-[48px] min-w-fit whitespace-nowrap">
+              <Button asChild className="min-h-[48px] min-w-fit">
                 <Link href="/admin/firms/create" className="flex items-center">
                   <Building2 className="mr-2 h-4 w-4 shrink-0" />
                   Create New Firm
@@ -147,7 +147,7 @@ export default async function FirmsPage() {
                   firmId={firm.id}
                   firmName={firm.name}
                   trigger={
-                    <Button variant="outline" size="sm" className="w-full mt-2 min-h-[48px] whitespace-nowrap">
+                    <Button variant="outline" size="sm" className="w-full mt-2 min-h-[48px]">
                       Record Cash Payment
                     </Button>
                   }

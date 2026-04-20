@@ -276,18 +276,18 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
               disabled={isSubmitting}
               className="w-full sm:w-auto h-11 sm:h-10"
             >
-              <span className="whitespace-nowrap">Reset</span>
+              <span>Reset</span>
             </Button>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto h-11 sm:h-10 text-base sm:text-sm">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Scheduling...</span>
+                  <span>Scheduling...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Schedule Hearing</span>
+                  <span>Schedule Hearing</span>
                 </>
               )}
             </Button>

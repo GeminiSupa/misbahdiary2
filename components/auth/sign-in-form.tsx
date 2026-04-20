@@ -383,7 +383,7 @@ export function SignInForm() {
         {isOAuthLoading ? (
           <>
             <Loader2 className="h-5 w-5 shrink-0 animate-spin" />
-            <span className="whitespace-nowrap">Connecting to Google...</span>
+            <span>Connecting to Google...</span>
           </>
         ) : (
           <>
@@ -405,7 +405,7 @@ export function SignInForm() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            <span className="whitespace-nowrap">Sign in with Google</span>
+            <span>Sign in with Google</span>
           </>
         )}
         </Button>
@@ -474,10 +474,10 @@ export function SignInForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Signing in...</span>
+                  <span>Signing in...</span>
                 </>
               ) : (
-                <span className="whitespace-nowrap">Sign In</span>
+                <span>Sign In</span>
               )}
             </Button>
           </div>
@@ -538,10 +538,10 @@ export function SignInForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                    <span className="whitespace-nowrap">Sending...</span>
+                    <span>Sending...</span>
                   </>
                 ) : (
-                  <span className="whitespace-nowrap">Email magic link</span>
+                  <span>Email magic link</span>
                 )}
               </Button>
             </div>

@@ -288,12 +288,12 @@ export function TimelineEntryForm({ matterId, onSuccess, onCancel }: TimelineEnt
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Adding...</span>
+                  <span>Adding...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Add Entry</span>
+                  <span>Add Entry</span>
                 </>
               )}
             </Button>

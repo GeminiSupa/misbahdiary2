@@ -46,7 +46,7 @@ export function EditInvoiceSheet({
         {trigger || (
           <Button variant={variant} size={size} className="w-full sm:w-auto">
             <Pencil className="mr-2 h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">Edit</span>
+            <span>Edit</span>
           </Button>
         )}
       </SheetTrigger>

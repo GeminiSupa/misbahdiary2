@@ -25,6 +25,17 @@ export async function GET() {
     const matterList = matters ?? [];
     const matterIds = matterList.map((m) => m.id);
 
+    // Backwards-compat: some older records live in `cases` (not `matters`).
+    const { data: legacyCases, error: legacyError } = await supabase
+      .from("cases")
+      .select("id, case_number, title, status, case_type, court_name, filing_date, created_at")
+      .eq("client_id", client.id)
+      .order("created_at", { ascending: false });
+
+    if (legacyError) {
+      return NextResponse.json({ message: `Failed to load legacy cases: ${legacyError.message}` }, { status: 500 });
+    }
+
     let historyByMatter = new Map<
       string,
       Array<{
@@ -80,9 +91,26 @@ export async function GET() {
       court_name: m.court_name,
       filing_date: m.case_file_date,
       progress: historyByMatter.get(m.id) ?? [],
+      created_at: m.created_at,
     }));
 
-    return NextResponse.json({ data });
+    const legacyData = (legacyCases ?? []).map((c) => ({
+      id: c.id,
+      case_number: c.case_number,
+      title: c.title,
+      status: c.status,
+      case_type: c.case_type,
+      court_name: c.court_name,
+      filing_date: c.filing_date,
+      progress: [] as any[],
+      created_at: c.created_at,
+    }));
+
+    const combined = [...data, ...legacyData]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .map(({ created_at, ...rest }) => rest);
+
+    return NextResponse.json({ data: combined });
   } catch (error) {
     const status = (error as Error & { status?: number }).status;
     if (status === 401 || status === 403) {

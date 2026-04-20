@@ -55,13 +55,13 @@ export default async function AdminUsersPage() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="outline" className="min-h-[48px] min-w-fit whitespace-nowrap">
+              <Button asChild variant="outline" className="min-h-[48px] min-w-fit">
                 <Link href="/admin" className="flex items-center">
                   <ArrowLeft className="mr-2 h-4 w-4 shrink-0" />
                   Back to Dashboard
                 </Link>
               </Button>
-              <Button asChild className="min-h-[48px] min-w-fit whitespace-nowrap">
+              <Button asChild className="min-h-[48px] min-w-fit">
                 <Link href="/admin/firms" className="flex items-center">
                   <Building2 className="mr-2 h-4 w-4 shrink-0" />
                   View Firms

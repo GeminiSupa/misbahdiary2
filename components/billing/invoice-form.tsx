@@ -485,18 +485,18 @@ export function InvoiceForm({ clients, matters, unbilledTimeEntries, onSuccess }
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
-              <span className="whitespace-nowrap">Reset</span>
+              <span>Reset</span>
             </Button>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Creating...</span>
+                  <span>Creating...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Create Invoice</span>
+                  <span>Create Invoice</span>
                 </>
               )}
             </Button>

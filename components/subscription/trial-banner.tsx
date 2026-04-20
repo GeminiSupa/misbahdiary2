@@ -82,7 +82,7 @@ export function TrialBanner({
             </span>
           )}
         </span>
-        <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-w-fit shrink-0 whitespace-nowrap">
+        <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-w-fit shrink-0">
           <Link href="/subscription" className="block text-center">
             View Plans
           </Link>

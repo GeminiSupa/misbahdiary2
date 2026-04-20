@@ -214,7 +214,7 @@ export function NotificationSettingsForm({ initialValues }: NotificationSettings
                 disabled={isSubmitting}
                 className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px] touch-manipulation"
               >
-                <span className="whitespace-nowrap">Reset</span>
+                <span>Reset</span>
               </Button>
               <Button
                 type="submit"

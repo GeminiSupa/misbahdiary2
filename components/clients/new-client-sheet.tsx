@@ -14,7 +14,7 @@ export function NewClientSheet() {
       <SheetTrigger asChild>
         <Button variant="default" className="w-full sm:w-auto" size="sm">
           <Plus className="mr-2 h-4 w-4 shrink-0" />
-          <span className="whitespace-nowrap">New client</span>
+          <span>New client</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right">

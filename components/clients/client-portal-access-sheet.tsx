@@ -95,7 +95,7 @@ export function ClientPortalAccessSheet({
       <SheetTrigger asChild>
         <Button type="button" variant="secondary" size="sm" className="w-full sm:w-auto">
           <KeyRound className="mr-2 h-4 w-4 shrink-0" />
-          <span className="whitespace-nowrap">Portal access</span>
+          <span>Portal access</span>
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md">

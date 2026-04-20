@@ -193,12 +193,12 @@ export function FirmSettingsCard({ initialValues, canEdit }: FirmSettingsCardPro
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                    <span className="whitespace-nowrap">Saving...</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                    <span className="whitespace-nowrap">Save Changes</span>
+                    <span>Save Changes</span>
                   </>
                 )}
               </Button>

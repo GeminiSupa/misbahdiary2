@@ -300,12 +300,12 @@ export default async function DashboardPage() {
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild variant="default" className="w-full sm:w-auto" size="sm">
                 <Link href="/cases" className="whitespace-nowrap flex items-center">
-                  <span className="whitespace-nowrap">New case</span>
+                  <span>New case</span>
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full sm:w-auto" size="sm">
                 <Link href="/calendar" className="whitespace-nowrap flex items-center">
-                  <span className="whitespace-nowrap">Schedule hearing</span>
+                  <span>Schedule hearing</span>
                 </Link>
               </Button>
             </div>

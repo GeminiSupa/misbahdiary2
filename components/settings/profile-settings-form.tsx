@@ -274,12 +274,12 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                    <span className="whitespace-nowrap">Saving...</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                    <span className="whitespace-nowrap">Save Changes</span>
+                    <span>Save Changes</span>
                   </>
                 )}
               </Button>
@@ -441,12 +441,12 @@ export function ProfileSettingsForm({ initialValues }: ProfileSettingsFormProps)
                       {isChangingPassword ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                          <span className="whitespace-nowrap">Changing...</span>
+                          <span>Changing...</span>
                         </>
                       ) : (
                         <>
                           <Lock className="mr-2 h-4 w-4 shrink-0" />
-                          <span className="whitespace-nowrap">Change Password</span>
+                          <span>Change Password</span>
                         </>
                       )}
                     </Button>

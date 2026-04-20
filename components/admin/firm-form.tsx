@@ -236,12 +236,12 @@ export function FirmForm() {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                <span className="whitespace-nowrap">Creating...</span>
+                <span>Creating...</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                <span className="whitespace-nowrap">Create Firm</span>
+                <span>Create Firm</span>
               </>
             )}
           </Button>

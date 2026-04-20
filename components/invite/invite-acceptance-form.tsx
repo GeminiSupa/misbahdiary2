@@ -135,7 +135,7 @@ export function InviteAcceptanceForm({ token, email, roleLabel }: InviteAcceptan
 
       <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
         {isPending ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
-        <span className="whitespace-nowrap">Join workspace</span>
+        <span>Join workspace</span>
       </Button>
     </form>
   );

@@ -28,7 +28,7 @@ export function EditClientSheet({
         {trigger || (
           <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Edit className="mr-2 h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">Edit Client</span>
+            <span>Edit Client</span>
           </Button>
         )}
       </SheetTrigger>

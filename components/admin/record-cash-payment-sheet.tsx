@@ -57,7 +57,7 @@ export function RecordCashPaymentSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="min-h-[48px] min-w-fit whitespace-nowrap">
+          <Button variant="outline" size="sm" className="min-h-[48px] min-w-fit">
             <Banknote className="mr-2 h-4 w-4 shrink-0" />
             Record Cash Payment
           </Button>

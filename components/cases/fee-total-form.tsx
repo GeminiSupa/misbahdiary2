@@ -182,12 +182,12 @@ export function FeeTotalForm({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Updating...</span>
+                  <span>Updating...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Update Fee Total</span>
+                  <span>Update Fee Total</span>
                 </>
               )}
             </Button>

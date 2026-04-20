@@ -49,7 +49,7 @@ export default async function AdminPage() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-2">
-              <Button asChild className="min-h-[48px] min-w-fit whitespace-nowrap">
+              <Button asChild className="min-h-[48px] min-w-fit">
                 <Link href="/admin/firms/create" className="flex items-center">
                   <Building2 className="mr-2 h-4 w-4 shrink-0" />
                   Create New Firm

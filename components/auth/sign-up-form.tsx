@@ -182,10 +182,10 @@ export function SignUpForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                  <span className="whitespace-nowrap">Creating account...</span>
+                  <span>Creating account...</span>
                 </>
               ) : (
-                <span className="whitespace-nowrap">Create account</span>
+                <span>Create account</span>
               )}
             </Button>
           </div>
