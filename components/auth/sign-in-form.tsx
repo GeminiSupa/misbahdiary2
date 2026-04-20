@@ -124,8 +124,9 @@ export function SignInForm() {
         return;
       }
 
+      const email = values.email.trim().toLowerCase();
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: values.email.trim(),
+        email,
         password: values.password,
       });
 
