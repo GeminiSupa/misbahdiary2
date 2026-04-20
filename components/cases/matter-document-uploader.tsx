@@ -68,9 +68,11 @@ export function MatterDocumentUploader({ matterId, hearingId }: MatterDocumentUp
       }}
     >
       <Input name="file" type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.xls,.xlsx" />
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span>PDF, Office, or image files. Max size limited by bucket policy.</span>
-        <Button type="submit" size="sm" disabled={isPending}>
+      <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <span className="min-w-0 wrap-break-word">
+          PDF, Office, or image files. Max size limited by bucket policy.
+        </span>
+        <Button type="submit" size="sm" disabled={isPending} className="w-full sm:w-auto">
           {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Upload
         </Button>

@@ -37,7 +37,7 @@ export function MatterTeamCard({ members, client }: MatterTeamCardProps) {
   return (
     <div className="sap-card">
       <div className="sap-card-body space-y-6">
-        <div className="sap-card-header">
+        <div className="sap-card-header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Users className="h-5 w-5 text-primary" />
@@ -47,10 +47,10 @@ export function MatterTeamCard({ members, client }: MatterTeamCardProps) {
               Review who is responsible for filings and hearings across courts and districts.
             </p>
           </div>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/settings">
-              <Settings className="mr-2 h-4 w-4" />
-              Manage Staff
+          <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
+            <Link href="/settings" className="flex flex-wrap items-center justify-center gap-2">
+              <Settings className="mr-2 h-4 w-4 shrink-0" />
+              <span>Manage Staff</span>
             </Link>
           </Button>
         </div>
@@ -67,11 +67,11 @@ export function MatterTeamCard({ members, client }: MatterTeamCardProps) {
             {members.map((member) => (
               <article
                 key={member.id}
-                className="rounded-xl border-2 border-border/60 bg-gradient-to-br from-background/80 to-background/60 px-4 py-3 sm:px-5 sm:py-4 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
+                className="rounded-xl border-2 border-border/60 bg-linear-to-br from-background/80 to-background/60 px-4 py-3 sm:px-5 sm:py-4 shadow-sm transition-all hover:scale-[1.01] hover:shadow-md"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
                       <User className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -153,7 +153,7 @@ export function MatterTeamCard({ members, client }: MatterTeamCardProps) {
           </div>
         )}
 
-        <div className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5">
+        <div className="rounded-xl border-2 border-primary/20 bg-linear-to-br from-primary/5 to-primary/10 p-5">
           <div className="flex items-center gap-2 mb-2">
             <User className="h-4 w-4 text-primary" />
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">Client</p>

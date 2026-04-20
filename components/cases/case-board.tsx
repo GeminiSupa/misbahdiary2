@@ -107,7 +107,7 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                 }}
                 className="w-full sm:w-auto"
               >
-                <span className="whitespace-nowrap">Clear filters</span>
+                <span>Clear filters</span>
               </Button>
             )}
           </div>
@@ -153,12 +153,12 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                     className={
                       "capitalize border-none px-2 py-0.5 text-[10px] font-medium shrink-0 sm:text-xs whitespace-nowrap " +
                       (matter.status === "execution" || matter.status === "review"
-                        ? "bg-[var(--success-soft)] text-[var(--success)]"
+                        ? "bg-(--success-soft) text-(--success)"
                         : matter.status === "pending" || matter.status === "fresh diary"
-                        ? "bg-[var(--warning-soft)] text-[var(--warning)]"
+                        ? "bg-(--warning-soft) text-(--warning)"
                         : matter.status === "appeal"
-                        ? "bg-[var(--destructive-soft)] text-[var(--destructive)]"
-                        : "bg-[var(--muted-soft)] text-slate-600")
+                        ? "bg-(--destructive-soft) text-destructive"
+                        : "bg-(--muted-soft) text-slate-600")
                     }
                   >
                     {statusLabel.get(matter.status as any) ?? matter.status}
@@ -179,7 +179,7 @@ export function CaseBoard({ cases }: CaseBoardProps) {
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
                     <Link href={`/cases/${matter.id}`} className="flex items-center gap-2">
-                      <span className="whitespace-nowrap">Open detail</span>
+                      <span>Open detail</span>
                     </Link>
                   </Button>
                   <div onClick={(e) => e.stopPropagation()} className="w-full sm:w-auto">

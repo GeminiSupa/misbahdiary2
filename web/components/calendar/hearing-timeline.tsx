@@ -247,12 +247,12 @@ function HearingCard({
           onClick={() => onMarkComplete(hearing.id)}
         >
           {isCompleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-          Mark complete
+          <span>Mark complete</span>
         </Button>
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/api/hearings/${hearing.id}/ics`}>
             <Download className="mr-2 h-4 w-4" />
-            ICS
+            <span>ICS</span>
           </Link>
         </Button>
         <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -273,7 +273,7 @@ function HearingCard({
           <button
             type="button"
             onClick={() => setShowOrderUploader((prev) => !prev)}
-            className="inline-flex items-center text-xs font-medium text-primary hover:underline"
+            className="inline-flex w-full items-center gap-1 text-left text-xs font-medium text-primary hover:underline sm:w-auto"
           >
             <FileText className="mr-1 h-3 w-3" />
             {showOrderUploader ? "Hide hearing order upload" : "Upload hearing order / order sheet"}
