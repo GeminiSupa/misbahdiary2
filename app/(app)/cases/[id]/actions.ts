@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants/cases";
 import { COURT_NAME_OTHER_VALUE } from "@/lib/constants/geo";
 import { resolveCourtNameForDb } from "@/lib/court-name";
+import { sendClientEmail, sendFirmEmailByPreference } from "@/lib/server/notification-email";
 
 const DOCUMENT_BUCKET = "case_files";
 
@@ -546,7 +547,7 @@ export async function recordPayment(formData: FormData): Promise<ActionState> {
   // Verify the matter belongs to the user's firm
   const { data: matter } = await supabase
     .from("matters")
-    .select("id, firm_id")
+    .select("id, firm_id, serial_number, case_number, client_id")
     .eq("id", matterId)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
@@ -663,7 +664,7 @@ export async function updateFeeTotal(formData: FormData): Promise<ActionState> {
   // Verify the matter belongs to the user's firm
   const { data: matter } = await supabase
     .from("matters")
-    .select("id, firm_id")
+    .select("id, firm_id, serial_number, case_number, client_id")
     .eq("id", matterId)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
@@ -763,7 +764,7 @@ export async function addCaseHistoryEntry(formData: FormData): Promise<ActionSta
   // Verify the matter belongs to the user's firm
   const { data: matter } = await supabase
     .from("matters")
-    .select("id, firm_id")
+    .select("id, firm_id, serial_number, case_number, client_id")
     .eq("id", matterId)
     .eq("firm_id", profile.firm_id)
     .maybeSingle();
@@ -790,6 +791,23 @@ export async function addCaseHistoryEntry(formData: FormData): Promise<ActionSta
       console.error("Error inserting case history:", insertError);
     }
     return { success: false, message: `Unable to add timeline entry: ${insertError.message}` };
+  }
+
+  // Notify firm members (announcement_updates) + client portal.
+  void sendFirmEmailByPreference({
+    firmId: profile.firm_id,
+    preference: "announcement_updates",
+    subject: `Case update: ${matter.serial_number ?? matter.case_number ?? "Matter"}`,
+    text: `A new timeline entry was added.\n\n${details.toString().trim()}`,
+    linkPath: `/cases/${matterId}`,
+  });
+  if (matter.client_id) {
+    void sendClientEmail({
+      clientId: String(matter.client_id),
+      subject: "Update on your case",
+      text: `Your lawyer posted an update:\n\n${details.toString().trim()}`,
+      linkPath: "/client/dashboard",
+    });
   }
 
   revalidatePath(`/cases/${matterId}`);

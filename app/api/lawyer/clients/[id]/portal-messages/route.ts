@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { sendClientEmail, sendFirmEmailByPreference } from "@/lib/server/notification-email";
 
 const MAX_LEN = 8000;
 
@@ -131,6 +132,23 @@ export async function POST(
     if (insertError) {
       return NextResponse.json({ message: `Failed to send: ${insertError.message}` }, { status: 500 });
     }
+
+    // Email notifications
+    // - Client: always (if they have email) for lawyer->client thread activity
+    void sendClientEmail({
+      clientId: client.id,
+      subject: "New message from your lawyer",
+      text: content.length > 600 ? `${content.slice(0, 600)}…` : content,
+      linkPath: "/client/messages",
+    });
+    // - Firm members: announcements_updates (keeps it under a single preference bucket)
+    void sendFirmEmailByPreference({
+      firmId: client.firm_id,
+      preference: "announcement_updates",
+      subject: "Client portal message sent",
+      text: `A message was sent to a client portal thread.\n\nClient ID: ${client.id}`,
+      linkPath: `/clients/${client.id}`,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

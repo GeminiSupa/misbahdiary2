@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { invoiceStatusOptions } from "@/lib/constants/invoices";
 import { createNotificationsForRecipients } from "@/lib/server/notifications";
 import { getRecipientIdsForPreference } from "@/lib/server/preferences";
+import { sendClientEmail, sendFirmEmailByPreference } from "@/lib/server/notification-email";
 
 const invoiceSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
@@ -135,6 +136,20 @@ export async function createInvoice(values: InvoiceFormValues): Promise<ActionSt
     relatedId: invoice.id,
   }, recipients);
 
+  void sendFirmEmailByPreference({
+    firmId: profile.firm_id,
+    preference: "invoice_reminders",
+    subject: `Invoice created (${payload.invoiceNumber})`,
+    text: `Invoice ${payload.invoiceNumber} was created.`,
+    linkPath: "/billing",
+  });
+  void sendClientEmail({
+    clientId: payload.clientId,
+    subject: `Invoice ${payload.invoiceNumber} issued`,
+    text: `A new invoice (${payload.invoiceNumber}) has been issued for you. Please check your client portal for details.`,
+    linkPath: "/client/dashboard",
+  });
+
   revalidatePath("/billing");
   revalidatePath("/cases");
 
@@ -207,6 +222,29 @@ export async function recordInvoicePayment(
     relatedEntity: "invoice",
     relatedId: invoiceId,
   }, recipients);
+
+  void sendFirmEmailByPreference({
+    firmId: profile.firm_id,
+    preference: "invoice_reminders",
+    subject: `Invoice paid (${invoice.invoice_number ?? ""})`,
+    text: `Invoice ${invoice.invoice_number ?? ""} was marked as paid.`,
+    linkPath: "/billing",
+  });
+
+  // Email client if invoice is linked to a client (always true here).
+  const { data: invoiceClient } = await supabase
+    .from("invoices")
+    .select("client_id")
+    .eq("id", invoiceId)
+    .maybeSingle();
+  if (invoiceClient?.client_id) {
+    void sendClientEmail({
+      clientId: String(invoiceClient.client_id),
+      subject: `Payment received for invoice ${invoice.invoice_number ?? ""}`,
+      text: `Payment was recorded for invoice ${invoice.invoice_number ?? ""}.`,
+      linkPath: "/client/dashboard",
+    });
+  }
 
   revalidatePath("/billing");
   revalidatePath("/dashboard");

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createNotificationsForRecipients } from "@/lib/server/notifications";
 import { getRecipientIdsForPreference } from "@/lib/server/preferences";
+import { sendClientEmail, sendFirmEmailByPreference } from "@/lib/server/notification-email";
 import { scheduleValidationSchema, updateSchema } from "@/lib/validation/hearings";
 
 export type HearingFormValues = z.infer<typeof scheduleValidationSchema>;
@@ -71,7 +72,7 @@ export async function scheduleHearing(values: HearingFormValues): Promise<Action
 
   const { data: matterInfo } = await supabase
     .from("matters")
-    .select("id, serial_number, case_number, court_name, assigned_attorneys")
+    .select("id, serial_number, case_number, court_name, assigned_attorneys, client_id")
     .eq("id", payload.matterId)
     .maybeSingle();
 
@@ -116,6 +117,25 @@ export async function scheduleHearing(values: HearingFormValues): Promise<Action
     relatedEntity: "hearing",
     relatedId: insertedHearing.id,
   }, recipients);
+
+  // Email notifications (lawyers + client).
+  void sendFirmEmailByPreference({
+    firmId: profile.firm_id,
+    preference: "hearing_reminders",
+    subject: "New hearing scheduled",
+    text: `A new hearing was scheduled for ${matterInfo.serial_number ?? matterInfo.case_number ?? "a matter"} on ${new Date(
+      scheduledAtIso,
+    ).toLocaleString()}.`,
+    linkPath: "/calendar",
+  });
+  if (matterInfo.client_id) {
+    void sendClientEmail({
+      clientId: String(matterInfo.client_id),
+      subject: "Hearing scheduled for your case",
+      text: `A hearing was scheduled for your case on ${new Date(scheduledAtIso).toLocaleString()}.`,
+      linkPath: "/client/dashboard",
+    });
+  }
 
   revalidatePath("/calendar");
   revalidatePath("/cases");
@@ -178,7 +198,7 @@ export async function updateHearing(values: HearingUpdateValues): Promise<Action
 
   const { data: matterInfo } = await supabase
     .from("matters")
-    .select("id, serial_number, case_number, court_name, assigned_attorneys")
+    .select("id, serial_number, case_number, court_name, assigned_attorneys, client_id")
     .eq("id", payload.matterId)
     .maybeSingle();
 
@@ -223,6 +243,24 @@ export async function updateHearing(values: HearingUpdateValues): Promise<Action
     relatedEntity: "hearing",
     relatedId: payload.hearingId,
   }, recipients);
+
+  void sendFirmEmailByPreference({
+    firmId: profile.firm_id,
+    preference: "hearing_reminders",
+    subject: "Hearing updated",
+    text: `A hearing was updated for ${matterInfo.serial_number ?? matterInfo.case_number ?? "a matter"} to ${new Date(
+      scheduledAtIso,
+    ).toLocaleString()}.`,
+    linkPath: "/calendar",
+  });
+  if (matterInfo.client_id) {
+    void sendClientEmail({
+      clientId: String(matterInfo.client_id),
+      subject: "Hearing updated for your case",
+      text: `A hearing date/time was updated for your case to ${new Date(scheduledAtIso).toLocaleString()}.`,
+      linkPath: "/client/dashboard",
+    });
+  }
 
   revalidatePath("/calendar");
   revalidatePath("/cases");
