@@ -388,7 +388,7 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-xl backdrop-blur sm:rounded-3xl sm:p-6 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-xl backdrop-blur sm:rounded-3xl sm:p-6 md:p-8">
         <div className="relative z-10 space-y-4 sm:space-y-6">
           <Button
             asChild
@@ -396,7 +396,7 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
             size="sm"
             className="w-fit -ml-1 text-xs text-muted-foreground hover:text-foreground sm:-ml-2 sm:text-sm"
           >
-            <Link href="/cases">
+            <Link href="/cases" className="flex items-center whitespace-nowrap">
               <ArrowLeft className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
               Back to matters
             </Link>
@@ -405,7 +405,7 @@ export default async function MatterDetailPage({ params }: MatterDetailPageProps
           <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2 sm:space-y-3 min-w-0">
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 shadow-lg flex-shrink-0 sm:h-12 sm:w-12 sm:rounded-xl">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 shadow-lg shrink-0 sm:h-12 sm:w-12 sm:rounded-xl">
                   <Briefcase className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
                 </div>
                 <div className="min-w-0">
@@ -528,12 +528,12 @@ function SummaryCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-lg border bg-gradient-to-br p-3 shadow-sm transition-all duration-300 sm:rounded-xl sm:p-4 hover:scale-[1.02] hover:shadow-md",
+        "group relative overflow-hidden rounded-lg border bg-linear-to-br p-3 shadow-sm transition-all duration-300 sm:rounded-xl sm:p-4 hover:scale-[1.02] hover:shadow-md",
         className,
       )}
     >
       <div className="relative z-10 flex items-center gap-2 sm:gap-3">
-        <div className={cn("rounded-md bg-background/80 p-1.5 shadow-sm flex-shrink-0 sm:rounded-lg sm:p-2", iconClassName)}>
+        <div className={cn("rounded-md bg-background/80 p-1.5 shadow-sm shrink-0 sm:rounded-lg sm:p-2", iconClassName)}>
           <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </div>
         <div className="flex-1 min-w-0">
