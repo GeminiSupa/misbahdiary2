@@ -1271,6 +1271,93 @@ Case → E‑Filing Checklist → Upload Docs → Biometric # → Portal Submiss
 <p>For a full walkthrough of <strong>SECP company registration Pakistan</strong> steps, see our dedicated guide linked from the blog index.</p>
 `,
   },
+  {
+    slug: "task-scams-pakistan-2026-submit-300-earn-500-fraud",
+    image: "/images/blog/online.svg",
+    imageAlt: "Phone chat illustration representing online scams in Pakistan",
+    title:
+      "Task Scams in Pakistan 2026: How “Submit 300 PKR & Earn 500 PKR” Frauds Are Stealing Money",
+    description:
+      "A practical 2026 guide to Pakistan’s WhatsApp/Telegram “task scam” pattern—how it works, why people fall for it, and what to do if you’re already a victim.",
+    publishedAt: "2026-04-20",
+    content: `
+<h1>Task Scams in Pakistan 2026: How “Submit 300 PKR &amp; Earn 500 PKR” Frauds Are Stealing Money from People</h1>
+<p><strong>By Rao Muhammad Ali Mushtaq</strong></p>
+
+<p>In 2026, a new wave of online “task scams” is targeting Pakistanis through WhatsApp, Telegram, and Facebook.</p>
+<p>They promise easy money for clicks, likes, or reviews, but the story usually ends the same way: the victim loses money.</p>
+
+<h2>How the task scam works (step-by-step)</h2>
+<h3>1) You get an invitation</h3>
+<p>A message says: “Earn 500–2000 PKR daily by doing simple online tasks. No investment needed!”</p>
+
+<h3>2) Small tasks and small payments (to build trust)</h3>
+<p>They ask you to like a YouTube video, rate a product, or click a link.</p>
+<p>After 1–2 tasks, they sometimes send a small amount (e.g., 300–600 PKR) via EasyPaisa, JazzCash, or bank transfer.</p>
+
+<h3>3) “Submit money to unlock bigger rewards”</h3>
+<p>Next they say: “To get bigger tasks and withdraw your earnings, submit just 300 PKR as a ‘task fee’ or ‘level up’ amount.”</p>
+<ul>
+  <li>You send 300 PKR.</li>
+  <li>They show a fake dashboard with a growing balance (e.g., 500 PKR, 1500 PKR).</li>
+</ul>
+
+<h3>4) The trap gets bigger</h3>
+<p>They keep demanding higher deposits: 1000 PKR, 5000 PKR, 20,000 PKR—claiming it’s for “higher-level tasks” or to “release your total earnings.”</p>
+<p>Each payment is framed as the last step before withdrawal.</p>
+
+<h3>5) You lose everything</h3>
+<p>The scammer blocks you, the dashboard stops working, and the money is gone.</p>
+
+<h2>Where it’s happening in Pakistan (2026)</h2>
+<p>This “submit 300 PKR” scam pattern is being reported across major cities like Islamabad, Lahore, and Karachi, and also in smaller cities.</p>
+<p>Some banks have publicly warned customers about “task scams” and similar social-engineering frauds.</p>
+
+<h2>Why people fall for it</h2>
+<ul>
+  <li><strong>The first small payments look real</strong> and create trust.</li>
+  <li><strong>Fake screenshots and dashboards</strong> make it feel official.</li>
+  <li><strong>Pressure tactics</strong> like “limited time offer” or “only 5 spots left.”</li>
+  <li><strong>Vulnerable audiences</strong> such as students, housewives, and people seeking extra income.</li>
+</ul>
+<p><strong>Important:</strong> Real online jobs do not ask you to pay money first in order to earn money.</p>
+
+<h2>How to protect yourself (simple rules)</h2>
+<ul>
+  <li><strong>Never send money</strong> for any “task”, “level up”, “unlock”, or “withdrawal fee”.</li>
+  <li>If it sounds too easy (clicks = 500 PKR daily), assume it’s a scam.</li>
+  <li>Ignore unsolicited messages from unknown numbers or groups.</li>
+  <li>Never share banking details, OTPs, or screen access with strangers.</li>
+  <li>Do not join unknown WhatsApp/Telegram earning groups.</li>
+</ul>
+
+<h2>What to do if you have already been scammed</h2>
+<p>Act fast—every hour matters.</p>
+<ul>
+  <li><strong>Stop all contact:</strong> block the number immediately. Do not send more money.</li>
+  <li><strong>Report the scam number:</strong> ask your mobile network to block it (Jazz, Zong, Telenor, Ufone).</li>
+  <li><strong>Report to PTA:</strong> dial 0800-55055 or submit a complaint at <a href="https://complaint.pta.gov.pk/" rel="noopener noreferrer" target="_blank">complaint.pta.gov.pk</a>.</li>
+</ul>
+
+<h3>File a complaint with FIA Cyber Crime (most important)</h3>
+<p>FIA is the official agency for online financial fraud in Pakistan.</p>
+<ul>
+  <li>Submit online: <a href="https://complaint.fia.gov.pk/" rel="noopener noreferrer" target="_blank">complaint.fia.gov.pk</a> (24/7)</li>
+  <li>Helpline: 051-111-345-786 or 1991</li>
+  <li>Keep ready: screenshots, transaction proof, phone numbers, and amounts sent</li>
+</ul>
+
+<h3>Contact your bank or wallet provider</h3>
+<p>If you sent money via EasyPaisa, JazzCash, NayaPay, or bank transfer, call immediately and request a stop/reversal if possible.</p>
+
+<h3>Report the accounts so others don’t get trapped</h3>
+<p>Report the WhatsApp/Telegram group or account, and warn friends and family with the exact pattern (deposit first = scam).</p>
+
+<h2>Final advice</h2>
+<p>If anyone asks you to “submit 300 PKR” to earn rewards or unlock tasks, treat it as a scam.</p>
+<p>If you received a message like this recently, share the number or screenshot in the comments (without personal details) so others can stay alert.</p>
+`,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
