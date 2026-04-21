@@ -13,9 +13,10 @@ type KpiRow = {
 
 type DashboardKpiCardsProps = {
   kpis: KpiRow[];
+  tone?: "light" | "dark";
 };
 
-export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
+export function DashboardKpiCards({ kpis, tone = "light" }: DashboardKpiCardsProps) {
   const router = useRouter();
 
   const handleCardClick = (kpi: KpiRow) => {
@@ -41,13 +42,28 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
         
         const CardContent = () => (
           <div className="min-w-0 h-full flex flex-col space-y-1.5 sm:space-y-2">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs line-clamp-1 break-words">
+            <p
+              className={cn(
+                "text-[10px] font-medium uppercase tracking-wide sm:text-xs line-clamp-1 wrap-break-word",
+                tone === "dark" ? "text-slate-300/80" : "text-muted-foreground",
+              )}
+            >
               {kpi.label}
             </p>
-            <p className="text-lg font-bold text-foreground sm:text-xl md:text-2xl break-words leading-tight">
+            <p
+              className={cn(
+                "text-lg font-bold sm:text-xl md:text-2xl wrap-break-word leading-tight",
+                tone === "dark" ? "text-slate-100" : "text-foreground",
+              )}
+            >
               {kpi.value}
             </p>
-            <p className="text-[10px] text-muted-foreground sm:text-xs line-clamp-2 break-words leading-relaxed">
+            <p
+              className={cn(
+                "text-[10px] sm:text-xs line-clamp-2 wrap-break-word leading-relaxed",
+                tone === "dark" ? "text-slate-300/70" : "text-muted-foreground",
+              )}
+            >
               {kpi.hint}
             </p>
           </div>

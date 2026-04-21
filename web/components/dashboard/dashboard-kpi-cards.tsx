@@ -13,9 +13,10 @@ type KpiRow = {
 
 type DashboardKpiCardsProps = {
   kpis: KpiRow[];
+  tone?: "light" | "dark";
 };
 
-export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
+export function DashboardKpiCards({ kpis, tone = "light" }: DashboardKpiCardsProps) {
   const router = useRouter();
 
   const handleCardClick = (kpi: KpiRow) => {
@@ -41,13 +42,30 @@ export function DashboardKpiCards({ kpis }: DashboardKpiCardsProps) {
         
         const CardContent = () => (
           <>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+            <p
+              className={cn(
+                "text-[10px] font-medium uppercase tracking-wide sm:text-xs",
+                tone === "dark" ? "text-slate-300/80" : "text-muted-foreground",
+              )}
+            >
               {kpi.label}
             </p>
-            <p className="mt-1.5 text-lg font-semibold text-foreground sm:text-xl md:text-2xl">
+            <p
+              className={cn(
+                "mt-1.5 text-lg font-semibold sm:text-xl md:text-2xl",
+                tone === "dark" ? "text-slate-100" : "text-foreground",
+              )}
+            >
               {kpi.value}
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground sm:text-xs">{kpi.hint}</p>
+            <p
+              className={cn(
+                "mt-0.5 text-[10px] sm:text-xs",
+                tone === "dark" ? "text-slate-300/70" : "text-muted-foreground",
+              )}
+            >
+              {kpi.hint}
+            </p>
           </>
         );
 

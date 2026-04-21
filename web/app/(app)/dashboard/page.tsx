@@ -209,7 +209,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
-          <DashboardKpiCards kpis={kpis} />
+          <DashboardKpiCards kpis={kpis} tone="dark" />
         </div>
 
         <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
