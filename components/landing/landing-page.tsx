@@ -30,6 +30,13 @@ const structuredData = [
     name: "UX4U",
     url: baseUrl,
     logo: `${baseUrl}/ux4u-logo.png`,
+    email: "info@ux4u.online",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "I 16/3 Service Road East",
+      addressLocality: "Islamabad",
+      addressCountry: "PK",
+    },
     sameAs: [
       "https://www.facebook.com/ux4u.erpsolutions",
       "https://www.linkedin.com/company/ux4u-erp/?viewAsMember=true",
@@ -163,7 +170,7 @@ export function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <div className={`${prata.className} min-h-screen overflow-x-hidden bg-white [&_h1]:font-normal [&_h1]:leading-[1.25] [&_h2]:font-normal [&_h2]:leading-[1.25] [&_h3]:font-normal [&_h3]:leading-[1.3] [&_p]:leading-[1.65]`}>
+      <div className={`${prata.className} min-h-screen overflow-x-hidden bg-white [&_h1]:font-normal [&_h1]:leading-tight [&_h2]:font-normal [&_h2]:leading-tight [&_h3]:font-normal [&_h3]:leading-[1.3] [&_p]:leading-[1.65]`}>
         {/* Sticky Top Navigation */}
         <header className="sticky top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur-md">
           <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
@@ -264,8 +271,9 @@ export function LandingPage() {
             <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
               {/* Left: Headline + CTAs */}
               <div className="text-center lg:text-left">
-                <h1 className="text-balance text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl md:text-4xl lg:text-5xl xl:text-[2.75rem]">
-                  Lawyer Diary for Pakistani Advocates Manage Cases, Hearings and Clients
+                <h1 className="text-balance text-2xl font-normal leading-tight tracking-normal text-black sm:text-3xl md:text-4xl lg:text-5xl xl:text-[2.75rem]">
+                  Lawyer Diary for Pakistani Advocates
+                  <span className="block text-[#047857]">Cases, hearings, billing—organized.</span>
                 </h1>
                 <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-black/80 sm:text-lg lg:mx-0">
                   One workspace for cases, clients, court dates, and billing.
@@ -354,7 +362,7 @@ export function LandingPage() {
           className="border-b border-black/10 bg-white py-16 sm:py-20 lg:py-24"
         >
           <div className="mx-auto max-w-6xl px-4">
-            <h2 className={`${prata.className} text-center text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl`}>
+            <h2 className={`${prata.className} text-center text-2xl font-normal leading-tight tracking-normal text-black sm:text-3xl`}>
               Everything You Need to Run Your Practice
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-base text-black/70">
@@ -394,7 +402,7 @@ export function LandingPage() {
           className="border-b border-black/10 bg-slate-50/50 py-16 sm:py-20 lg:py-24"
         >
           <div className="mx-auto max-w-6xl px-4">
-            <h2 className={`${prata.className} text-center text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl`}>
+            <h2 className={`${prata.className} text-center text-2xl font-normal leading-tight tracking-normal text-black sm:text-3xl`}>
               Trusted by Advocates Across Pakistan
             </h2>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-black/60">
@@ -461,7 +469,7 @@ export function LandingPage() {
           className="border-b border-black/10 bg-slate-50/50 py-16 sm:py-20"
         >
           <div className="mx-auto max-w-3xl px-4 text-center">
-            <h2 className={`${prata.className} text-2xl font-normal leading-[1.25] tracking-normal text-black sm:text-3xl`}>
+            <h2 className={`${prata.className} text-2xl font-normal leading-tight tracking-normal text-black sm:text-3xl`}>
               Built for Pakistani Legal Practice
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base text-black/70">
@@ -476,6 +484,33 @@ export function LandingPage() {
               Get started
               <ChevronRight className="ml-2 h-4 w-4" />
             </Link>
+
+            <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-black/10 bg-white p-5 text-left shadow-sm">
+              <p className="text-sm font-semibold text-black">Talk to UX4U</p>
+              <div className="mt-2 grid gap-2 text-sm text-black/70 sm:grid-cols-3">
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-black/40">Address</p>
+                  <p className="mt-1">I 16/3 Service Road East Islamabad</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-black/40">Email</p>
+                  <a className="mt-1 inline-block hover:text-[#E9730C] hover:underline" href="mailto:info@ux4u.online">
+                    info@ux4u.online
+                  </a>
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-black/40">WhatsApp</p>
+                  <a
+                    className="mt-1 inline-block hover:text-[#E9730C] hover:underline"
+                    href="https://wa.me/923490554719"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    +92 349 0554719
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 

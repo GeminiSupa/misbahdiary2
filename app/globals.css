@@ -45,93 +45,97 @@
 
 :root {
   --radius: 0.75rem;
-  /* SAP Fiori Horizon - Morning Horizon (Light Theme) */
+  /* Brand theme (UX4U / Lawyer Diary) */
   /* Background */
-  --background: #F5F6F7; /* SAP Horizon background */
-  --foreground: #32363A; /* SAP text color */
+  --background: #F7F7F8;
+  --foreground: #0B1220;
   /* Cards */
   --card: #FFFFFF;
-  --card-foreground: #32363A;
+  --card-foreground: #0B1220;
   --popover: #FFFFFF;
-  --popover-foreground: #32363A;
-  /* Primary - SAP Blue */
-  --primary: #0070F2; /* SAP Horizon primary blue (desktop) */
-  --primary-mobile: #1A91FF; /* Mobile-optimized (higher contrast, less glare) */
+  --popover-foreground: #0B1220;
+
+  /* Primary (brand orange) */
+  --primary: #E9730C;
+  --primary-mobile: #E9730C;
   --primary-foreground: #FFFFFF;
-  --secondary: #E8F4F8; /* SAP light blue background */
-  --secondary-foreground: #0070F2;
-  --muted: #F5F6F7;
-  --muted-foreground: #6A6D70; /* SAP muted text */
-  --accent: #E8F4F8;
-  --accent-foreground: #0070F2;
-  /* Semantic Colors - SAP Fiori */
-  --success: #107E3E; /* SAP success green */
+
+  /* Secondary / muted */
+  --secondary: #FFF4E6;
+  --secondary-foreground: #9A3E00;
+  --muted: #F1F2F4;
+  --muted-foreground: #5A6472;
+  --accent: #EAF7F6; /* teal-tinted accent */
+  --accent-foreground: #005959;
+
+  /* Semantic */
+  --success: #107E3E;
   --success-soft: #E8F5E9;
-  --warning: #E9730C; /* SAP warning orange */
+  --warning: #E9730C;
   --warning-soft: #FFF4E6;
-  --destructive: #BB0000; /* SAP error red */
+  --destructive: #C1121F;
   --destructive-foreground: #FFFFFF;
   --destructive-soft: #FFEBEE;
   --muted-soft: #D9D9D9;
   --neutral-accent: #E0E0E0; /* Subtle dividers for mobile */
-  --border: #D9D9D9; /* SAP border color */
-  --input: #D9D9D9;
-  --ring: #0070F2;
-  /* Chart colors - SAP Fiori palette */
-  --chart-1: #0070F2;
+  --border: #E4E6EA;
+  --input: #E4E6EA;
+  --ring: #E9730C;
+
+  /* Chart colors */
+  --chart-1: #E9730C;
   --chart-2: #107E3E;
-  --chart-3: #E9730C;
-  --chart-4: #BB0000;
+  --chart-3: #005959;
+  --chart-4: #C1121F;
   --chart-5: #5C67E5;
   /* Sidebar */
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #32363A;
-  --sidebar-primary: #0070F2;
+  --sidebar-foreground: #0B1220;
+  --sidebar-primary: #E9730C;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E8F4F8;
-  --sidebar-accent-foreground: #0070F2;
-  --sidebar-border: #D9D9D9;
-  --sidebar-ring: #0070F2;
+  --sidebar-accent: #FFF4E6;
+  --sidebar-accent-foreground: #9A3E00;
+  --sidebar-border: #E4E6EA;
+  --sidebar-ring: #E9730C;
 }
 
 .dark {
-  /* SAP Fiori Horizon - Evening Horizon (Dark Theme) */
-  --background: #1C2834; /* SAP dark background */
-  --foreground: #F5F6F7; /* SAP light text */
-  --card: #2A3A48; /* SAP dark card */
-  --card-foreground: #F5F6F7;
-  --popover: #2A3A48;
-  --popover-foreground: #F5F6F7;
-  --primary: #4DB1FF; /* SAP dark theme primary */
-  --primary-foreground: #1C2834;
-  --secondary: #2A3A48;
-  --secondary-foreground: #F5F6F7;
-  --muted: #2A3A48;
-  --muted-foreground: #A9B4BE; /* SAP dark muted text */
-  --accent: #2A3A48;
-  --accent-foreground: #4DB1FF;
-  --success: #5DC122; /* SAP dark success */
-  --success-foreground: #1C2834;
-  --warning: #FFB300; /* SAP dark warning */
-  --warning-foreground: #1C2834;
-  --destructive: #FF5C77; /* SAP dark error */
-  --destructive-foreground: #1C2834;
-  --border: #3A4A58; /* SAP dark border */
-  --input: #3A4A58;
-  --ring: #4DB1FF;
-  --chart-1: #4DB1FF;
-  --chart-2: #5DC122;
-  --chart-3: #FFB300;
+  --background: #070B12;
+  --foreground: #EAF0F7;
+  --card: #0B1220;
+  --card-foreground: #EAF0F7;
+  --popover: #0B1220;
+  --popover-foreground: #EAF0F7;
+  --primary: #E9730C;
+  --primary-foreground: #0B1220;
+  --secondary: #111A2D;
+  --secondary-foreground: #EAF0F7;
+  --muted: #0E1626;
+  --muted-foreground: #9AA7B6;
+  --accent: #0E2A2A; /* deep teal */
+  --accent-foreground: #B9FFFA;
+  --success: #2FBF71;
+  --success-foreground: #070B12;
+  --warning: #FFB300;
+  --warning-foreground: #070B12;
+  --destructive: #FF5C77;
+  --destructive-foreground: #070B12;
+  --border: #1C2A3D;
+  --input: #1C2A3D;
+  --ring: #E9730C;
+  --chart-1: #E9730C;
+  --chart-2: #2FBF71;
+  --chart-3: #2DD4BF;
   --chart-4: #FF5C77;
   --chart-5: #7B8FFF;
-  --sidebar: #1C2834;
-  --sidebar-foreground: #F5F6F7;
-  --sidebar-primary: #4DB1FF;
-  --sidebar-primary-foreground: #1C2834;
-  --sidebar-accent: #2A3A48;
-  --sidebar-accent-foreground: #4DB1FF;
-  --sidebar-border: #3A4A58;
-  --sidebar-ring: #4DB1FF;
+  --sidebar: #070B12;
+  --sidebar-foreground: #EAF0F7;
+  --sidebar-primary: #E9730C;
+  --sidebar-primary-foreground: #070B12;
+  --sidebar-accent: #111A2D;
+  --sidebar-accent-foreground: #EAF0F7;
+  --sidebar-border: #1C2A3D;
+  --sidebar-ring: #E9730C;
 }
 
 @layer base {
@@ -177,7 +181,7 @@
     }
   }
   ::selection {
-    background-color: rgba(0, 112, 242, 0.2);
+    background-color: rgba(233, 115, 12, 0.22);
   }
 }
 
