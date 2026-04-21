@@ -230,7 +230,7 @@ export function MatterKanbanBoard({ cases }: { cases: CaseItem[] }) {
               size="sm"
               variant={activeStage === "ALL" ? "secondary" : "ghost"}
               onClick={() => setActiveStage("ALL")}
-              className="h-10 rounded-2xl"
+              className="h-10 rounded-2xl whitespace-nowrap px-3"
             >
               All
             </Button>
@@ -241,7 +241,7 @@ export function MatterKanbanBoard({ cases }: { cases: CaseItem[] }) {
                 size="sm"
                 variant={activeStage === s.key ? "secondary" : "ghost"}
                 onClick={() => setActiveStage(s.key)}
-                className="h-10 rounded-2xl"
+                className="h-10 rounded-2xl whitespace-nowrap px-3"
               >
                 {s.title}
               </Button>

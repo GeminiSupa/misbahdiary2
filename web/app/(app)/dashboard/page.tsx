@@ -180,51 +180,54 @@ export default async function DashboardPage() {
   const hearingsToday = hearingsTodayRes.data ?? [];
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-      {/* Welcome Card */}
-      <div className="sap-card-hero">
-        <div className="sap-card-body">
-          <div className="sap-card-header">
-            <div className="space-y-1 min-w-0">
-              <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Welcome back, {displayName}</h1>
-              <p className="text-xs text-muted-foreground sm:text-sm sm:max-w-2xl">
+    <div className="-mx-4 rounded-3xl bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-4 sm:-mx-6 sm:px-6 sm:py-6 lg:mx-0 lg:px-0">
+      <div className="space-y-3 sm:space-y-4 lg:px-4">
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 text-slate-100 shadow-[0_20px_60px_rgba(2,6,23,0.35)] backdrop-blur-xl sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-black tracking-tight sm:text-lg">
+                Welcome back, {displayName}
+              </h1>
+              <p className="mt-0.5 text-xs text-slate-300/80 sm:max-w-2xl">
                 Prioritise hearings, unblock billing, and keep your clients informed — everything you
                 need for the day lives here.
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
               <Button asChild variant="default" className="w-full sm:w-auto" size="sm">
-                <Link href="/cases">New case</Link>
+                <Link href="/cases" className="flex items-center whitespace-nowrap">
+                  New case
+                </Link>
               </Button>
               <Button asChild variant="outline" className="w-full sm:w-auto" size="sm">
-                <Link href="/calendar">Schedule hearing</Link>
+                <Link href="/calendar" className="flex items-center whitespace-nowrap">
+                  Schedule hearing
+                </Link>
               </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* KPI row */}
-      <DashboardKpiCards kpis={kpis} />
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
+          <DashboardKpiCards kpis={kpis} />
+        </div>
 
-      {/* Today's Agenda (minimal version) */}
-      <div className="sap-card-primary">
-        <div className="sap-card-body space-y-4">
-          <div className="sap-card-header">
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h2 className="text-base font-semibold text-foreground sm:text-lg">
+              <h2 className="text-base font-black tracking-tight text-slate-100 sm:text-lg">
                 Today&apos;s agenda
               </h2>
-              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+              <p className="mt-0.5 text-xs text-slate-300/80">
                 Hearings and key events scheduled for today.
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Button asChild variant="ghost" size="sm" className="w-full sm:w-auto">
-                <Link href="/calendar">Open calendar</Link>
+                <Link href="/calendar" className="whitespace-nowrap">Open calendar</Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
-                <Link href="/calendar/print/today" target="_blank">
+                <Link href="/calendar/print/today" target="_blank" className="whitespace-nowrap">
                   Print today&apos;s docket
                 </Link>
               </Button>
@@ -237,27 +240,25 @@ export default async function DashboardPage() {
                 <Link
                   key={hearing.id}
                   href="/calendar"
-                  className="flex flex-col gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-2 text-sm transition-colors hover:border-border hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-2.5"
+                  className="flex flex-col gap-1.5 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 text-sm transition hover:bg-white/6 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-2.5"
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate">
-                      {hearing.matter?.serial_number ||
-                        hearing.matter?.case_number ||
-                        "Matter"}
+                    <p className="truncate text-sm font-semibold text-slate-100">
+                      {hearing.matter?.serial_number || hearing.matter?.case_number || "Matter"}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="truncate text-[11px] text-slate-300/80">
                       {hearing.matter?.court_name ?? "Court not set"}
                     </p>
                   </div>
-                  <div className="text-xs text-muted-foreground sm:flex-shrink-0">
+                  <div className="text-[11px] font-semibold text-slate-200 sm:shrink-0">
                     {format(new Date(hearing.scheduled_at), "p")}
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="sap-subtle">
-              <p className="text-xs text-muted-foreground sm:text-sm">
+            <div className="rounded-2xl border border-dashed border-white/10 bg-white/4 p-4">
+              <p className="text-xs font-medium text-slate-300/80 sm:text-sm">
                 No hearings scheduled for today.
               </p>
             </div>

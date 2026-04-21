@@ -226,23 +226,22 @@ export default async function BillingPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-      {/* Hero Header - SAP Fiori Horizon Style */}
-      <div className="sap-card-hero">
-        <div className="sap-card-body">
-          <div className="sap-card-header">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
-                <Banknote className="h-6 w-6 sm:h-7 sm:w-7" />
+    <div className="-mx-4 rounded-3xl bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-4 sm:-mx-6 sm:px-6 sm:py-6 lg:mx-0 lg:px-0">
+      <div className="space-y-3 sm:space-y-4 lg:px-4">
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 text-slate-100 shadow-[0_20px_60px_rgba(2,6,23,0.35)] backdrop-blur-xl sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-500/15 text-teal-200">
+                <Banknote className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Billing & Finance</h1>
-                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                  Generate invoices, track outstanding balances, and convert approved timesheets into billable work.
+                <h1 className="truncate text-base font-black tracking-tight sm:text-lg">Billing & Finance</h1>
+                <p className="mt-0.5 line-clamp-2 text-xs text-slate-300/80">
+                  Generate invoices, track balances, and convert time entries into billable work.
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="w-full sm:w-auto">
               <NewInvoiceSheet
                 clients={clientOptions}
                 matters={matterOptions}
@@ -251,20 +250,22 @@ export default async function BillingPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      <BillingStatsCards stats={stats} />
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
+          <BillingStatsCards stats={stats} />
+        </div>
 
-      {/* Invoice list + aging inside cards */}
-      <div id="invoice-board" className="sap-card-success">
-        <div className="sap-card-body space-y-4">
-          <div className="sap-card-header">
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-foreground sm:text-lg">Invoice ledger</h2>
-              <p className="text-xs text-muted-foreground sm:text-sm">
-                Full invoice list with filters; creation and edits happen in the side drawer.
-              </p>
-            </div>
+        <div
+          id="invoice-board"
+          className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5"
+        >
+          <div className="mb-3">
+            <h2 className="text-base font-black tracking-tight text-slate-100 sm:text-lg">
+              Invoice ledger
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-300/80">
+              Filter invoices, open details, and create new invoices from the side drawer.
+            </p>
           </div>
 
           <InvoiceBoard
@@ -274,9 +275,11 @@ export default async function BillingPage() {
             unbilledTimeEntries={unbilledEntries}
           />
         </div>
-      </div>
 
-      <AgingChartCard data={agingBuckets} />
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
+          <AgingChartCard data={agingBuckets} />
+        </div>
+      </div>
     </div>
   );
 }

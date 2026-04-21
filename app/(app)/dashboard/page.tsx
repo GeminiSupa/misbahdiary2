@@ -270,55 +270,52 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-      {/* Trial Banner (hidden for super admins) */}
-      {subscription && (
-        <TrialBanner
-          daysRemaining={subscription.days_remaining_in_trial}
-          trialEndsAt={subscription.trial_ends_at}
-          isTrialActive={subscription.is_trial_active}
-          subscriptionStatus={subscription.status}
-          isSuperAdmin={isSuperAdmin}
-        />
-      )}
+    <div className="-mx-4 rounded-3xl bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-4 sm:-mx-6 sm:px-6 sm:py-6 lg:mx-0 lg:px-0">
+      <div className="space-y-3 sm:space-y-4 lg:px-4">
+        {/* Trial Banner (hidden for super admins) */}
+        {subscription && (
+          <TrialBanner
+            daysRemaining={subscription.days_remaining_in_trial}
+            trialEndsAt={subscription.trial_ends_at}
+            isTrialActive={subscription.is_trial_active}
+            subscriptionStatus={subscription.status}
+            isSuperAdmin={isSuperAdmin}
+          />
+        )}
 
-      {/* Hero Header - Billing Page Style */}
-      <div className="sap-card-hero">
-        <div className="sap-card-body">
-          <div className="sap-card-header">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
-                <LayoutDashboard className="h-6 w-6 sm:h-7 sm:w-7" />
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 text-slate-100 shadow-[0_20px_60px_rgba(2,6,23,0.35)] backdrop-blur-xl sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-500/15 text-teal-200">
+                <LayoutDashboard className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Dashboard</h1>
-                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                  Overview of your practice metrics, today&apos;s agenda, and key performance indicators.
+                <h1 className="truncate text-base font-black tracking-tight sm:text-lg">Dashboard</h1>
+                <p className="mt-0.5 line-clamp-2 text-xs text-slate-300/80">
+                  Practice metrics, today&apos;s agenda, and quick actions.
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
               <Button asChild variant="default" className="w-full sm:w-auto" size="sm">
-                <Link href="/cases" className="whitespace-nowrap flex items-center">
+                <Link href="/cases" className="flex items-center whitespace-nowrap">
                   <span>New case</span>
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full sm:w-auto" size="sm">
-                <Link href="/calendar" className="whitespace-nowrap flex items-center">
+                <Link href="/calendar" className="flex items-center whitespace-nowrap">
                   <span>Schedule hearing</span>
                 </Link>
               </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* KPI Stats Cards */}
-      <DashboardKpiCards kpis={kpis} />
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
+          <DashboardKpiCards kpis={kpis} />
+        </div>
 
-      {/* Practice Overview - In Card Container (Like Billing Page) */}
-      <div className="sap-card-success">
-        <div className="sap-card-body space-y-4">
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_20px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl sm:p-5">
           <CustomizableDashboard
             initialWidgets={widgets}
             kpis={kpis}
