@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NewHearingSheet } from "@/components/calendar/new-hearing-sheet";
 import { HearingTimeline } from "@/components/calendar/hearing-timeline";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Plus } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Calendar • Lawyer Diary",
@@ -80,43 +79,30 @@ export default async function CalendarPage() {
     })) ?? [];
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-      {/* Hero Header - SAP Fiori Horizon Style */}
-      <div className="sap-card-hero">
-        <div className="sap-card-body">
-          <div className="sap-card-header">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-sm shrink-0 sm:h-14 sm:w-14">
-                <CalendarIcon className="h-6 w-6 sm:h-7 sm:w-7" />
+    <div className="-mx-4 rounded-3xl bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-4 sm:-mx-6 sm:px-6 sm:py-6 lg:mx-0 lg:px-0">
+      <div className="space-y-3 sm:space-y-4 lg:px-4">
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 text-slate-100 shadow-[0_20px_60px_rgba(2,6,23,0.35)] backdrop-blur-xl sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-500/15 text-teal-200">
+                <CalendarIcon className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Calendar & Hearings</h1>
-                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                  Keep track of upcoming hearings, adjournments, and post-hearing notes across all matters.
+                <h1 className="truncate text-base font-black tracking-tight sm:text-lg">
+                  Calendar & Hearings
+                </h1>
+                <p className="mt-0.5 line-clamp-2 text-xs text-slate-300/80">
+                  Compact docket view built for mobile and fast scanning.
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="w-full sm:w-auto">
               <NewHearingSheet matters={matterOptions} />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Hearings timeline with full width and sheet-based creation */}
-      <div className="sap-card-warning">
-        <div className="sap-card-body space-y-4">
-          <div className="sap-card-header">
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-foreground sm:text-lg">Hearings docket</h2>
-              <p className="text-xs text-muted-foreground sm:text-sm">
-                Upcoming and past hearings organised chronologically; creation happens in the side drawer.
-              </p>
-            </div>
-          </div>
-
-          <HearingTimeline hearings={timelineHearings} matters={matterOptions} />
-        </div>
+        <HearingTimeline hearings={timelineHearings} matters={matterOptions} />
       </div>
     </div>
   );

@@ -62,7 +62,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="w-full sm:w-auto">
           <PencilLine className="mr-2 h-4 w-4 shrink-0" />
-          <span className="whitespace-nowrap">Reschedule</span>
+          <span>Reschedule</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -73,7 +73,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="sap-form">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <input type="hidden" {...form.register("hearingId")} value={hearing.id} />
             <FormField
               control={form.control}
@@ -84,7 +84,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormControl>
                     <select
                       {...field}
-                      className="block w-full rounded-xl border border-border bg-background px-3 py-2 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="block h-10 w-full rounded-xl border border-border bg-background px-3 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {matters.map((matter) => (
                         <option key={matter.id} value={matter.id}>
@@ -98,7 +98,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               )}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="scheduledAt"
@@ -106,7 +106,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormItem>
                     <FormLabel>Date & time</FormLabel>
                     <FormControl>
-                      <Input {...field} type="datetime-local" className="text-base sm:text-sm h-10 sm:h-11" />
+                      <Input {...field} type="datetime-local" className="h-10 text-base sm:text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,7 +120,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormItem>
                     <FormLabel>Duration (minutes)</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" min={5} step={5} className="text-base sm:text-sm h-10 sm:h-11" />
+                      <Input {...field} type="number" min={5} step={5} className="h-10 text-base sm:text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,7 +135,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                 <FormItem>
                   <FormLabel>Court</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Court name or location" className="text-base sm:text-sm h-10 sm:h-11" />
+                    <Input {...field} placeholder="Court name or location" className="h-10 text-base sm:text-sm" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,7 +151,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormControl>
                     <select
                       {...field}
-                      className="block w-full rounded-xl border border-border bg-background px-3 py-2 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="block h-10 w-full rounded-xl border border-border bg-background px-3 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {hearingStatusOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -176,7 +176,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                       {...field}
                       rows={3}
                       placeholder="Describe the nature of proceedings, guidance or preparation notes..."
-                      className="text-base sm:text-sm resize-none"
+                      className="resize-none text-base sm:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -184,15 +184,15 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               )}
             />
 
-            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+            <div className="flex flex-col-reverse justify-end gap-2 pt-1 sm:flex-row">
               <DialogClose asChild>
                 <Button variant="ghost" className="w-full sm:w-auto h-11 sm:h-10">
-                  <span className="whitespace-nowrap">Cancel</span>
+                  <span>Cancel</span>
                 </Button>
               </DialogClose>
               <Button type="submit" disabled={isPending} className="w-full sm:w-auto h-11 sm:h-10 text-base sm:text-sm">
                 {isPending ? <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" /> : null}
-                <span className="whitespace-nowrap">{isPending ? "Saving..." : "Save changes"}</span>
+                <span>{isPending ? "Saving..." : "Save changes"}</span>
               </Button>
             </div>
           </form>

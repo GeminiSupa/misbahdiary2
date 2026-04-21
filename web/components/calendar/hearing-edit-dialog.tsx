@@ -60,7 +60,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" className="w-full sm:w-auto">
           <PencilLine className="mr-2 h-4 w-4" />
           Reschedule
         </Button>
@@ -73,7 +73,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="sap-form">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <input type="hidden" {...form.register("hearingId")} value={hearing.id} />
             <FormField
               control={form.control}
@@ -84,7 +84,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormControl>
                     <select
                       {...field}
-                      className="block w-full rounded-xl border border-border bg-background px-3 py-2 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="block h-10 w-full rounded-xl border border-border bg-background px-3 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {matters.map((matter) => (
                         <option key={matter.id} value={matter.id}>
@@ -98,7 +98,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
               )}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="scheduledAt"
@@ -106,7 +106,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormItem>
                     <FormLabel>Date & time</FormLabel>
                     <FormControl>
-                      <Input {...field} type="datetime-local" className="text-base sm:text-sm h-10 sm:h-11" />
+                      <Input {...field} type="datetime-local" className="h-10 text-base sm:text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,7 +120,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormItem>
                     <FormLabel>Duration (minutes)</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" min={5} step={5} className="text-base sm:text-sm h-10 sm:h-11" />
+                      <Input {...field} type="number" min={5} step={5} className="h-10 text-base sm:text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,7 +135,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                 <FormItem>
                   <FormLabel>Court</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Court name or location" className="text-base sm:text-sm h-10 sm:h-11" />
+                    <Input {...field} placeholder="Court name or location" className="h-10 text-base sm:text-sm" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,7 +151,7 @@ export function HearingEditDialog({ hearing, matters }: HearingEditDialogProps) 
                   <FormControl>
                     <select
                       {...field}
-                      className="block w-full rounded-xl border border-border bg-background px-3 py-2 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="block h-10 w-full rounded-xl border border-border bg-background px-3 text-sm shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {hearingStatusOptions.map((option) => (
                         <option key={option.value} value={option.value}>

@@ -92,7 +92,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {formError && (
         <Alert variant="destructive">
           <AlertTitle>Unable to schedule hearing</AlertTitle>
@@ -101,10 +101,10 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Basic Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 border-b border-border/40 pb-2">
               <Calendar className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">Hearing Details</h3>
             </div>
@@ -122,7 +122,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                     <select
                       {...field}
                       className={cn(
-                        "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                        "flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm ring-offset-background",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         "disabled:cursor-not-allowed disabled:opacity-50",
                       )}
@@ -140,7 +140,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
               )}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="scheduledAt"
@@ -151,7 +151,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                       Date & Time
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} type="datetime-local" className="h-10 sm:h-11 text-base sm:text-sm" />
+                      <Input {...field} type="datetime-local" className="h-10 text-base sm:text-sm" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -174,7 +174,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                         min={5}
                         step={5}
                         onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-10 sm:h-11 text-base sm:text-sm"
+                        className="h-10 text-base sm:text-sm"
                       />
                     </FormControl>
                     <FormDescription className="text-xs">Minimum 5 minutes, increments of 5</FormDescription>
@@ -197,7 +197,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                     <Input
                       {...field}
                       placeholder="Court name or location"
-                      className="h-10 sm:h-11 text-base sm:text-sm"
+                      className="h-10 text-base sm:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -215,7 +215,7 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
                     <select
                       {...field}
                       className={cn(
-                        "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                        "flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm ring-offset-background",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         "disabled:cursor-not-allowed disabled:opacity-50",
                       )}
@@ -233,11 +233,11 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
             />
           </div>
 
-          <Separator />
+          <Separator className="my-1" />
 
           {/* Notes */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 border-b border-border/40 pb-2">
               <FileText className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">Nature of Proceedings</h3>
             </div>
@@ -265,10 +265,10 @@ export function HearingForm({ matters, onSuccess }: HearingFormProps) {
             />
           </div>
 
-          <Separator />
+          <Separator className="my-1" />
 
           {/* Submit Button */}
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse justify-end gap-2 pt-1 sm:flex-row">
             <Button
               type="button"
               variant="outline"

@@ -56,6 +56,11 @@ type ActionState = {
   fieldErrors?: Record<string, string[]>;
 };
 
+const updateStatusSchema = z.object({
+  matterId: z.string().uuid(),
+  matterStatus: z.enum(matterStatusOptions.map((option) => option.value) as [string, ...string[]]),
+});
+
 function normaliseList(input?: string | null) {
   if (!input) return [] as string[];
   return input
@@ -189,6 +194,52 @@ export async function createMatter(values: MatterFormValues): Promise<ActionStat
   revalidatePath("/cases");
   revalidatePath("/dashboard");
   revalidatePath("/calendar");
+
+  return { success: true };
+}
+
+export async function updateMatterStatus(values: {
+  matterId: string;
+  matterStatus: (typeof matterStatusOptions)[number]["value"];
+}): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    redirect("/sign-in");
+  }
+
+  const parsed = updateStatusSchema.safeParse(values);
+  if (!parsed.success) {
+    return { message: "Invalid status update." };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { message: "You must belong to a firm." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("matters")
+    .update({ matter_status: parsed.data.matterStatus, updated_by: user.id } as any)
+    .eq("id", parsed.data.matterId)
+    .eq("firm_id", profile.firm_id);
+
+  if (updateError) {
+    return { message: `Could not update status: ${updateError.message}` };
+  }
+
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${parsed.data.matterId}`);
+  revalidatePath("/dashboard");
 
   return { success: true };
 }

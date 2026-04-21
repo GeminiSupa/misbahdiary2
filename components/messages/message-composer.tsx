@@ -34,14 +34,21 @@ type TeamMember = {
   role: string | null;
 };
 
+type ClientRecipient = {
+  id: string;
+  full_name: string | null;
+};
+
 type MessageComposerProps = {
   teamMembers: TeamMember[];
+  clients: ClientRecipient[];
   currentUserId: string;
   firmId: string;
 };
 
 export function MessageComposer({
   teamMembers,
+  clients,
   currentUserId,
   firmId,
 }: MessageComposerProps) {
@@ -61,10 +68,60 @@ export function MessageComposer({
 
   const onSubmit = (values: MessageFormValues) => {
     startTransition(async () => {
+      const rawRecipient = values.recipient_id || "";
+
+      const isClientRecipient = rawRecipient.startsWith("client:");
+      const isTeamRecipient = rawRecipient.startsWith("team:");
+
+      if (!isGroup && !rawRecipient) {
+        toast({
+          title: "Select a recipient",
+          description: "Choose a team member or client first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const content = values.content;
+
+      if (!isGroup && isClientRecipient) {
+        const clientId = rawRecipient.replace(/^client:/, "");
+        const res = await fetch(`/api/lawyer/clients/${clientId}/portal-messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lawyerProfileId: currentUserId,
+            content,
+          }),
+        });
+
+        const json = (await res.json().catch(() => ({}))) as { message?: string };
+        if (!res.ok) {
+          toast({
+            title: "Error",
+            description: json.message || "Failed to send message to client.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Message sent",
+          description: "Your message has been sent to the client.",
+        });
+        form.reset();
+        setIsGroup(false);
+        router.refresh();
+        return;
+      }
+
+      const recipientId =
+        isGroup ? null : isTeamRecipient ? rawRecipient.replace(/^team:/, "") : rawRecipient;
+
       const result = await sendMessage({
         firmId,
-        recipientId: isGroup ? null : values.recipient_id || null,
-        content: values.content,
+        recipientId,
+        content,
       });
 
       if (result.success) {
@@ -118,12 +175,23 @@ export function MessageComposer({
             disabled={isPending}
           >
             <SelectTrigger id="recipient">
-              <SelectValue placeholder="Select team member" />
+              <SelectValue placeholder="Select team member or client" />
             </SelectTrigger>
             <SelectContent>
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                Team
+              </div>
               {teamMembers.map((member) => (
-                <SelectItem key={member.id} value={member.id}>
+                <SelectItem key={member.id} value={`team:${member.id}`}>
                   {member.full_name || "Unknown"} ({member.role || "No role"})
+                </SelectItem>
+              ))}
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                Clients
+              </div>
+              {clients.map((client) => (
+                <SelectItem key={client.id} value={`client:${client.id}`}>
+                  {client.full_name || "Unnamed client"}
                 </SelectItem>
               ))}
             </SelectContent>

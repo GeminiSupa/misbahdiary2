@@ -38,6 +38,12 @@ export default async function MessagesPage() {
     .neq("id", user.id)
     .order("full_name");
 
+  const { data: clients } = await supabase
+    .from("clients")
+    .select("id, full_name")
+    .eq("firm_id", profile.firm_id)
+    .order("full_name");
+
   // Get recent messages - messages where user is sender, recipient, or group messages
   const { data: messages } = await supabase
     .from("messages")
@@ -113,6 +119,7 @@ export default async function MessagesPage() {
               </div>
               <MessageComposer
                 teamMembers={teamMembers || []}
+                clients={clients || []}
                 currentUserId={user.id}
                 firmId={profile.firm_id}
               />

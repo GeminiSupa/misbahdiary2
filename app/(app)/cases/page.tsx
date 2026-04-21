@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { CaseBoard } from "@/components/cases/case-board";
+import { MattersView } from "@/components/cases/matters-view";
 import { Briefcase } from "lucide-react";
 import { NewMatterSheet } from "@/components/cases/new-matter-sheet";
 import { Button } from "@/components/ui/button";
@@ -180,8 +180,7 @@ export default async function CasesPage() {
             </div>
           </div>
 
-          {/* Existing board already includes its own search + filter UI and list */}
-          <CaseBoard cases={matterItems} />
+          <MattersView cases={matterItems} />
         </div>
       </div>
     </div>
