@@ -28,7 +28,8 @@ import {
 } from "@/lib/constants/cases";
 import { COURT_NAME_OTHER_VALUE, pakistanCourtOptions, pakistanDistrictOptions } from "@/lib/constants/geo";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, User, Users, Briefcase, Calendar, FileText, CheckCircle2, XCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, User, Users, Briefcase, Calendar, FileText, CheckCircle2, XCircle, Sparkles, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 
@@ -111,6 +112,17 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
   const [aiNotes, setAiNotes] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [aiTemplateType, setAiTemplateType] = useState<
+    "generic" | "civil_plaint" | "writ_petition" | "bail_application" | "criminal_complaint" | "appeal_memo"
+  >("generic");
+  const [aiDraft, setAiDraft] = useState<{
+    draft?: string;
+    checklist?: string[];
+    questionsForClient?: string[];
+    riskNotes?: string[];
+    grounds?: string[];
+    prayer?: string;
+  } | null>(null);
 
   const form = useForm<MatterFormValues>({
     resolver: zodResolver(formSchema),
@@ -210,6 +222,80 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
     }
   };
 
+  const handleAiDraft = async () => {
+    setAiMessage(null);
+    setAiDraft(null);
+    const text = aiNotes.trim();
+    if (text.length < 12) {
+      setAiMessage("Add a short description (at least a sentence or two) for better drafting.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/legal-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          notes: text,
+          templateType: aiTemplateType,
+          matterContext: {
+            clientName:
+              clients.find((c) => c.id === form.getValues("clientId"))?.name || undefined,
+            courtName:
+              form.getValues("courtName") === COURT_NAME_OTHER_VALUE
+                ? form.getValues("courtNameOther") || undefined
+                : form.getValues("courtName") || undefined,
+            district: form.getValues("district") || undefined,
+            caseNumber: form.getValues("caseNumber") || undefined,
+            matterType: form.getValues("matterType") || undefined,
+          },
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (!res.ok) {
+        setAiMessage(data.message ?? "Could not generate draft.");
+        return;
+      }
+      if (data.configured === false) {
+        setAiMessage(data.message ?? "Configure GROQ_API_KEY to enable AI drafting.");
+        return;
+      }
+
+      if (data.suggestions && typeof data.suggestions === "object") {
+        applyAiSuggestions(data.suggestions);
+      }
+      setAiDraft({
+        draft: typeof data.draft === "string" ? data.draft : undefined,
+        checklist: Array.isArray(data.checklist) ? data.checklist : undefined,
+        questionsForClient: Array.isArray(data.questionsForClient) ? data.questionsForClient : undefined,
+        riskNotes: Array.isArray(data.riskNotes) ? data.riskNotes : undefined,
+        grounds: Array.isArray(data.grounds) ? data.grounds : undefined,
+        prayer: typeof data.prayer === "string" ? data.prayer : undefined,
+      });
+
+      setAiMessage("Draft generated. Review and copy before using in court.");
+    } catch {
+      setAiMessage("Request failed. Try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const copyDraft = async () => {
+    const text = aiDraft?.draft?.trim();
+    if (!text) {
+      setAiMessage("No draft to copy yet.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setAiMessage("Draft copied to clipboard.");
+    } catch {
+      setAiMessage("Clipboard not available. Select text and copy manually.");
+    }
+  };
+
   const toggleAttorney = (attorneyId: string) => {
     const current = form.getValues("assignedAttorneys") || [];
     const updated = current.includes(attorneyId)
@@ -294,22 +380,107 @@ export function CaseForm({ clients, staff, onSuccess }: Props) {
               rows={3}
               className="resize-none text-sm"
             />
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="button" variant="secondary" size="sm" disabled={aiLoading} onClick={() => void handleAiSuggest()}>
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+              <select
+                value={aiTemplateType}
+                onChange={(e) => setAiTemplateType(e.target.value as any)}
+                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                disabled={aiLoading}
+              >
+                <option value="generic">Generic (case note + prayer)</option>
+                <option value="civil_plaint">Civil plaint</option>
+                <option value="writ_petition">Writ petition (HC)</option>
+                <option value="bail_application">Bail application</option>
+                <option value="criminal_complaint">Criminal complaint</option>
+                <option value="appeal_memo">Appeal memo / revision</option>
+              </select>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={aiLoading}
+                onClick={() => void handleAiSuggest()}
+                className="w-full sm:w-auto"
+              >
                 {aiLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
                     Working…
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
+                    <Sparkles className="mr-2 h-4 w-4 shrink-0" />
                     Suggest fields
                   </>
                 )}
               </Button>
-              {aiMessage ? <span className="text-xs text-muted-foreground">{aiMessage}</span> : null}
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                disabled={aiLoading}
+                onClick={() => void handleAiDraft()}
+                className="w-full sm:w-auto"
+              >
+                {aiLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                    Drafting…
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4 shrink-0" />
+                    Generate draft
+                  </>
+                )}
+              </Button>
             </div>
+
+            {aiMessage ? <p className="text-xs text-muted-foreground">{aiMessage}</p> : null}
+
+            {aiDraft?.draft ? (
+              <div className="rounded-lg border border-border bg-background/60 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-xs font-semibold text-foreground">Draft output</h4>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => void copyDraft()}>
+                    <Copy className="mr-2 h-4 w-4 shrink-0" />
+                    Copy draft
+                  </Button>
+                </div>
+                <Tabs defaultValue="draft" className="mt-2">
+                  <TabsList className="w-full sm:w-auto">
+                    <TabsTrigger value="draft">Draft</TabsTrigger>
+                    <TabsTrigger value="checklist">Checklist</TabsTrigger>
+                    <TabsTrigger value="questions">Questions</TabsTrigger>
+                    <TabsTrigger value="risks">Risks</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="draft" className="mt-2">
+                    <Textarea value={aiDraft.draft} readOnly rows={10} className="resize-none text-sm" />
+                  </TabsContent>
+                  <TabsContent value="checklist" className="mt-2">
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                      {(aiDraft.checklist ?? []).map((x, idx) => (
+                        <li key={idx}>{x}</li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                  <TabsContent value="questions" className="mt-2">
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                      {(aiDraft.questionsForClient ?? []).map((x, idx) => (
+                        <li key={idx}>{x}</li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                  <TabsContent value="risks" className="mt-2">
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                      {(aiDraft.riskNotes ?? []).map((x, idx) => (
+                        <li key={idx}>{x}</li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            ) : null}
           </div>
 
           {/* Basic Information Section */}

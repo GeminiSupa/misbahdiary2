@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { logMatterDeleted } from "@/lib/audit/logger";
@@ -808,6 +809,71 @@ export async function addCaseHistoryEntry(formData: FormData): Promise<ActionSta
       text: `Your lawyer posted an update:\n\n${details.toString().trim()}`,
       linkPath: "/client/dashboard",
     });
+  }
+
+  revalidatePath(`/cases/${matterId}`);
+  revalidatePath("/cases");
+
+  return { success: true };
+}
+
+export async function saveAiDraftToTimeline(options: {
+  matterId: string;
+  templateType: string;
+  draft: string;
+}): Promise<ActionState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("firm_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.firm_id) {
+    return { success: false, message: "Join or create a firm before saving drafts." };
+  }
+
+  const matterId = String(options.matterId || "").trim();
+  const draft = String(options.draft || "").trim();
+  const templateType = String(options.templateType || "generic").trim();
+
+  if (!matterId) return { success: false, message: "Matter reference missing." };
+  if (!draft || draft.length < 20) return { success: false, message: "Draft is empty." };
+
+  const { data: matter } = await supabase
+    .from("matters")
+    .select("id")
+    .eq("id", matterId)
+    .eq("firm_id", profile.firm_id)
+    .maybeSingle();
+
+  if (!matter) {
+    return { success: false, message: "Matter not found or access denied." };
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const details = `AI Draft (${templateType})\n\n${draft}`;
+
+  const { error: insertError } = await supabase.from("case_histories").insert({
+    firm_id: profile.firm_id,
+    matter_id: matterId,
+    date: today,
+    details,
+    stage: "AI Draft",
+    updated_by: user.id,
+  });
+
+  if (insertError) {
+    return { success: false, message: `Unable to save draft: ${insertError.message}` };
   }
 
   revalidatePath(`/cases/${matterId}`);

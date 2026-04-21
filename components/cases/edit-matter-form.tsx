@@ -18,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { updateMatter, type UpdateMatterFormValues } from "@/app/(app)/cases/[id]/actions";
+import { saveAiDraftToTimeline, updateMatter, type UpdateMatterFormValues } from "@/app/(app)/cases/[id]/actions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   matterStatusOptions,
   matterTypeOptions,
@@ -26,7 +27,7 @@ import {
   matterPartyTypeOptions,
 } from "@/lib/constants/cases";
 import { COURT_NAME_OTHER_VALUE, pakistanCourtOptions, pakistanDistrictOptions } from "@/lib/constants/geo";
-import { Loader2, User, Users, Briefcase, Calendar, FileText, CheckCircle2, X, MapPin, Scale } from "lucide-react";
+import { Loader2, User, Users, Briefcase, Calendar, FileText, CheckCircle2, X, MapPin, Scale, Sparkles, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 
@@ -106,6 +107,20 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [aiNotes, setAiNotes] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [aiTemplateType, setAiTemplateType] = useState<
+    "generic" | "civil_plaint" | "writ_petition" | "bail_application" | "criminal_complaint" | "appeal_memo"
+  >("generic");
+  const [aiDraft, setAiDraft] = useState<{
+    draft?: string;
+    checklist?: string[];
+    questionsForClient?: string[];
+    riskNotes?: string[];
+    grounds?: string[];
+    prayer?: string;
+  } | null>(null);
 
   // Ensure all required fields have proper defaults
   const defaultValues: UpdateMatterFormValues = {
@@ -138,6 +153,135 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
   const caseType = useWatch({ control: form.control, name: "caseType" });
   const selectedCourtName = useWatch({ control: form.control, name: "courtName" });
   const isLitigation = matterType === "litigation";
+
+  const applyAiSuggestions = (suggestions: Record<string, unknown>) => {
+    const s = suggestions as Record<string, unknown>;
+    if (typeof s.clientBrief === "string" && s.clientBrief.trim()) {
+      form.setValue("clientBrief", s.clientBrief.trim());
+    }
+    if (typeof s.againstParties === "string" && s.againstParties.trim()) {
+      form.setValue("againstParties", s.againstParties.trim());
+    }
+    if (typeof s.caseNumber === "string" && s.caseNumber.trim()) {
+      form.setValue("caseNumber", s.caseNumber.trim());
+    }
+    const courtHint = typeof s.suggestedCourtName === "string" ? s.suggestedCourtName.trim() : "";
+    if (courtHint) {
+      const match = pakistanCourtOptions.find((c) => c.toLowerCase() === courtHint.toLowerCase());
+      if (match) {
+        form.setValue("courtName", match);
+        form.setValue("courtNameOther", "");
+      } else {
+        form.setValue("courtName", COURT_NAME_OTHER_VALUE);
+        form.setValue("courtNameOther", courtHint);
+      }
+    }
+    const dist = typeof s.suggestedDistrict === "string" ? s.suggestedDistrict.trim() : "";
+    if (dist) {
+      const dMatch = pakistanDistrictOptions.find((d) => d.toLowerCase() === dist.toLowerCase());
+      if (dMatch) {
+        form.setValue("district", dMatch);
+      }
+    }
+  };
+
+  const handleAiDraft = async () => {
+    setAiMessage(null);
+    setAiDraft(null);
+    const text = aiNotes.trim();
+    if (text.length < 12) {
+      setAiMessage("Add a short description (at least a sentence or two) for better drafting.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/legal-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          notes: text,
+          templateType: aiTemplateType,
+          matterContext: {
+            clientName: clients.find((c) => c.id === form.getValues("clientId"))?.label || undefined,
+            courtName:
+              form.getValues("courtName") === COURT_NAME_OTHER_VALUE
+                ? form.getValues("courtNameOther") || undefined
+                : form.getValues("courtName") || undefined,
+            district: form.getValues("district") || undefined,
+            caseNumber: form.getValues("caseNumber") || undefined,
+            matterType: form.getValues("matterType") || undefined,
+          },
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (!res.ok) {
+        setAiMessage(data.message ?? "Could not generate draft.");
+        return;
+      }
+      if (data.configured === false) {
+        setAiMessage(data.message ?? "Configure GROQ_API_KEY to enable AI drafting.");
+        return;
+      }
+
+      if (data.suggestions && typeof data.suggestions === "object") {
+        applyAiSuggestions(data.suggestions);
+      }
+
+      setAiDraft({
+        draft: typeof data.draft === "string" ? data.draft : undefined,
+        checklist: Array.isArray(data.checklist) ? data.checklist : undefined,
+        questionsForClient: Array.isArray(data.questionsForClient) ? data.questionsForClient : undefined,
+        riskNotes: Array.isArray(data.riskNotes) ? data.riskNotes : undefined,
+        grounds: Array.isArray(data.grounds) ? data.grounds : undefined,
+        prayer: typeof data.prayer === "string" ? data.prayer : undefined,
+      });
+
+      setAiMessage("Draft generated. Review and copy before using in court.");
+    } catch {
+      setAiMessage("Request failed. Try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const copyDraft = async () => {
+    const text = aiDraft?.draft?.trim();
+    if (!text) {
+      setAiMessage("No draft to copy yet.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setAiMessage("Draft copied to clipboard.");
+    } catch {
+      setAiMessage("Clipboard not available. Select text and copy manually.");
+    }
+  };
+
+  const saveDraft = async () => {
+    const text = aiDraft?.draft?.trim();
+    if (!text) {
+      setAiMessage("No draft to save yet.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await saveAiDraftToTimeline({
+        matterId: matter.id,
+        templateType: aiTemplateType,
+        draft: text,
+      });
+      if (res.success) {
+        setAiMessage("Draft saved to timeline.");
+        router.refresh();
+      } else {
+        setAiMessage(res.message ?? "Could not save draft.");
+      }
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const onSubmit = async (values: UpdateMatterFormValues) => {
     setFormError(null);
@@ -185,6 +329,117 @@ export function EditMatterForm({ matter, clients, staff, onSuccess, onCancel }: 
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-medium text-foreground">AI drafting assistant</h3>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Draft a pleading template and get field suggestions from your notes. Always review before filing.
+            </p>
+            <Textarea
+              value={aiNotes}
+              onChange={(e) => setAiNotes(e.target.value)}
+              placeholder="Add facts, parties, dates, forum, relief sought…"
+              rows={3}
+              className="resize-none text-sm"
+              disabled={aiLoading}
+            />
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+              <select
+                value={aiTemplateType}
+                onChange={(e) => setAiTemplateType(e.target.value as any)}
+                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                disabled={aiLoading}
+              >
+                <option value="generic">Generic (case note + prayer)</option>
+                <option value="civil_plaint">Civil plaint</option>
+                <option value="writ_petition">Writ petition (HC)</option>
+                <option value="bail_application">Bail application</option>
+                <option value="criminal_complaint">Criminal complaint</option>
+                <option value="appeal_memo">Appeal memo / revision</option>
+              </select>
+
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                disabled={aiLoading}
+                onClick={() => void handleAiDraft()}
+                className="w-full sm:w-auto"
+              >
+                {aiLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+                    Drafting…
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4 shrink-0" />
+                    Generate draft
+                  </>
+                )}
+              </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={aiLoading || !aiDraft?.draft}
+                onClick={() => void saveDraft()}
+                className="w-full sm:w-auto"
+              >
+                Save to timeline
+              </Button>
+            </div>
+
+            {aiMessage ? <p className="text-xs text-muted-foreground">{aiMessage}</p> : null}
+
+            {aiDraft?.draft ? (
+              <div className="rounded-lg border border-border bg-background/60 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-xs font-semibold text-foreground">Draft output</h4>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => void copyDraft()}>
+                    <Copy className="mr-2 h-4 w-4 shrink-0" />
+                    Copy draft
+                  </Button>
+                </div>
+                <Tabs defaultValue="draft" className="mt-2">
+                  <TabsList className="w-full sm:w-auto">
+                    <TabsTrigger value="draft">Draft</TabsTrigger>
+                    <TabsTrigger value="checklist">Checklist</TabsTrigger>
+                    <TabsTrigger value="questions">Questions</TabsTrigger>
+                    <TabsTrigger value="risks">Risks</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="draft" className="mt-2">
+                    <Textarea value={aiDraft.draft} readOnly rows={10} className="resize-none text-sm" />
+                  </TabsContent>
+                  <TabsContent value="checklist" className="mt-2">
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                      {(aiDraft.checklist ?? []).map((x, idx) => (
+                        <li key={idx}>{x}</li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                  <TabsContent value="questions" className="mt-2">
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                      {(aiDraft.questionsForClient ?? []).map((x, idx) => (
+                        <li key={idx}>{x}</li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                  <TabsContent value="risks" className="mt-2">
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                      {(aiDraft.riskNotes ?? []).map((x, idx) => (
+                        <li key={idx}>{x}</li>
+                      ))}
+                    </ul>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            ) : null}
+          </div>
+
           {/* Basic Information */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-border/40">
