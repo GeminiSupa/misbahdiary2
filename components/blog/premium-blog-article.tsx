@@ -75,20 +75,23 @@ export function PremiumBlogArticle({
             fill
             className={
               /\.svg$/i.test(heroImageSrc)
-                ? "object-contain object-center p-12 opacity-30 sm:p-20"
-                : "object-cover opacity-25"
+                ? "object-contain object-center p-12 opacity-20 sm:p-20"
+                : "object-cover opacity-20"
             }
             sizes="100vw"
             priority
             unoptimized={/\.svg$/i.test(heroImageSrc)}
           />
+          {/* Stronger scrims for consistent contrast across all cover images */}
           <div className="absolute inset-0 bg-linear-to-b from-slate-950 via-slate-950/90 to-slate-950" />
+          <div className="absolute inset-0 bg-slate-950/35" />
+          <div className="absolute inset-0 bg-radial-[circle_at_50%_35%] from-slate-950/10 via-slate-950/55 to-slate-950/95" />
         </div>
 
         <div className="container mx-auto max-w-4xl px-6">
           <Link
             href="/blog"
-            className="mb-10 inline-flex min-h-[44px] items-center gap-2 text-sm font-bold text-slate-300 transition hover:text-white"
+            className="mb-10 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-bold text-slate-100/90 shadow-[0_10px_30px_rgba(2,6,23,0.35)] backdrop-blur-md transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <ArrowLeft className="h-4 w-4 shrink-0 text-teal-400" />
             Back to Blog
@@ -105,16 +108,18 @@ export function PremiumBlogArticle({
             <h1 className="mb-8 text-4xl font-black leading-[1.1] tracking-tighter md:text-6xl lg:text-7xl">
               {accent ? (
                 <>
-                  {first}
+                  <span className="text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">{first}</span>
                   <br />
-                  <span className="text-teal-400 italic">{accent}</span>
+                  <span className="text-teal-300 italic [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">
+                    {accent}
+                  </span>
                 </>
               ) : (
-                <span className="text-teal-400 italic">{first}</span>
+                <span className="text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">{first}</span>
               )}
             </h1>
 
-            <div className="flex flex-col items-center justify-center gap-4 border-y border-white/10 py-6 text-xs font-bold uppercase tracking-widest text-slate-400 sm:flex-row sm:gap-6">
+            <div className="flex flex-col items-center justify-center gap-4 border-y border-white/10 py-6 text-xs font-bold uppercase tracking-widest text-slate-200/80 sm:flex-row sm:gap-6">
               <div className="flex items-center gap-2 italic">
                 <Calendar className="h-4 w-4 text-teal-400" />
                 <time dateTime={publishedAt}>{formattedDate}</time>
