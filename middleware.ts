@@ -63,6 +63,17 @@ export async function middleware(request: NextRequest) {
   const isClientRoute = pathname.startsWith("/client/");
   const isLawyerRoute = pathname.startsWith("/lawyer/");
 
+  // Search / DNS verification files in `public/` must be readable without a session.
+  // Otherwise middleware redirects unauthenticated requests to /sign-in and Bing/Google cannot verify.
+  const lowerPath = pathname.toLowerCase();
+  if (
+    lowerPath === "/bingsiteauth.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml"
+  ) {
+    return response;
+  }
+
   // Public routes that don't require authentication
   // NOTE: `/auth/callback` must be public or OAuth code exchange will be blocked by middleware.
   const publicRoutes = [
