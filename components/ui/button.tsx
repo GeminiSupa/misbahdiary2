@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         // Primary action – Mobile-first with optimized colors
         default:
-          "bg-[#1A91FF] sm:bg-gradient-to-r sm:from-primary sm:to-primary/90 text-primary-foreground rounded-lg shadow-sm active:bg-[#0057D2] sm:hover:from-[#0057D2] sm:hover:to-[#0040B0] sm:hover:shadow-[0_4px_12px_rgba(0,112,242,0.3),0_0_20px_rgba(0,112,242,0.2)] active:scale-[0.95] sm:active:scale-[0.98] transition-all duration-100 sm:duration-200 relative overflow-hidden",
+          "bg-primary text-primary-foreground rounded-lg shadow-sm hover:bg-primary/90 active:bg-primary/80 active:scale-[0.98] transition-all duration-150 relative overflow-hidden",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         success:
@@ -29,7 +29,7 @@ const buttonVariants = cva(
           "rounded-lg hover:bg-muted hover:text-foreground transition-all",
         link: "text-primary underline-offset-4 hover:underline",
         // Floating Action Button (FAB) - Mobile primary CTA
-        fab: "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-[#1A91FF] sm:bg-gradient-to-r sm:from-primary sm:to-primary/90 text-primary-foreground shadow-lg active:bg-[#0057D2] sm:hover:from-[#0057D2] sm:hover:to-[#0040B0] sm:hover:shadow-xl active:scale-[0.95] sm:active:scale-[0.98] transition-all duration-100 sm:duration-200 lg:hidden",
+        fab: "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:bg-primary/80 active:scale-[0.98] transition-all duration-150 lg:hidden",
       },
       size: {
         default:

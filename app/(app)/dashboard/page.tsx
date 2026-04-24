@@ -270,7 +270,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="-mx-4 rounded-3xl bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-4 sm:-mx-6 sm:px-6 sm:py-6 lg:mx-0 lg:px-0">
+    <div className="dark -mx-4 rounded-3xl bg-linear-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-4 sm:-mx-6 sm:px-6 sm:py-6 lg:mx-0 lg:px-0">
       <div className="space-y-3 sm:space-y-4 lg:px-4">
         {/* Trial Banner (hidden for super admins) */}
         {subscription && (

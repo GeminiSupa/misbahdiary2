@@ -222,6 +222,90 @@ export const BLOG_POSTS: BlogPost[] = [
 `,
   },
   {
+    slug: "judicial-stability-islamabad-high-court",
+    image: "/images/blog/judge.svg",
+    imageAlt: "Judicial stability and courts illustration",
+    title: "A House Divided? The Struggle for Judicial Stability in Islamabad",
+    description:
+      "Islamabad High Court faces a new test: judicial transfers, access constraints in the Red Zone, and enforcement of court directions — and what it means for judicial independence.",
+    publishedAt: "2026-04-21",
+    author: "Muhammad Maaz Akram",
+    badgeLabel: "Analysis 2026",
+    content: `
+<h1>A House Divided? The Struggle for Judicial Stability in Islamabad</h1>
+<p><strong>By Muhammad Maaz Akram</strong></p>
+
+<p>In the heart of Pakistan’s capital, the white marble building of the Islamabad High Court (IHC) is usually a symbol of legal finality. But this week, it has become a lightning rod for a deeper struggle: judicial independence and the very definition of a judge’s role in the federal system.</p>
+
+<h2>The Transfer Controversy</h2>
+<p>The headline of the day isn’t a specific verdict, but a letter. Chief Justice Yahya Afridi has taken a bold stand against the proposed transfer of five IHC judges to provincial courts. For the legal community, this isn’t just about geography; it’s about precedent.</p>
+<p>When judges involved in high-stakes constitutional litigation are put on transfer lists, it raises an unsettling question: is the judiciary being administratively reshuffled to influence how justice is delivered?</p>
+<p>CJP Afridi’s warning that such transfers could assume a “punitive character” is more than rhetoric. If judges are treated as interchangeable parts, the stability of the court — and public confidence in its impartiality — is at risk.</p>
+
+<h2>Access to Justice (and the Red Zone)</h2>
+<p>Beyond the politics, the physical reality of the IHC remains a practical barrier. With frequent sealing of the Red Zone, access to justice becomes literal. Litigants and lawyers often find themselves locked out of the system, leading to cancelled cause lists and delayed hearings.</p>
+<p>This “work from home” era for the judiciary is an unintended reflection of the volatility of the capital’s security landscape — and a reminder that the rule of law depends on the courts being reachable, not just respectable.</p>
+
+<h2>The Adiala Deadlock</h2>
+<p>The court’s authority is also being tested in the continuing saga of jail visits. Despite clear IHC directions allowing meetings twice a week, implementation has turned into a game of cat and mouse.</p>
+<p>Whether the cause is internal party rifts or administrative hurdles at Adiala Jail, the outcome is the same: orders that exist on paper, but stall in practice — a scenario that gradually weakens the deterrent force of judicial directions.</p>
+
+<h2>Conclusion: Why This Matters</h2>
+<p>The IHC is more than a local court; it has often been described as a symbol of the federation’s four units. As the Judicial Commission prepares to meet on April 28, the eyes of the nation remain on Islamabad.</p>
+<p>Will the court remain a bastion of independent thought, or will it succumb to administrative pressures? The coming days will determine whether this administrative storm passes — or leaves a lasting scar on Pakistan’s legal history.</p>
+`,
+  },
+  {
+    slug: "high-court-benches-sargodha-mianwali",
+    image: "/images/blog/judge.svg",
+    imageAlt: "High Court benches and access to justice illustration",
+    title: "The Long Road to Justice: Why Sargodha and Mianwali Need Their Own High Court Benches",
+    description:
+      "For litigants and lawyers in Sargodha and Mianwali, access to the Lahore High Court often means long travel, high costs, and delays. A case for permanent regional High Court benches in 2026.",
+    publishedAt: "2026-04-21",
+    author: "Adv Misbah Akram Rana",
+    badgeLabel: "Analysis 2026",
+    content: `
+<h1>The Long Road to Justice: Why Sargodha and Mianwali Need Their Own High Court Benches</h1>
+<p><strong>By Adv Misbah Akram Rana</strong></p>
+<p><a href="https://www.linkedin.com/in/misbahakramadvocatehighcourt/" target="_blank" rel="noopener noreferrer">LinkedIn profile</a></p>
+
+<p>In the legal landscape of Punjab, “justice at your doorstep” is a phrase often used but seldom felt by the people of the Sargodha and Mianwali divisions. For decades, litigants and legal professionals from these areas have been caught in a logistical nightmare, traveling hundreds of kilometers to seek relief from the Lahore High Court (LHC).</p>
+
+<p>As these cities grow into major administrative and economic hubs, the demand for localized judicial complexes — specifically permanent High Court benches — has moved from a request to a necessity.</p>
+
+<h2>The Burden of Distance</h2>
+<p>Currently, Mianwali is tagged to the Rawalpindi Bench of the LHC, while Sargodha remains primarily linked to the Principal Seat in Lahore. Here’s why this is a problem:</p>
+<ul>
+  <li><strong>Travel time:</strong> A round trip from Mianwali to Rawalpindi can take over 5 to 6 hours. For those in Sargodha traveling to Lahore, traffic congestion at the city’s entry points often turns a 3-hour drive into a 5-hour ordeal.</li>
+  <li><strong>The financial toll:</strong> It’s not just about fuel — it’s also transport, food, and sometimes overnight lodging. Most High Court matters aren’t resolved in a single day, so justice becomes a luxury many cannot afford.</li>
+  <li><strong>Case delays:</strong> If a lawyer or petitioner is delayed by a road blockage or transport disruption, the matter is adjourned, pushing timelines back by months.</li>
+</ul>
+
+<h2>Why Do Lawyers Have to Travel So Far?</h2>
+<p>A common question asked by the public is: “Why can’t my local lawyer just handle it here?”</p>
+<p>The answer lies in <strong>jurisdiction</strong>. Under the Constitution of Pakistan, certain matters — such as writ petitions against government departments, appeals against lower-court decisions, and high-stakes civil or criminal matters — can only be heard by a High Court judge.</p>
+<p>If there is no High Court bench in Sargodha, local courts simply do not have the legal authority to hear those categories of cases. Consequently:</p>
+<ul>
+  <li><strong>Constitutional authority:</strong> Lawyers must physically appear where the bench sits to present arguments before a High Court Justice.</li>
+  <li><strong>Centralization:</strong> Until a formal Sargodha bench is established by the government and the judiciary, the legal venue remains fixed in Lahore or Rawalpindi.</li>
+</ul>
+
+<h2>The Solution: A Permanent Regional Complex</h2>
+<p>Establishing permanent judicial complexes with High Court benches in these cities would be transformative:</p>
+<ul>
+  <li><strong>Decongesting Lahore:</strong> The Principal Seat in Lahore is overwhelmed with thousands of pending cases. Shifting Sargodha and Mianwali matters to regional benches would speed up the process for everyone.</li>
+  <li><strong>Empowering local bars:</strong> Lawyers would no longer need liaison offices in other cities or to refer clients to big-city firms, keeping the legal economy local.</li>
+  <li><strong>Public trust:</strong> When citizens can see the scales of justice within their own division, trust in the state increases.</li>
+</ul>
+
+<h2>Final Thought</h2>
+<p>The people of Sargodha and Mianwali shouldn’t have to choose between their life savings and their legal rights. Infrastructure like CPEC routes has made travel faster, but it hasn’t made the distance shorter.</p>
+<p>It is time for the judicial map of Punjab to reflect the reality of 2026: every major division deserves a High Court bench.</p>
+<p><em>Justice delayed is justice denied — but justice too far away is often justice never sought at all.</em></p>
+`,
+  },
+  {
     slug: "yaqeen-ka-khel",
     image: "/images/blog/celebration.svg",
     imageAlt: "Belief and growth celebration illustration",
