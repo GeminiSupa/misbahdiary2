@@ -36,7 +36,7 @@ export async function completeOnboarding(
     };
   }
 
-  const { firmName, contactEmail, contactPhone, fullName, role } = parsed.data;
+  const { firmName, contactEmail, contactPhone, fullName } = parsed.data;
 
   const { data: firm, error: firmError } = await supabase
     .from("firms")
@@ -62,7 +62,7 @@ export async function completeOnboarding(
         id: user.id,
         firm_id: firm.id,
         full_name: fullName,
-        role,
+        role: "principal_partner",
         phone: contactPhone ? contactPhone : null,
       },
       { onConflict: "id" },

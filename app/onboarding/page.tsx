@@ -1,13 +1,6 @@
 import { redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { OnboardingPayload } from "@/app/onboarding/actions";
-import { onboardingSchema } from "@/lib/validation/onboarding";
-
-const allowedRoles = new Set(
-  onboardingSchema.shape.role.options as OnboardingPayload["role"][],
-);
-
 export default async function OnboardingPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -46,11 +39,6 @@ export default async function OnboardingPage() {
     redirect("/dashboard");
   }
 
-  const roleFromProfile = profile?.role as OnboardingPayload["role"] | null;
-  const defaultRole = roleFromProfile && allowedRoles.has(roleFromProfile)
-    ? roleFromProfile
-    : "principal_partner";
-
   return (
     <div className="sap-shell flex min-h-screen items-center justify-center">
       <div className="w-full max-w-2xl px-4 py-10">
@@ -61,7 +49,6 @@ export default async function OnboardingPage() {
                 contactEmail: user.email ?? "",
                 fullName: profile?.full_name ?? "",
                 contactPhone: profile?.phone ?? "",
-                role: defaultRole,
               }}
             />
           </div>

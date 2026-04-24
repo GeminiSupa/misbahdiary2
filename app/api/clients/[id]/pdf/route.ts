@@ -4,6 +4,9 @@ import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { ClientPdfDocument } from "@/lib/pdf/client-pdf";
 import { createElement } from "react";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const dateFormatter = new Intl.DateTimeFormat("en-PK", {
   dateStyle: "medium",
   timeStyle: "short",

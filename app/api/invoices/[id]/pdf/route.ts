@@ -4,6 +4,9 @@ import { supabaseAdminClient } from "@/lib/supabase/admin";
 import { InvoicePdfDocument } from "@/lib/pdf/invoice-pdf";
 import { createElement } from "react";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const dateFormatter = new Intl.DateTimeFormat("en-PK", { dateStyle: "medium" });
 
 export async function GET(

@@ -12,7 +12,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,8 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import type { OnboardingPayload } from "@/app/onboarding/actions";
 import { completeOnboarding } from "@/app/onboarding/actions";
 import { Loader2, Building2, Mail, Phone, User, Briefcase, CheckCircle2 } from "lucide-react";
-import { onboardingSchema, roleOptions } from "@/lib/validation/onboarding";
-import { cn } from "@/lib/utils";
+import { onboardingSchema } from "@/lib/validation/onboarding";
 
 type OnboardingFormProps = {
   defaultValues: Partial<OnboardingPayload>;
@@ -39,7 +37,6 @@ export function OnboardingForm({ defaultValues }: OnboardingFormProps) {
       contactEmail: defaultValues.contactEmail ?? "",
       contactPhone: defaultValues.contactPhone ?? "",
       fullName: defaultValues.fullName ?? "",
-      role: defaultValues.role ?? "principal_partner",
     },
   });
 
@@ -207,47 +204,18 @@ export function OnboardingForm({ defaultValues }: OnboardingFormProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Briefcase className="h-3.5 w-3.5" />
-                    Your Role
-                  </FormLabel>
-                  <FormControl>
-                    <div className="grid grid-cols-2 gap-3">
-                      {roleOptions.map((option) => (
-                        <button
-                          type="button"
-                          key={option.value}
-                          onClick={() => field.onChange(option.value)}
-                          className={cn(
-                            "rounded-xl border-2 p-4 text-left transition-all",
-                            "hover:scale-[1.02] active:scale-[0.98]",
-                            field.value === option.value
-                              ? "border-primary bg-primary/10 text-primary shadow-md"
-                              : "border-border bg-background/70 hover:border-primary/50",
-                          )}
-                        >
-                          <span className="block font-semibold text-foreground text-sm">
-                            {option.label}
-                          </span>
-                          <span className="mt-1 block text-xs text-muted-foreground">
-                            {option.description}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Select your role in the firm
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+              <div className="flex items-start gap-3">
+                <Briefcase className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm font-semibold text-foreground">Principal / Partner</p>
+                  <p className="text-xs text-muted-foreground">
+                    Firm owner or managing partner. New accounts are created with this role; you can add team
+                    members with other roles from Settings after setup.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <Separator />

@@ -36,7 +36,7 @@ export async function completeOnboarding(
     };
   }
 
-  const { firmName, contactEmail, contactPhone, fullName, role } = parsed.data;
+  const { firmName, contactEmail, contactPhone, fullName } = parsed.data;
 
   // Calculate trial dates (30 days from now)
   const trialStartedAt = new Date();
