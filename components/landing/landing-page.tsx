@@ -11,7 +11,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Prata } from "next/font/google";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
@@ -72,6 +72,44 @@ const structuredData = [
       priceCurrency: "PKR",
     },
   },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is the best legal software for advocates in Pakistan?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "The best legal software is the one that fits Pakistani workflows: matters, hearings, PKR billing, client updates, and role-based access. Lawyer Diary is built specifically for advocates and firms in Pakistan.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can Lawyer Diary help manage court hearings and cause lists?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. You can schedule hearings, track upcoming dates, and keep a searchable timeline so your team stays aligned and prepared for court.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is Lawyer Diary suitable for solo lawyers and law firms?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. Solo practitioners can run everything from one workspace, while firms can collaborate using roles, assignments, and shared matter history.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does Lawyer Diary support billing and invoices in PKR?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. Lawyer Diary supports PKR billing, invoices, payment tracking, and outstanding balances to help you manage revenue and collections.",
+        },
+      },
+    ],
+  },
 ];
 
 const navLinks = [
@@ -127,9 +165,17 @@ const productScreenshots = [
 
 export function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [heroCards, setHeroCards] = useState(productScreenshots.slice(0, 5));
+  // Keep LCP light: only render 2 cards immediately, then hydrate the rest.
+  const [heroCards, setHeroCards] = useState(productScreenshots.slice(0, 2));
   const pointerStartXRef = useRef<number | null>(null);
   const swipeTriggeredRef = useRef(false);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setHeroCards(productScreenshots.slice(0, 5));
+    }, 1200);
+    return () => window.clearTimeout(id);
+  }, []);
 
   const cycleHeroCards = () => {
     setHeroCards((prev) => {
@@ -345,6 +391,8 @@ export function LandingPage() {
                           height={600}
                           className="h-full w-full object-contain"
                           draggable={false}
+                          priority={index === 0}
+                          sizes="(max-width: 640px) 300px, 420px"
                         />
                       </div>
                     </article>

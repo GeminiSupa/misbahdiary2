@@ -186,6 +186,76 @@ export const BLOG_POSTS: BlogPost[] = [
 `,
   },
   {
+    slug: "digital-lawyer-diary-pakistan",
+    image: "/images/blog/online.svg",
+    imageAlt: "Digital lawyer diary for Pakistan advocates illustration",
+    title: "Digital Lawyer Diary Pakistan: The Practical Guide for Advocates (2026)",
+    description:
+      "A commercial-intent guide for Pakistani advocates: why a digital lawyer diary matters, how to choose one, and how Lawyer Diary helps manage cases, hearings, clients, and PKR billing.",
+    publishedAt: "2026-05-06",
+    author: "Lawyer Diary",
+    badgeLabel: "Guide 2026",
+    content: `
+<h1>Digital Lawyer Diary Pakistan: The Practical Guide for Advocates (2026)</h1>
+<p>If you are searching for a <strong>digital lawyer diary in Pakistan</strong>, you’re usually trying to solve one problem: staying on top of matters, hearings, client follow-ups, and fees without relying on scattered registers, WhatsApp notes, and memory.</p>
+
+<p>This guide explains what to look for, what to avoid, and how a modern system improves day-to-day practice for advocates and law firms in Pakistan.</p>
+
+<h2>What is a digital lawyer diary?</h2>
+<p>A digital lawyer diary is an online workspace where you can track:</p>
+<ul>
+  <li><strong>Matters and case history</strong> (serial numbers, court, district, progress)</li>
+  <li><strong>Hearings and deadlines</strong> (next date, reason, reminders)</li>
+  <li><strong>Clients and documents</strong> (KYC, engagement, notes)</li>
+  <li><strong>Billing in PKR</strong> (invoices, payments, outstanding)</li>
+</ul>
+
+<h2>Why Pakistani advocates need it (not just “nice to have”)</h2>
+<p>In Pakistan, delays and adjournments are normal. The real risk is losing the thread across months: what was last order, what documents are pending, what the client was told, and what the next step is.</p>
+<ul>
+  <li><strong>Fewer missed dates</strong>: a dedicated calendar reduces human error.</li>
+  <li><strong>Cleaner client communication</strong>: updates are documented, not informal.</li>
+  <li><strong>Faster preparation</strong>: history and documents sit with the matter.</li>
+</ul>
+
+<h2>What to look for in a digital lawyer diary (Pakistan checklist)</h2>
+<ul>
+  <li><strong>Case & hearing workflow</strong> that matches local practice</li>
+  <li><strong>PKR billing</strong> and invoice exports</li>
+  <li><strong>Client portal</strong> so clients can see relevant updates</li>
+  <li><strong>Role-based access</strong> for firms (owner/partner, associates, staff)</li>
+  <li><strong>Search</strong> across cases, clients, invoices, CNR references</li>
+</ul>
+
+<h2>How Lawyer Diary helps</h2>
+<p>Lawyer Diary is built for advocates and law firms in Pakistan. Start here:</p>
+<ul>
+  <li><a href=\"/cases\">Matters</a>: manage cases and history in one place</li>
+  <li><a href=\"/calendar\">Calendar</a>: schedule hearings and track next dates</li>
+  <li><a href=\"/billing\">Billing</a>: PKR invoices, payments, and outstanding</li>
+  <li><a href=\"/client/dashboard\">Client portal</a>: give clients a clean view of their updates</li>
+</ul>
+
+<h2>FAQs — Digital Lawyer Diary Pakistan</h2>
+<h3>Is a digital lawyer diary useful for solo advocates?</h3>
+<p>Yes. It replaces scattered notes with a single system for matters, dates, and fees.</p>
+
+<h3>Can my team collaborate on the same matters?</h3>
+<p>Yes. Firms can assign matters and keep a shared history so work doesn’t depend on one person.</p>
+
+<h3>Does it support PKR billing and invoices?</h3>
+<p>Yes. Lawyer Diary supports PKR invoices, payments, and outstanding balances.</p>
+
+<h3>How do I start?</h3>
+<p>Create your account and begin with your active matters. You can add the rest gradually.</p>
+
+<hr />
+<h2>Start using a digital lawyer diary</h2>
+<p><strong>Want to stop missing dates and chasing files?</strong> Start with a clean workspace today.</p>
+<p><a href=\"/sign-up\">Start free trial</a></p>
+`,
+  },
+  {
     slug: "when-belief-becomes-power",
     image: "/images/blog/team.svg",
     imageAlt: "Inspiring women and leadership illustration",

@@ -78,7 +78,8 @@ export function PremiumBlogArticle({
                 ? "object-contain object-center p-12 opacity-20 sm:p-20"
                 : "object-cover opacity-20"
             }
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, 1200px"
+            quality={70}
             priority
             unoptimized={/\.svg$/i.test(heroImageSrc)}
           />
