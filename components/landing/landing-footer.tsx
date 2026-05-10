@@ -74,6 +74,9 @@ export function LandingFooter({ variant = "landing" }: LandingFooterProps) {
             <Link href="/blog" className="text-xs text-black/60 hover:text-black">
               Blog
             </Link>
+            <Link href="/zakat-calculator" className="text-xs text-black/60 hover:text-black">
+              Zakat Calculator
+            </Link>
             <Link href="/privacy" className="text-xs text-black/60 hover:text-black">
               Privacy
             </Link>

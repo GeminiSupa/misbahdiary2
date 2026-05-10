@@ -16,6 +16,7 @@ const navItems = [
   { href: "/billing", label: "Billing" },
   { href: "/messages", label: "Messages" },
   { href: "/activity", label: "Activity" },
+  { href: "/zakat-calculator", label: "Zakat Calculator" },
   { href: "/subscription", label: "Subscription" },
   { href: "/contact", label: "Contact" },
   { href: "/user-manual", label: "User Manual" },

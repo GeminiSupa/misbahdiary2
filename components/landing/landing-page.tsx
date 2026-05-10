@@ -116,6 +116,7 @@ const navLinks = [
   { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "/blog", label: "Blog" },
+  { href: "/zakat-calculator", label: "Zakat Calculator" },
   { href: "#for-solo", label: "For Solo" },
   { href: "#for-firms", label: "For Firms" },
   { href: "#testimonials", label: "Testimonials" },
