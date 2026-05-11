@@ -116,10 +116,9 @@ const navLinks = [
   { href: "#features", label: "Features" },
   { href: "#pricing", label: "Pricing" },
   { href: "/blog", label: "Blog" },
+  { href: "/guides", label: "Guides" },
+  { href: "#lawyers", label: "Lawyers" },
   { href: "/zakat-calculator", label: "Zakat Calculator" },
-  { href: "#for-solo", label: "For Solo" },
-  { href: "#for-firms", label: "For Firms" },
-  { href: "#testimonials", label: "Testimonials" },
   { href: "/sign-in", label: "Sign In" },
 ];
 
@@ -479,6 +478,126 @@ export function LandingPage() {
                   Adv Ali Hassan from Lahore
                 </footer>
               </blockquote>
+            </div>
+          </div>
+        </section>
+
+        {/* Prominent Lawyers by City Section */}
+        <section
+          id="lawyers"
+          className="border-b border-black/10 bg-white py-16 sm:py-20 lg:py-24"
+        >
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="mb-12 text-center">
+              <h2 className={`${prata.className} text-2xl font-normal leading-tight tracking-normal text-black sm:text-3xl`}>
+                Connect with Prominent Lawyers
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-center text-base text-black/70">
+                Find highly experienced advocates and top-rated law firms across Pakistan's major legal hubs.
+              </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-3">
+              {[
+                {
+                  city: "Islamabad",
+                  href: "/lawyers-in-islamabad",
+                  description: "High Court & Supreme Court litigation experts.",
+                  image: "/images/blog/judge.svg",
+                },
+                {
+                  city: "Lahore",
+                  href: "/lawyers-in-lahore",
+                  description: "Specialists in civil, corporate, and criminal law.",
+                  image: "/images/blog/documents.svg",
+                },
+                {
+                  city: "Karachi",
+                  href: "/lawyers-in-karachi",
+                  description: "Top corporate and maritime legal practitioners.",
+                  image: "/images/blog/contract.svg",
+                },
+              ].map((city) => (
+                <Link
+                  key={city.city}
+                  href={city.href}
+                  className="group relative overflow-hidden rounded-2xl border border-black/10 bg-slate-50 p-6 transition-all hover:border-[#f97316]/50 hover:shadow-xl sm:p-8"
+                >
+                  <div className="relative z-10">
+                    <h3 className={`${prata.className} text-xl font-normal text-black group-hover:text-[#f97316]`}>
+                      Lawyers in {city.city}
+                    </h3>
+                    <p className="mt-2 text-sm text-black/60">
+                      {city.description}
+                    </p>
+                    <div className="mt-4 flex items-center text-sm font-semibold text-[#f97316]">
+                      View Directory <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-10 -right-10 h-32 w-32 opacity-10 transition-transform group-hover:scale-110 group-hover:opacity-20">
+                    <Image
+                      src={city.image}
+                      alt={city.city}
+                      width={128}
+                      height={128}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Featured Lawyer Spotlight */}
+            <div className="mt-16 rounded-3xl border border-black/10 bg-gradient-to-br from-slate-50 to-white p-8 shadow-sm lg:p-12">
+              <div className="flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
+                <div className="relative h-48 w-48 shrink-0 overflow-hidden rounded-2xl border-4 border-white shadow-xl lg:h-64 lg:w-64">
+                  <Image
+                    src="/images/blog/team.svg" // Placeholder for Misbah Akram's profile
+                    alt="Misbah Akram Advocate"
+                    width={256}
+                    height={256}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <p className="text-sm font-medium">Advocate High Court</p>
+                  </div>
+                </div>
+                <div className="flex-1 text-center lg:text-left">
+                  <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-[#ea580c] uppercase tracking-wider">
+                    Featured Spotlight
+                  </span>
+                  <h3 className={`${prata.className} mt-4 text-3xl font-normal text-black lg:text-4xl`}>
+                    Misbah Akram Rana
+                  </h3>
+                  <p className="mt-4 text-lg leading-relaxed text-black/80">
+                    A prominent Advocate of the High Court based in Islamabad, specialized in Family, Criminal, and Civil litigation. Known for her active role in the legal community and authoritative guides on Pakistani law.
+                  </p>
+                  <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+                    {["Family Law", "Criminal Defense", "Civil Litigation", "Legal Consultant"].map((tag) => (
+                      <span key={tag} className="rounded-lg border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black/70 shadow-sm">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
+                    <Link
+                      href="/lawyers-in-islamabad"
+                      className="inline-flex h-12 items-center justify-center rounded-xl bg-black px-8 py-2 text-sm font-semibold text-white transition hover:bg-black/80"
+                    >
+                      View Profile
+                    </Link>
+                    <a
+                      href="https://www.linkedin.com/in/misbahakramadvocatehighcourt/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-12 items-center justify-center rounded-xl border border-black/20 bg-white px-8 py-2 text-sm font-semibold text-black transition hover:bg-black/5"
+                    >
+                      Connect on LinkedIn
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
