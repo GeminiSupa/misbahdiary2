@@ -26,6 +26,18 @@ export const CITY_DATA: Record<string, CityData> = {
         website: "https://vakeeldiary.com",
       },
       {
+        name: "ABS & Co",
+        specialization: "Corporate, Constitutional, Arbitration",
+        description: "One of Pakistan's largest law firms with a strong presence in Islamabad, specializing in complex litigation and corporate advisory.",
+        website: "https://absco.pk",
+      },
+      {
+        name: "Axis Law Chambers",
+        specialization: "Commercial, Banking, Litigation",
+        description: "A premium law firm providing high-end legal services in commercial and constitutional matters.",
+        website: "https://axislaw.pk",
+      },
+      {
         name: "Cornelius, Lane & Mufti (CLM)",
         specialization: "Corporate, Regulatory, Banking",
         description: "One of the largest and most reputed law firms in Pakistan, specializing in high-stakes corporate and regulatory matters.",
@@ -80,6 +92,18 @@ export const CITY_DATA: Record<string, CityData> = {
     intro: "Connecting you with top-tier law firms in Lahore. From high-stakes corporate disputes to property and family matters, find experienced advocates in the cultural and legal heart of Pakistan.",
     lawyers: [
       {
+        name: "Jillani & Co.",
+        specialization: "Corporate, Financial, Property",
+        description: "Provides high-level legal advisory on corporate, financial, property, and civil litigation matters in Lahore.",
+        website: "https://vakeeldiary.com",
+      },
+      {
+        name: "AMLAW Associates",
+        specialization: "Corporate, SME Law, Litigation",
+        description: "A full-service corporate and SME law firm specializing in company law, litigation, and consultancy.",
+        website: "https://amlaw.pk",
+      },
+      {
         name: "RIAA Barker Gillette",
         specialization: "Corporate, M&A, Projects",
         description: "A leading full-service law firm with an international presence, frequently ranked top in Pakistan.",
@@ -90,6 +114,12 @@ export const CITY_DATA: Record<string, CityData> = {
         specialization: "Banking, Projects, Tax",
         description: "A well-established firm in Lahore with extensive experience in banking and infrastructure projects.",
         website: "https://clm.com.pk",
+      },
+      {
+        name: "Hassan & Hassan (Advocates)",
+        specialization: "Constitutional, Civil, Corporate",
+        description: "One of the oldest and most prestigious law firms in Pakistan, based in Lahore.",
+        website: "https://hassanandhassan.com",
       },
       {
         name: "SNS Law Firm",
@@ -104,21 +134,15 @@ export const CITY_DATA: Record<string, CityData> = {
         website: "https://hlcpak.com",
       },
       {
-        name: "Kilam Law",
-        specialization: "Intellectual Property, Cyber Law",
-        description: "Specializes in modern legal challenges including IP protection, data privacy, and cyber law.",
-      },
-      {
-        name: "Hassan & Hassan (Advocates)",
-        specialization: "Constitutional, Civil, Corporate",
-        description: "One of the oldest and most prestigious law firms in Pakistan, based in Lahore.",
-        website: "https://hassanandhassan.com",
-      },
-      {
         name: "Walker Martineau Saleem (WMS)",
         specialization: "Corporate, Commercial, Litigation",
         description: "A well-regarded firm providing a broad range of legal services to domestic and international clients.",
         website: "https://wmslaw.com.pk",
+      },
+      {
+        name: "Kilam Law",
+        specialization: "Intellectual Property, Cyber Law",
+        description: "Specializes in modern legal challenges including IP protection, data privacy, and cyber law.",
       },
     ],
     faqs: [
@@ -145,6 +169,18 @@ export const CITY_DATA: Record<string, CityData> = {
     intro: "Your guide to leading lawyers in Karachi. As Pakistan's financial hub, Karachi offers specialized legal expertise in admiralty, corporate finance, and commercial litigation.",
     lawyers: [
       {
+        name: "Haidermota & Co.",
+        specialization: "Corporate, M&A, Energy",
+        description: "A top-tier firm in Karachi specializing in corporate law, mergers and acquisitions, and energy projects.",
+        website: "https://hmco.com.pk",
+      },
+      {
+        name: "Mohsin Tayebaly & Co. (MTC)",
+        specialization: "Banking, Finance, Capital Markets",
+        description: "One of Pakistan's leading law firms for banking, finance, and capital markets transactions.",
+        website: "https://mtclaw.com.pk",
+      },
+      {
         name: "RIAA Barker Gillette",
         specialization: "Corporate, M&A, Banking",
         description: "Renowned for its strength in corporate finance and large-scale commercial transactions in Karachi.",
@@ -163,18 +199,6 @@ export const CITY_DATA: Record<string, CityData> = {
         website: "https://irfanlaw.com",
       },
       {
-        name: "Mumtaz & Associates",
-        specialization: "Company Registration, M&A",
-        description: "Experts in corporate law, mergers, acquisitions, and commercial dispute resolution.",
-        website: "https://ma-law.org.pk",
-      },
-      {
-        name: "Lexway",
-        specialization: "Cross-border Transactions, Litigation",
-        description: "Specializes in international legal matters and complex commercial litigation.",
-        website: "https://lexway.pk",
-      },
-      {
         name: "Abraham & Sarwana",
         specialization: "Admiralty, Banking, Corporate",
         description: "A leading firm in Karachi known for its expertise in shipping, banking, and commercial law.",
@@ -185,6 +209,18 @@ export const CITY_DATA: Record<string, CityData> = {
         specialization: "IP, Corporate, Commercial",
         description: "A highly respected firm specializing in intellectual property and corporate advisory.",
         website: "https://vellani.com",
+      },
+      {
+        name: "Mumtaz & Associates",
+        specialization: "Company Registration, M&A",
+        description: "Experts in corporate law, mergers, acquisitions, and commercial dispute resolution.",
+        website: "https://ma-law.org.pk",
+      },
+      {
+        name: "Lexway",
+        specialization: "Cross-border Transactions, Litigation",
+        description: "Specializes in international legal matters and complex commercial litigation.",
+        website: "https://lexway.pk",
       },
     ],
     faqs: [
