@@ -78,6 +78,12 @@ export async function middleware(request: NextRequest) {
   // NOTE: `/auth/callback` must be public or OAuth code exchange will be blocked by middleware.
   const publicRoutes = [
     "/blog",
+    "/guides",
+    "/zakat-calculator",
+    "/lawyers-in-",
+    "/islamabad",
+    "/lahore",
+    "/karachi",
     "/sign-in",
     "/sign-up",
     "/confirm",
