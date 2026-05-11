@@ -1,4 +1,4 @@
-export type WidgetType = "kpi" | "chart" | "agenda" | "recent_activity" | "quick_actions";
+export type WidgetType = "kpi" | "chart" | "agenda" | "recent_activity" | "quick_actions" | "templates";
 
 export type WidgetSize = "small" | "medium" | "large";
 

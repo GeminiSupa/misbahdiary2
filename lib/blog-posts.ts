@@ -50,6 +50,155 @@ export type BlogTopic =
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "how-to-file-divorce-pakistan-2026-guide",
+    image: "/images/blog/documents.svg",
+    imageAlt: "Divorce procedure and legal documents in Pakistan",
+    title: "How to File Divorce in Pakistan – Complete Legal Procedure, Court Process & Draft Applications (2026 Guide)",
+    description:
+      "A comprehensive 2026 guide on filing divorce in Pakistan, covering Talaq, Khula, court processes, required documents, and sample draft applications.",
+    publishedAt: "2026-05-11",
+    author: "Lawyer Diary",
+    badgeLabel: "Legal Guide 2026",
+    content: `
+<h1>How to File Divorce in Pakistan – Complete Legal Procedure, Court Process & Draft Applications (2026 Guide)</h1>
+
+<p>Divorce in Pakistan is governed by Islamic principles and statutory family laws, including the <strong>Muslim Family Laws Ordinance 1961</strong> and the <strong>Family Courts Act 1964</strong>. Whether a divorce is initiated through Talaq by the husband or Khula by the wife, the legal process requires proper documentation, notices, reconciliation proceedings, and court compliance.</p>
+
+<p>This comprehensive guide explains:</p>
+<ul>
+  <li>How to file divorce in Pakistan</li>
+  <li>Talaq procedure in Pakistan</li>
+  <li>Khula procedure in Pakistan</li>
+  <li>Required legal documents</li>
+  <li>Court process and timelines</li>
+  <li>Sample divorce application drafts</li>
+  <li>Important Pakistani divorce judgments</li>
+  <li>Rights of wife and children after divorce</li>
+</ul>
+
+<p>If you need professional legal assistance, you can consult experienced family lawyers through <a href="/">Vakeel Diary</a>.</p>
+
+<h2>Divorce Laws in Pakistan</h2>
+<p>Family disputes and marriage dissolution in Pakistan are regulated under:</p>
+<ul>
+  <li>Muslim Family Laws Ordinance 1961</li>
+  <li>Family Courts Act 1964</li>
+  <li>West Pakistan Family Courts Rules</li>
+</ul>
+
+<p>Under Pakistani law, divorce may occur through:</p>
+<ul>
+  <li>Talaq by husband</li>
+  <li>Khula by wife</li>
+  <li>Mutual separation</li>
+  <li>Dissolution through court decree</li>
+</ul>
+
+<p>Legal compliance is extremely important because an improper divorce procedure may create future legal complications regarding remarriage, maintenance, child custody, and inheritance rights.</p>
+
+<h2>Types of Divorce in Pakistan</h2>
+
+<h3>1. Talaq by Husband</h3>
+<p>Under Islamic law and Pakistani family law, a Muslim husband has the right to pronounce Talaq. However, merely saying “Talaq” verbally is not sufficient for complete legal recognition in Pakistan.</p>
+<p>The husband must:</p>
+<ul>
+  <li>Pronounce Talaq</li>
+  <li>Send written notice to Union Council</li>
+  <li>Notify the wife</li>
+  <li>Complete mandatory reconciliation proceedings</li>
+</ul>
+<p>Failure to comply with Section 7 of the Muslim Family Laws Ordinance may result in penalties and legal disputes.</p>
+
+<h3>2. Khula by Wife</h3>
+<p>Khula is the legal right of a Muslim wife to seek dissolution of marriage through Family Court when she can no longer continue marital relations within Islamic limits.</p>
+<p>Common grounds for Khula include domestic violence, cruelty, irreconcilable differences, and non-maintenance.</p>
+
+<h2>Step-by-Step Talaq Procedure in Pakistan</h2>
+<ol>
+  <li><strong>Pronouncement of Talaq:</strong> The husband pronounces Talaq verbally or through written declaration.</li>
+  <li><strong>Written Notice to Union Council:</strong> Under Section 7, the husband must send written notice to the Chairman Union Council and the Wife.</li>
+  <li><strong>Arbitration and Reconciliation:</strong> The Union Council forms an Arbitration Council to attempt reconciliation. The period generally lasts 90 days.</li>
+  <li><strong>Divorce Effectiveness Certificate:</strong> If reconciliation fails, the Union Council issues a Divorce Effectiveness Certificate.</li>
+</ol>
+
+<h2>Step-by-Step Khula Procedure in Pakistan</h2>
+<ol>
+  <li><strong>Filing Khula Suit in Family Court:</strong> The wife files a Khula suit through a family lawyer.</li>
+  <li><strong>Court Notices to Husband:</strong> The Family Court issues legal notices to the husband.</li>
+  <li><strong>Reconciliation Proceedings:</strong> The judge attempts settlement between spouses (mandatory).</li>
+  <li><strong>Decree of Dissolution:</strong> If reconciliation fails, the court grants Khula decree, which is then sent to the Union Council.</li>
+</ol>
+
+<h2>Important Divorce Judgments in Pakistan</h2>
+<ul>
+  <li><strong>Khurshid Bibi v. Muhammad Amin (PLD 1967 SC 97):</strong> Recognized the independent right of Muslim women to obtain Khula through court.</li>
+  <li><strong>Kaneez Fatima v. Wali Muhammad (PLD 1993 SC 901):</strong> Reaffirmed that a woman cannot be compelled to continue marital relations against her will.</li>
+</ul>
+
+<h2>Sample Talaq Notice Draft in Pakistan</h2>
+<pre style="background: #f4f4f4; padding: 15px; border-radius: 8px; border: 1px solid #ddd; overflow-x: auto;">
+To,
+The Chairman,
+Union Council [Area Name]
+
+Subject: Notice of Talaq Under Section 7 of Muslim Family Laws Ordinance 1961
+
+Sir,
+I, [Husband Name], son of [Father Name], resident of [Address], hereby notify 
+that I have pronounced Talaq upon my wife, [Wife Name], daughter of [Father Name], 
+on [Date].
+
+You are requested to initiate reconciliation proceedings according to law.
+A copy of this notice has been sent to my wife.
+
+Regards,
+[Name]
+[Signature]
+</pre>
+
+<h2>Sample Khula Petition Draft</h2>
+<pre style="background: #f4f4f4; padding: 15px; border-radius: 8px; border: 1px solid #ddd; overflow-x: auto;">
+IN THE COURT OF FAMILY JUDGE
+
+Plaintiff: [Mst. Wife Name]
+Versus
+Defendant: [Husband Name]
+
+SUIT FOR DISSOLUTION OF MARRIAGE ON BASIS OF KHULA
+
+Respectfully Sheweth:
+1. That the marriage between the parties was solemnized on [Date].
+2. That serious disputes have arisen between the parties.
+3. That reconciliation efforts have failed.
+4. That the plaintiff cannot live with the defendant within the limits prescribed by Islam.
+
+Prayer:
+It is respectfully prayed that decree for dissolution of marriage 
+through Khula may kindly be granted.
+
+Plaintiff
+Through Counsel
+</pre>
+
+<h2>Rights of Wife After Divorce in Pakistan</h2>
+<p>After divorce, a wife may claim:</p>
+<ul>
+  <li>Haq Mehr (dower)</li>
+  <li>Maintenance during iddat</li>
+  <li>Recovery of dowry articles</li>
+  <li>Child maintenance</li>
+  <li>Custody rights</li>
+</ul>
+
+<h2>Frequently Asked Questions (FAQs)</h2>
+<p><strong>Is verbal Talaq legally valid in Pakistan?</strong><br />Verbal Talaq alone is insufficient for complete legal recognition. Written notice to Union Council is mandatory.</p>
+<p><strong>Can a wife obtain divorce without husband’s permission?</strong><br />Yes. A wife may seek Khula through Family Court even without the husband’s consent.</p>
+
+<h2>Conclusion</h2>
+<p>Divorce in Pakistan requires compliance with statutory legal procedures. Whether through Talaq or Khula, proper legal documentation and court compliance are essential for a valid dissolution.</p>
+`,
+  },
+  {
     slug: "secp-kya-karta-hai-pakistan-mukammal-guide-qawaneen-sections-rules",
     image: "/images/blog/documents.svg",
     imageAlt: "SECP laws and regulations guide illustration",

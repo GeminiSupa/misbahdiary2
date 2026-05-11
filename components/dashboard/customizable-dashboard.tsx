@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import type { DashboardWidget, WidgetType, WidgetSize } from "@/lib/types/dashboard";
 import { DashboardKpiCards } from "./dashboard-kpi-cards";
 import { DashboardCustomizationPanel } from "./dashboard-customization-panel";
+import { TemplatesWidget } from "./templates-widget";
 import { saveDashboardPreferences } from "@/app/(app)/dashboard/actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -288,6 +289,12 @@ function WidgetRenderer({ widget, kpis, hearingsToday }: WidgetRendererProps) {
       return (
         <div className={sizeClasses[widget.size]} style={style}>
           <AgendaWidget hearings={hearingsToday} />
+        </div>
+      );
+    case "templates":
+      return (
+        <div className={sizeClasses[widget.size]} style={style}>
+          <TemplatesWidget />
         </div>
       );
     default:
