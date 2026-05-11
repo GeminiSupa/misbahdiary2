@@ -108,6 +108,18 @@ export const CITY_DATA: Record<string, CityData> = {
         specialization: "Intellectual Property, Cyber Law",
         description: "Specializes in modern legal challenges including IP protection, data privacy, and cyber law.",
       },
+      {
+        name: "Hassan & Hassan (Advocates)",
+        specialization: "Constitutional, Civil, Corporate",
+        description: "One of the oldest and most prestigious law firms in Pakistan, based in Lahore.",
+        website: "https://hassanandhassan.com",
+      },
+      {
+        name: "Walker Martineau Saleem (WMS)",
+        specialization: "Corporate, Commercial, Litigation",
+        description: "A well-regarded firm providing a broad range of legal services to domestic and international clients.",
+        website: "https://wmslaw.com.pk",
+      },
     ],
     faqs: [
       {
@@ -161,6 +173,18 @@ export const CITY_DATA: Record<string, CityData> = {
         specialization: "Cross-border Transactions, Litigation",
         description: "Specializes in international legal matters and complex commercial litigation.",
         website: "https://lexway.pk",
+      },
+      {
+        name: "Abraham & Sarwana",
+        specialization: "Admiralty, Banking, Corporate",
+        description: "A leading firm in Karachi known for its expertise in shipping, banking, and commercial law.",
+        website: "https://abraham-sarwana.com",
+      },
+      {
+        name: "Vellani & Vellani",
+        specialization: "IP, Corporate, Commercial",
+        description: "A highly respected firm specializing in intellectual property and corporate advisory.",
+        website: "https://vellani.com",
       },
     ],
     faqs: [

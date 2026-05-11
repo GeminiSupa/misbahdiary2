@@ -75,15 +75,19 @@ export async function middleware(request: NextRequest) {
   }
 
   // Public routes that don't require authentication
-  // NOTE: `/auth/callback` must be public or OAuth code exchange will be blocked by middleware.
   const publicRoutes = [
     "/blog",
     "/guides",
     "/zakat-calculator",
+    "/lawyers-in-islamabad",
+    "/lawyers-in-lahore",
+    "/lawyers-in-karachi",
     "/lawyers-in-",
     "/islamabad",
     "/lahore",
     "/karachi",
+    "/secp-company-registration-pakistan",
+    "/services/secp-registration",
     "/sign-in",
     "/sign-up",
     "/confirm",
@@ -96,8 +100,8 @@ export async function middleware(request: NextRequest) {
   ];
 
   const isPublicRoute =
-    pathname === "/" || // Landing page for SEO
-    publicRoutes.some((route) => pathname.startsWith(route));
+    lowerPath === "/" ||
+    publicRoutes.some((route) => lowerPath.startsWith(route.toLowerCase()));
 
   // Resolve client mapping once for client/lawyer specific routes.
   let clientForUser: { id: string } | null = null;
