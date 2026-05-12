@@ -5,6 +5,11 @@ import "./globals.css";
 import { AppProviders } from "@/app/providers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || "ca-pub-4731703376366094";
+const googleCmpEnabled = process.env.NEXT_PUBLIC_GOOGLE_CMP_ENABLED !== "false";
+const fundingChoicesSiteId = process.env.NEXT_PUBLIC_GOOGLE_FC_SITE_ID || "";
+const fundingChoicesPubPath = adsenseClient.replace(/^ca-/, "");
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,7 +25,7 @@ export const metadata: Metadata = {
   description:
     "Modern legal practice management software tailored for Pakistani law firms and solo practitioners.",
   other: {
-    "google-adsense-account": "ca-pub-4731703376366094",
+    "google-adsense-account": adsenseClient,
   },
 };
 
@@ -53,10 +58,23 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {googleCmpEnabled && (
+          <>
+            <Script
+              id="google-funding-choices"
+              async
+              strategy="afterInteractive"
+              src={`https://fundingchoicesmessages.google.com/i/${fundingChoicesPubPath}?ers=1${fundingChoicesSiteId ? `&fc=${encodeURIComponent(fundingChoicesSiteId)}` : ""}`}
+            />
+            <Script id="google-fc-present" strategy="afterInteractive">
+              {`(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){const iframe=document.createElement('iframe');iframe.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;display:none;';iframe.name='googlefcPresent';document.body.appendChild(iframe);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();`}
+            </Script>
+          </>
+        )}
         <Script
           id="google-adsense"
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4731703376366094"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
