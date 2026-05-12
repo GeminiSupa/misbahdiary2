@@ -14,6 +14,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Prata } from "next/font/google";
 import { LandingFooter } from "@/components/landing/landing-footer";
+import { AdSenseDisplayUnit } from "@/components/ads/adsense-display-unit";
 
 const prata = Prata({
   subsets: ["latin"],
@@ -400,6 +401,18 @@ export function LandingPage() {
                   })}
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* AdSense: firstux4u — responsive display (script is in root layout) */}
+        <section
+          aria-label="Advertisement"
+          className="border-b border-black/10 bg-slate-50/80 py-8 sm:py-10"
+        >
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="min-h-[120px] overflow-hidden rounded-xl border border-black/10 bg-white/80">
+              <AdSenseDisplayUnit adSlot="4852509648" className="p-2 sm:p-4" />
             </div>
           </div>
         </section>
