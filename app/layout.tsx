@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     ],
     shortcut: [{ url: "/favicon.ico" }],
   },
+  other: {
+    "google-adsense-account": "ca-pub-4731703376366094",
+  },
 };
 
 export default async function RootLayout({
