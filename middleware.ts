@@ -69,7 +69,8 @@ export async function middleware(request: NextRequest) {
   if (
     lowerPath === "/bingsiteauth.xml" ||
     pathname === "/robots.txt" ||
-    pathname === "/sitemap.xml"
+    pathname === "/sitemap.xml" ||
+    pathname === "/ads.txt"
   ) {
     return response;
   }
